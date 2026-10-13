@@ -1,0 +1,35 @@
+name: New provider
+description: Propose or submit a sandbox provider
+title: "provider: "
+labels: ["provider"]
+body:
+  - type: input
+    id: id
+    attributes:
+      label: Provider id
+      description: Lowercase, hyphenated. This becomes the directory name and `ebx --provider` value.
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - exec
+        - rest
+    validations:
+      required: true
+  - type: textarea
+    id: features
+    attributes:
+      label: Features
+      description: Which features from the matrix this provider will declare, and which it will reject with E8004.
+    validations:
+      required: true
+  - type: textarea
+    id: backend
+    attributes:
+      label: Backend
+      description: What server or API the plugin calls, and how a reviewer can run tier T4.
+    validations:
+      required: true

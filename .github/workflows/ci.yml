@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  opensandbox:
+    name: OpenSandbox plugin (T0)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: opensandbox
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Unit and mock tests
+        run: node tests/run.mjs
