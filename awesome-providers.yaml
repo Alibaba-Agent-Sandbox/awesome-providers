@@ -1,0 +1,33 @@
+# Easy Sandbox provider plugins
+#
+# A curated index of installable sandbox providers. One directory per provider.
+# The SDK and the CLI do not ship these plugins; install one with:
+#
+#   ebx provider install https://github.com/Easy-Sandbox/awesome-providers.git --subdir <path>
+#
+# Schema (schema_version 1):
+#   schema_version: 1
+#   providers:
+#     - name:         provider id (matches ebx-provider.toml [provider].id)
+#       description:  one line
+#       repo:         GitHub repository URL
+#       path:         directory inside this repo (omit only if the whole repo is one plugin)
+#       tags:         search tags
+#       author:       author name or GitHub handle
+#       kind:         exec | rest
+#       license:      SPDX identifier
+#       status:       official | community | experimental
+#
+# Add a provider by creating a directory and a matching entry, then opening a PR.
+
+schema_version: 1
+providers:
+  - name: opensandbox
+    description: "OpenSandbox server (Docker or Kubernetes) through a dependency-free Node EPP/1 plugin"
+    repo: https://github.com/Easy-Sandbox/awesome-providers
+    path: opensandbox
+    tags: [opensandbox, exec, node, epp]
+    author: Easy-Sandbox
+    kind: exec
+    license: Apache-2.0
+    status: official
