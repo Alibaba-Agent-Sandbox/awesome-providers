@@ -113,8 +113,14 @@ export function mapHttpError(status, rawBody, ctx = {}) {
     return make(CODES.NO_FEATURE, base, { feature: ctx.feature ?? "unknown", details: { feature: ctx.feature ?? "unknown" } });
   }
   if (status === 404) {
-    const sdk = ctx.what === "file" || upper.includes("FILE_NOT_FOUND") ? { sdk_code: "E4001" } : {};
-    return make(CODES.NOT_FOUND, base, sdk);
+    if (ctx.what === "file" || upper.includes("FILE_NOT_FOUND")) {
+      return make(CODES.NOT_FOUND, base, { sdk_code: "E4001" });
+    }
+    // Lifecycle 404s name a missing sandbox. The host maps sdk_code E2009 to SandboxNotFoundError.
+    if (ctx.what === "sandbox" || upper.includes("SANDBOX_NOT_FOUND")) {
+      return make(CODES.NOT_FOUND, base, { sdk_code: "E2009" });
+    }
+    return make(CODES.NOT_FOUND, base);
   }
   if (upper.includes("IMAGE_PULL") || (upper.includes("IMAGE") && lower.includes("not found"))) {
     return make(CODES.NOT_FOUND, base, { sdk_code: "E2001", suggestion: "Check the image URI used as template." });

@@ -160,7 +160,9 @@ test("get / connect / list / kill", async () => {
     assert.equal((await host.call("sandbox.list", { status: "paused" })).sandboxes.length, 0);
     await host.call("sandbox.kill", { sandbox_id: ids[0] });
     assert.deepEqual(await host.call("sandbox.kill", { sandbox_id: ids[0] }), {}, "kill is idempotent");
-    assert.equal((await rpcError(host.call("sandbox.get", { sandbox_id: ids[0] }))).code, -32002);
+    const gone = await rpcError(host.call("sandbox.get", { sandbox_id: ids[0] }));
+    assert.equal(gone.code, -32002);
+    assert.equal(gone.data.sdk_code, "E2009");
     assert.equal((await rpcError(host.call("sandbox.get", {}))).code, -32006);
   });
 });

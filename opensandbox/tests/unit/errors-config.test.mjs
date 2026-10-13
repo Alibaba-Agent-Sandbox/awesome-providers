@@ -16,7 +16,9 @@ test("HTTP -> EPP error mapping", () => {
   const m = (status, body, ctx) => mapHttpError(status, JSON.stringify(body), ctx);
   assert.equal(m(401, { code: "INVALID_API_KEY", message: "no" }).code, CODES.AUTH);
   assert.equal(m(401, { code: "INVALID_API_KEY", message: "no" }).data.sdk_code, "E1001");
-  assert.equal(m(404, { code: "DOCKER::SANDBOX_NOT_FOUND", message: "x" }).code, CODES.NOT_FOUND);
+  const missingSandbox = m(404, { code: "DOCKER::SANDBOX_NOT_FOUND", message: "x" }, { what: "sandbox" });
+  assert.equal(missingSandbox.code, CODES.NOT_FOUND);
+  assert.equal(missingSandbox.data.sdk_code, "E2009");
   assert.equal(m(404, { code: "FILE_NOT_FOUND", message: "x" }).data.sdk_code, "E4001");
   assert.equal(m(404, { code: "NOPE", message: "x" }, { what: "file" }).data.sdk_code, "E4001");
   assert.equal(m(422, { detail: [{ loc: ["body", "t"], msg: "bad" }] }).code, CODES.BAD_PARAMS);
