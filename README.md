@@ -67,6 +67,16 @@ opensandbox/              first provider
 <future-provider>/        another directory, plus an index entry
 ```
 
+## Contributing
+
+How a provider is written, and how `ebx create` reaches it: [docs/authoring.md](docs/authoring.md) ([中文](docs/authoring.zh-CN.md)).
+
+AI coding tools load [SKILL.md](SKILL.md) (`name: easy-sandbox-provider`) before editing a plugin:
+
+```bash
+npx skills add Easy-Sandbox/awesome-providers --skill easy-sandbox-provider -y
+```
+
 ## Adding a provider
 
 1. Add a top-level directory named after the provider id.
@@ -100,6 +110,8 @@ ebx provider info opensandbox
 ```
 
 `ebx provider info opensandbox` 列出这次安装实际实现的能力。CLI 和 Python SDK 对清单之外的命令和方法都以 `E8004` 拒绝。每项能力对应哪些命令，以及 OpenSandbox 能用和不能用的对照，见 [CLI 提供商指南](https://github.com/Easy-Sandbox/easy-sandbox/blob/main/docs/zh/guide/providers.md) 和 [SDK 提供商指南](https://github.com/Easy-Sandbox/python-sdk/blob/main/docs/zh/guide/providers.md)。
+
+如何编写 provider，以及 `ebx create` 如何调用到它：见 [docs/authoring.zh-CN.md](docs/authoring.zh-CN.md)。给 AI 用的 skill 是仓库根目录的 [SKILL.md](SKILL.md)。
 
 新增提供方：新建顶层目录，放入 `ebx-provider.toml`（`exec` 类型还要有清单里的入口程序），
 在 `awesome-providers.yaml` 增加一条（`name` 与 `[provider].id` 相同，`path` 为目录名），然后提交 PR。

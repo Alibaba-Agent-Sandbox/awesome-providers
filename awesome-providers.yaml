@@ -3,7 +3,7 @@
 # A curated index of installable sandbox providers. One directory per provider.
 # The SDK and the CLI do not ship these plugins; install one with:
 #
-#   ebx provider install https://github.com/Easy-Sandbox/awesome-providers.git --subdir <path>
+#   ebx provider install Easy-Sandbox/awesome-providers//<path>
 #
 # Schema (schema_version 1):
 #   schema_version: 1
