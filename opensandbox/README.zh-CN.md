@@ -17,9 +17,12 @@ Python SDK（`Sandbox.create(provider="opensandbox")`）与 `ebx` CLI（`ebx --p
 ## 安装
 
 ```bash
-ebx provider install https://github.com/Easy-Sandbox/awesome-providers.git --subdir opensandbox --ref <40位提交哈希> --yes
+ebx provider install Easy-Sandbox/awesome-providers//opensandbox@<40位提交哈希> --yes
+ebx provider info opensandbox          # 这次安装声明了哪些能力
 ebx provider doctor opensandbox
 ```
+
+`//opensandbox` 是子目录，和 `ebx template install owner/repo//subdir` 的 `//` 相同。带 `--subdir` 的 git URL 仍然可用，两种写法不能互相矛盾。
 
 检出本目录后也可以 `ebx provider install ./opensandbox --yes`。没有 40 位 `--ref` 的分支或标签属于未固定安装，
 在非交互环境还需要 `--allow-unpinned`。`file://` 等明文传输另需 `--allow-insecure-transport`。Python 安装器接受同一路径：
@@ -51,6 +54,22 @@ python -m easy_sandbox.providers install ./opensandbox --yes
 | `secure_access` | | `false` | Kubernetes 网关安全访问 |
 
 `Sandbox.create(template=...)` 的解析顺序：先查别名，其次 `base` 映射到 `default_image`，否则按镜像引用原样使用。
+
+## CLI 和 SDK 能调用什么
+
+两边加载的是同一个插件。方法和命令只有在清单声明了对应能力时才可用，否则会在发出请求之前返回 `E8004`。`ebx provider info opensandbox` 打印这份声明。
+
+| 你要做的事 | CLI | SDK | 本提供商 |
+|---|---|---|---|
+| 创建、列出、查看、销毁、按 id 再次连接 | `create`、`list`、`info`、`kill`、`connect` | `Sandbox.create/connect/list/kill` | 支持（`sandbox.lifecycle`、`sessions`） |
+| 执行命令，包括流式输出 | `exec`、`run`、`sandbox shell-stream` | `commands.run`、`commands.stream` | 支持 |
+| 文件、上传、下载 | `upload`、`download`、`sandbox files` | `files.*` | 支持 |
+| 修改超时、暂停、恢复 | `sandbox timeout/pause/resume` | `set_timeout`、`pause`、`resume` | 支持 |
+| 端口的公网 URL | `sandbox url` | `network.get_url` | 支持 |
+| 进程列出、发信号、终止 | `sandbox process` | `commands.list/kill` | 部分：stdin 返回 E8004；execd 命令 id 只能 SIGKILL |
+| PTY、`run_code`、模板、文件监听、签名 URL、域名、OSS、VPC | 对应命令 | `get_terminal`、`run_code`、模板构建 | 不支持（E8004） |
+
+创建时的 `template` 是容器镜像。`base` 表示 `default_image`（未修改时是 `python:3.12-slim`）。
 
 ## 能力
 

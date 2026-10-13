@@ -18,9 +18,12 @@ This directory is the canonical plugin. It lives in
 ## Install
 
 ```bash
-ebx provider install https://github.com/Easy-Sandbox/awesome-providers.git --subdir opensandbox --ref <40-hex-commit> --yes
+ebx provider install Easy-Sandbox/awesome-providers//opensandbox@<40-hex-commit> --yes
+ebx provider info opensandbox          # the features this install declares
 ebx provider doctor opensandbox
 ```
+
+`//opensandbox` is the subdirectory, the same `//` as `ebx template install owner/repo//subdir`. A git URL with `--subdir` still works; the two forms must not disagree.
 
 A local checkout of this directory works with the same command (`ebx provider install ./opensandbox --yes`).
 A branch or tag without a 40-hex `--ref` is unpinned and needs `--allow-unpinned` when there is no terminal.
@@ -55,6 +58,22 @@ under `[providers.opensandbox]`, or (where listed) with the OpenSandbox-native v
 
 The template argument of `Sandbox.create(template=...)` is resolved as: alias, then `base` -> `default_image`,
 otherwise used as an image reference verbatim.
+
+## What the CLI and the SDK can call
+
+Both hosts load this plugin. A method or command works only when its feature is in the manifest. Anything else raises `E8004` before a request is sent. `ebx provider info opensandbox` prints the declared set.
+
+| You want | CLI | SDK | This provider |
+|---|---|---|---|
+| Create, list, info, kill, connect again by id | `create`, `list`, `info`, `kill`, `connect` | `Sandbox.create/connect/list/kill` | yes (`sandbox.lifecycle`, `sessions`) |
+| Run a command, including streamed output | `exec`, `run`, `sandbox shell-stream` | `commands.run`, `commands.stream` | yes |
+| Files, upload, download | `upload`, `download`, `sandbox files` | `files.*` | yes |
+| Change TTL, pause, resume | `sandbox timeout/pause/resume` | `set_timeout`, `pause`, `resume` | yes |
+| Public URL of a port | `sandbox url` | `network.get_url` | yes |
+| Process list, signal, kill | `sandbox process` | `commands.list/kill` | partial: stdin is E8004; an execd command id accepts only SIGKILL |
+| PTY, `run_code`, templates, file watch, signed URLs, domains, OSS, VPC | those commands | `get_terminal`, `run_code`, template build | no (E8004) |
+
+`template` on create is a container image. `base` means `default_image` (`python:3.12-slim` unless you change it).
 
 ## Capabilities
 
