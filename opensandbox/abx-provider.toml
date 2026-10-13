@@ -7,7 +7,7 @@ name_zh     = "OpenSandbox 开源沙箱"
 version     = "0.1.0"
 description = "Runs sandboxes on an OpenSandbox server (Docker or Kubernetes runtime) through its lifecycle API and per-sandbox execd daemon."
 license     = "Apache-2.0"
-homepage    = "https://github.com/Easy-Sandbox/awesome-providers/tree/main/opensandbox"
+homepage    = "https://github.com/alibaba-agent-sandbox/awesome-providers/tree/main/opensandbox"
 
 [compat]
 protocol = "epp/1"
@@ -34,7 +34,7 @@ env_passthrough  = []
 spawns_processes = false
 
 [core]
-inherit = []                             # never receives E2B_API_KEY / sandbox_* keys
+inherit = []                             # does not receive sandbox_api_key, sandbox_base_url, or sandbox_domain
 
 # A local development server may run without an API key, so no credential is required.
 

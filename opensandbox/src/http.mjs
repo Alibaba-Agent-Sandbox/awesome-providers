@@ -30,7 +30,7 @@ function networkError(err, url, secrets) {
   const target = redact(new URL(url).origin, secrets);
   return new RpcError(CODES.FAIL, `Cannot reach OpenSandbox at ${target}: ${reason}`, {
     retryable: true,
-    suggestion: "Check EBX_OPENSANDBOX_BASE_URL and that the server (or the sandbox, if paused) is running.",
+    suggestion: "Check ABX_OPENSANDBOX_BASE_URL and that the server (or the sandbox, if paused) is running.",
   });
 }
 

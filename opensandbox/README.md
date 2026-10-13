@@ -2,35 +2,35 @@
 
 [简体中文](README.zh-CN.md)
 
-An [EPP/1](https://github.com/Easy-Sandbox/python-sdk/blob/main/docs/en/design/providers-and-credentials.md) **exec provider** that runs Easy
+An [EPP/1](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/docs/en/design/providers-and-credentials.md) **exec provider** that runs Agent
 Sandbox sandboxes on an [OpenSandbox](https://github.com/opensandbox-group/OpenSandbox) server
 (Docker or Kubernetes runtime). It works unchanged from the Python SDK (`Sandbox.create(provider="opensandbox")`)
-and from the `ebx` CLI (`ebx --provider opensandbox ...`).
+and from the `abx` CLI (`abx --provider opensandbox ...`).
 
 This directory is the canonical plugin. It lives in
-[Easy-Sandbox/awesome-providers](https://github.com/Easy-Sandbox/awesome-providers), not in the Python SDK.
+[alibaba-agent-sandbox/awesome-providers](https://github.com/alibaba-agent-sandbox/awesome-providers), not in the Python SDK.
 
-* Runtime: **Node.js >= 20, no npm dependencies** (built-in `fetch`). Chosen because the `ebx` CLI is a
-  Node program, so every `ebx` user already has Node; the Python SDK needs `node` on `PATH` to use it.
-* Design and API mapping: [`provider-opensandbox-mapping.md`](https://github.com/Easy-Sandbox/python-sdk/blob/main/docs/en/design/provider-opensandbox-mapping.md).
-* Authoring review that produced this plugin: [`provider-authoring-evaluation.md`](https://github.com/Easy-Sandbox/python-sdk/blob/main/docs/en/design/provider-authoring-evaluation.md).
+* Runtime: **Node.js >= 20, no npm dependencies** (built-in `fetch`). Chosen because the `abx` CLI is a
+  Node program, so every `abx` user already has Node; the Python SDK needs `node` on `PATH` to use it.
+* Design and API mapping: [`provider-opensandbox-mapping.md`](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/docs/en/design/provider-opensandbox-mapping.md).
+* Authoring review that produced this plugin: [`provider-authoring-evaluation.md`](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/docs/en/design/provider-authoring-evaluation.md).
 
 ## Install
 
 ```bash
-ebx provider install Easy-Sandbox/awesome-providers//opensandbox@<40-hex-commit> --yes
-ebx provider info opensandbox          # the features this install declares
-ebx provider doctor opensandbox
+abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox@<40-hex-commit> --yes
+abx provider info opensandbox          # the features this install declares
+abx provider doctor opensandbox
 ```
 
-`//opensandbox` is the subdirectory, the same `//` as `ebx template install owner/repo//subdir`. A git URL with `--subdir` still works; the two forms must not disagree.
+`//opensandbox` is the subdirectory, the same `//` as `abx template install owner/repo//subdir`. A git URL with `--subdir` still works; the two forms must not disagree.
 
-A local checkout of this directory works with the same command (`ebx provider install ./opensandbox --yes`).
+A local checkout of this directory works with the same command (`abx provider install ./opensandbox --yes`).
 A branch or tag without a 40-hex `--ref` is unpinned and needs `--allow-unpinned` when there is no terminal.
 `file://` and other plain-text transports also need `--allow-insecure-transport`. The Python installer accepts the same source:
 
 ```bash
-python -m easy_sandbox.providers install ./opensandbox --yes
+python -m agent_sandbox.providers install ./opensandbox --yes
 ```
 
 Installing does not execute anything; the plugin runs only when a command uses it, and its files are
@@ -38,7 +38,7 @@ re-hashed against the install receipt before every start.
 
 ## Configure
 
-Every field can be set with the canonical `EBX_OPENSANDBOX_<FIELD>` variable, in `~/.ebx/config.toml`
+Every field can be set with the canonical `ABX_OPENSANDBOX_<FIELD>` variable, in `~/.abx/config.toml`
 under `[providers.opensandbox]`, or (where listed) with the OpenSandbox-native variable. Canonical names win.
 
 | Field | Native alias | Default | Meaning |
@@ -61,7 +61,7 @@ otherwise used as an image reference verbatim.
 
 ## What the CLI and the SDK can call
 
-Both hosts load this plugin. A method or command works only when its feature is in the manifest. Anything else raises `E8004` before a request is sent. `ebx provider info opensandbox` prints the declared set.
+Both hosts load this plugin. A method or command works only when its feature is in the manifest. Anything else raises `E8004` before a request is sent. `abx provider info opensandbox` prints the declared set.
 
 | You want | CLI | SDK | This provider |
 |---|---|---|---|
@@ -96,23 +96,23 @@ node tests/run.mjs                      # 24 unit + 21 mock-server tests, no ser
 ```
 
 Live tiers need a reachable OpenSandbox server. The one-command local setup is the SDK
-harness ([e2e/opensandbox](https://github.com/Easy-Sandbox/python-sdk/blob/main/e2e/opensandbox/README.md));
+harness ([e2e/opensandbox](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/e2e/opensandbox/README.md));
 that harness starts the server and installs this plugin, it is not a second copy of it.
 
 ```bash
-export EBX_OPENSANDBOX_BASE_URL=http://127.0.0.1:8080
+export ABX_OPENSANDBOX_BASE_URL=http://127.0.0.1:8080
 export OPEN_SANDBOX_API_KEY=...         # whatever your server expects
 OPENSANDBOX_LIVE=1 node tests/run.mjs live                         # plugin over EPP/1 directly
 OPENSANDBOX_LIVE=1 python -m pytest tests/contract                 # contract kit + SDK scenarios
 ```
 
-`tests/contract` needs `easy_sandbox` importable and `pytest`; it installs the plugin into a temporary
-`~/.ebx` and never touches your real store.
+`tests/contract` needs `agent_sandbox` importable and `pytest`; it installs the plugin into a temporary
+`~/.abx` and never touches your real store.
 
 ## Layout
 
 ```
-ebx-provider.toml   manifest (runtime, features, security, config schema)
+abx-provider.toml   manifest (runtime, features, security, config schema)
 provider.mjs        entry: EPP dispatcher and capability wiring
 src/                http.mjs (lifecycle + execd client), sandbox.mjs, exec.mjs, files.mjs,
                     sse.mjs, multipart.mjs, convert.mjs, config.mjs, errors.mjs, epp.mjs

@@ -54,7 +54,7 @@ export async function startMock(options = {}) {
   let origin = "";
 
   const fsPath = (sb, p) => {
-    if (p.startsWith("/tmp/.ebx-stdin-")) return p; // the plugin's stdin spool is read through an absolute path
+    if (p.startsWith("/tmp/.abx-stdin-")) return p; // the plugin's stdin spool is read through an absolute path
     const full = resolve(sb.root, `.${p.startsWith("/") ? p : `/${p}`}`);
     if (full !== sb.root && !full.startsWith(sb.root + sep)) throw new Error("path escapes sandbox");
     return full;

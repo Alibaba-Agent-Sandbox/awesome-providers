@@ -3,15 +3,15 @@
 //   # start a server with the SDK harness python-sdk/e2e/opensandbox/local-up.sh, then:
 //   OPENSANDBOX_LIVE=1 node tests/run.mjs live
 //
-// Reads EBX_OPENSANDBOX_BASE_URL / EBX_OPENSANDBOX_API_KEY (or the OPENSANDBOX_* names printed by local-up.sh env).
+// Reads ABX_OPENSANDBOX_BASE_URL / ABX_OPENSANDBOX_API_KEY (or the OPENSANDBOX_* names printed by local-up.sh env).
 import test from "node:test";
 import assert from "node:assert/strict";
 import { randomBytes } from "node:crypto";
 import { EppHost } from "../epp-client.mjs";
 
 const live = process.env.OPENSANDBOX_LIVE === "1";
-const baseUrl = process.env.EBX_OPENSANDBOX_BASE_URL ?? process.env.OPENSANDBOX_BASE_URL ?? "http://127.0.0.1:8080";
-const apiKey = process.env.EBX_OPENSANDBOX_API_KEY ?? process.env.OPENSANDBOX_API_KEY;
+const baseUrl = process.env.ABX_OPENSANDBOX_BASE_URL ?? process.env.OPENSANDBOX_BASE_URL ?? "http://127.0.0.1:8080";
+const apiKey = process.env.ABX_OPENSANDBOX_API_KEY ?? process.env.OPENSANDBOX_API_KEY;
 const image = process.env.OPENSANDBOX_TEST_IMAGE ?? "python:3.12-slim";
 
 const rpcError = async (promise) => {
@@ -29,7 +29,7 @@ test("live: full lifecycle, exec, files, ports against a real OpenSandbox", { sk
   let id;
   const call = (method, params = {}) => host.call(method, { sandbox_id: id, ...params });
   try {
-    const rec = await host.call("sandbox.create", { template: "base", timeout: 300, metadata: { name: "ebx-live", suite: "node" }, envs: { LIVE_VAR: "bar" }, cpu: 1, memory: 512 });
+    const rec = await host.call("sandbox.create", { template: "base", timeout: 300, metadata: { name: "abx-live", suite: "node" }, envs: { LIVE_VAR: "bar" }, cpu: 1, memory: 512 });
     id = rec.sandbox_id;
     assert.equal(rec.status, "running");
     assert.equal(rec.template, image);

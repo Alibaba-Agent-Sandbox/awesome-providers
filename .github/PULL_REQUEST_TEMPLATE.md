@@ -4,7 +4,7 @@
 - [ ] `awesome-providers.yaml` has a matching entry
 - [ ] README lists what works, what is partial, and what returns E8004 (English and 中文)
 - [ ] T0 passes: `node tests/run.mjs` (or the provider's equivalent)
-- [ ] No API keys, cloud credentials, or `~/.ebx` contents
+- [ ] No API keys, cloud credentials, or `~/.abx` contents
 
 ## Test
 

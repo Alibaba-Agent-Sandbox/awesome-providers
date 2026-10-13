@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// OpenSandbox provider for Easy Sandbox: an EPP/1 plugin in dependency-free Node ESM (Node >= 20).
+// OpenSandbox provider for Agent Sandbox: an EPP/1 plugin in dependency-free Node ESM (Node >= 20).
 // Protocol: newline-delimited JSON-RPC 2.0 on stdin/stdout, free-form logs on stderr.
 
 import { pathToFileURL } from "node:url";
@@ -14,7 +14,7 @@ import { methods as fileMethods } from "./src/files.mjs";
 export const PROTOCOL = "epp/1";
 export const PLUGIN = { name: "opensandbox", version: "0.1.0" };
 
-/** What this plugin implements; keep in sync with `[features] supported` in ebx-provider.toml. */
+/** What this plugin implements; keep in sync with `[features] supported` in abx-provider.toml. */
 export const FEATURES = [
   "sandbox.lifecycle",
   "sandbox.timeout",

@@ -2,40 +2,40 @@
 
 [English](README.md)
 
-一个 [EPP/1](https://github.com/Easy-Sandbox/python-sdk/blob/main/docs/zh/design/providers-and-credentials.md) **exec 提供方**插件，让 Easy Sandbox 在
+一个 [EPP/1](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/docs/zh/design/providers-and-credentials.md) **exec 提供方**插件，让 Agent Sandbox 在
 [OpenSandbox](https://github.com/opensandbox-group/OpenSandbox) 服务（Docker 或 Kubernetes 运行时）上创建沙箱。
-Python SDK（`Sandbox.create(provider="opensandbox")`）与 `ebx` CLI（`ebx --provider opensandbox ...`）均可直接使用。
+Python SDK（`Sandbox.create(provider="opensandbox")`）与 `abx` CLI（`abx --provider opensandbox ...`）均可直接使用。
 
 本目录是插件的唯一源码，位于
-[Easy-Sandbox/awesome-providers](https://github.com/Easy-Sandbox/awesome-providers)，不在 Python SDK 仓库里。
+[alibaba-agent-sandbox/awesome-providers](https://github.com/alibaba-agent-sandbox/awesome-providers)，不在 Python SDK 仓库里。
 
-* 运行时：**Node.js >= 20，无 npm 依赖**（使用内置 `fetch`）。选择 Node 是因为 `ebx` CLI 本身基于 Node，
+* 运行时：**Node.js >= 20，无 npm 依赖**（使用内置 `fetch`）。选择 Node 是因为 `abx` CLI 本身基于 Node，
   使用 CLI 的用户已具备 Node；仅使用 Python SDK 时需要 `node` 在 `PATH` 中。
-* 设计与 API 映射：[`provider-opensandbox-mapping.md`](https://github.com/Easy-Sandbox/python-sdk/blob/main/docs/en/design/provider-opensandbox-mapping.md)（仅英文）。
-* 产出本插件的编写体验评估：[`provider-authoring-evaluation.md`](https://github.com/Easy-Sandbox/python-sdk/blob/main/docs/zh/design/provider-authoring-evaluation.md)。
+* 设计与 API 映射：[`provider-opensandbox-mapping.md`](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/docs/en/design/provider-opensandbox-mapping.md)（仅英文）。
+* 产出本插件的编写体验评估：[`provider-authoring-evaluation.md`](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/docs/zh/design/provider-authoring-evaluation.md)。
 
 ## 安装
 
 ```bash
-ebx provider install Easy-Sandbox/awesome-providers//opensandbox@<40位提交哈希> --yes
-ebx provider info opensandbox          # 这次安装声明了哪些能力
-ebx provider doctor opensandbox
+abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox@<40位提交哈希> --yes
+abx provider info opensandbox          # 这次安装声明了哪些能力
+abx provider doctor opensandbox
 ```
 
-`//opensandbox` 是子目录，和 `ebx template install owner/repo//subdir` 的 `//` 相同。带 `--subdir` 的 git URL 仍然可用，两种写法不能互相矛盾。
+`//opensandbox` 是子目录，和 `abx template install owner/repo//subdir` 的 `//` 相同。带 `--subdir` 的 git URL 仍然可用，两种写法不能互相矛盾。
 
-检出本目录后也可以 `ebx provider install ./opensandbox --yes`。没有 40 位 `--ref` 的分支或标签属于未固定安装，
+检出本目录后也可以 `abx provider install ./opensandbox --yes`。没有 40 位 `--ref` 的分支或标签属于未固定安装，
 在非交互环境还需要 `--allow-unpinned`。`file://` 等明文传输另需 `--allow-insecure-transport`。Python 安装器接受同一路径：
 
 ```bash
-python -m easy_sandbox.providers install ./opensandbox --yes
+python -m agent_sandbox.providers install ./opensandbox --yes
 ```
 
 安装不会执行任何代码；只有命令实际用到插件时才会启动，且每次启动前都会按安装回执重新校验文件摘要。
 
 ## 配置
 
-每个字段都可通过规范名称 `EBX_OPENSANDBOX_<FIELD>`、`~/.ebx/config.toml` 的 `[providers.opensandbox]` 段，
+每个字段都可通过规范名称 `ABX_OPENSANDBOX_<FIELD>`、`~/.abx/config.toml` 的 `[providers.opensandbox]` 段，
 或（有列出时）OpenSandbox 原生环境变量设置。规范名称优先。
 
 | 字段 | 原生别名 | 默认值 | 含义 |
@@ -57,7 +57,7 @@ python -m easy_sandbox.providers install ./opensandbox --yes
 
 ## CLI 和 SDK 能调用什么
 
-两边加载的是同一个插件。方法和命令只有在清单声明了对应能力时才可用，否则会在发出请求之前返回 `E8004`。`ebx provider info opensandbox` 打印这份声明。
+两边加载的是同一个插件。方法和命令只有在清单声明了对应能力时才可用，否则会在发出请求之前返回 `E8004`。`abx provider info opensandbox` 打印这份声明。
 
 | 你要做的事 | CLI | SDK | 本提供商 |
 |---|---|---|---|
@@ -92,22 +92,22 @@ node tests/run.mjs                      # 24 个单元测试 + 21 个模拟服�
 ```
 
 联机测试需要可访问的 OpenSandbox 服务。一键本地启动在 SDK 的测试工具里
-（[e2e/opensandbox](https://github.com/Easy-Sandbox/python-sdk/blob/main/e2e/opensandbox/README.md)）：
+（[e2e/opensandbox](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/e2e/opensandbox/README.md)）：
 它负责启动服务并安装本插件，不是插件的第二份源码。
 
 ```bash
-export EBX_OPENSANDBOX_BASE_URL=http://127.0.0.1:8080
+export ABX_OPENSANDBOX_BASE_URL=http://127.0.0.1:8080
 export OPEN_SANDBOX_API_KEY=...         # 按你的服务要求设置
 OPENSANDBOX_LIVE=1 node tests/run.mjs live                         # 直接以 EPP/1 驱动插件
 OPENSANDBOX_LIVE=1 python -m pytest tests/contract                 # 契约测试套件 + SDK 场景
 ```
 
-`tests/contract` 需要可导入的 `easy_sandbox` 和 `pytest`；它把插件安装到临时的 `~/.ebx`，不会改动你真实的存储。
+`tests/contract` 需要可导入的 `agent_sandbox` 和 `pytest`；它把插件安装到临时的 `~/.abx`，不会改动你真实的存储。
 
 ## 目录结构
 
 ```
-ebx-provider.toml   清单（运行时、特性、安全声明、配置模式）
+abx-provider.toml   清单（运行时、特性、安全声明、配置模式）
 provider.mjs        入口：EPP 分发与能力装配
 src/                http.mjs（生命周期 + execd 客户端）、sandbox.mjs、exec.mjs、files.mjs、
                     sse.mjs、multipart.mjs、convert.mjs、config.mjs、errors.mjs、epp.mjs

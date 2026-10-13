@@ -266,7 +266,7 @@ test("process.* : list, kill by pid and by command id, signal limits", { skip: !
     const sleeper = processes.find((p) => p.command.startsWith("sleep 30"));
     assert.ok(sleeper, JSON.stringify(processes));
     assert.equal(typeof sleeper.pid, "number");
-    assert.ok(!processes.some((p) => p.command.includes("__ebx_ps__")));
+    assert.ok(!processes.some((p) => p.command.includes("__abx_ps__")));
     await host.call("process.signal", { sandbox_id: id, pid: sleeper.pid, signal: 15 });
     await host.waitNote((n) => n.method === "exec.exit" && n.params.process_id === process_id);
     assert.equal((await rpcError(host.call("process.kill", { sandbox_id: id, pid: 99999999 }))).code, -32002);

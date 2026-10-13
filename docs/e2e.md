@@ -8,17 +8,17 @@ Every provider in this catalog is tested in the same tiers. A tier that cannot r
 |---|---|---|---|
 | T0 | This provider's unit and mock tests | `node tests/run.mjs` in the provider directory | Node >= 20 |
 | T1 | Install, consent, pin, tamper, doctor, uninstall. No sandbox is created | `cli/e2e/providers/run.sh offline` and `python-sdk/e2e/opensandbox/provider_install_e2e.py` | git, Node, the SDK |
-| T2 | Create, exec, files, and kill through `ebx`, with a provider that needs no cloud | `cli/e2e/providers/run.sh local-process` | Python 3 |
-| T3 | The install line users type: `ebx provider install Easy-Sandbox/awesome-providers//<name>` | `cli/e2e/providers/run.sh catalog` | git and GitHub |
+| T2 | Create, exec, files, and kill through `abx`, with a provider that needs no cloud | `cli/e2e/providers/run.sh local-process` | Python 3 |
+| T3 | The install line users type: `abx provider install alibaba-agent-sandbox/awesome-providers//<name>` | `cli/e2e/providers/run.sh catalog` | git and GitHub |
 | T4 | A real backend this plugin talks to. For OpenSandbox that is a local server | `local-up.sh up`, then `run.sh opensandbox` and `provider_e2e.py` | Docker for OpenSandbox |
 | T5 | The built-in Alibaba Cloud provider. Not a test of this catalog | `npm run e2e` in the CLI repo, `make e2e` in the SDK repo | cloud credentials |
 
 ## Rules
 
-- Throwaway `HOME`. Do not touch the developer's real `~/.ebx`.
+- Throwaway `HOME`. Do not touch the developer's real `~/.abx`.
 - Do not print API keys. `provider config list` must not contain them.
 - A feature the plugin does not declare must fail as `E8004`.
-- Do not use `ebx create "a sentence"` as a provider test. Use `ebx --provider <id> create --template <image-or-name>`.
+- Do not use `abx create "a sentence"` as a provider test. Use `abx --provider <id> create --template <image-or-name>`.
 - Kill only the sandboxes this run created.
 
 ## What a pull request includes

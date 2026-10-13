@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from easy_sandbox.providers.testing import ProviderContractTests
+from agent_sandbox.providers.testing import ProviderContractTests
 
 
 class TestOpenSandboxContract(ProviderContractTests):

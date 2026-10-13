@@ -7,7 +7,7 @@ body:
     id: id
     attributes:
       label: Provider id
-      description: Lowercase, hyphenated. This becomes the directory name and `ebx --provider` value.
+      description: Lowercase, hyphenated. This becomes the directory name and `abx --provider` value.
     validations:
       required: true
   - type: dropdown

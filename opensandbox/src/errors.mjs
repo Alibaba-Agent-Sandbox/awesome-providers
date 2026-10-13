@@ -100,7 +100,7 @@ export function mapHttpError(status, rawBody, ctx = {}) {
   if (status === 401) {
     return make(CODES.AUTH, `OpenSandbox rejected the API key${where}${detail}`, {
       sdk_code: "E1001",
-      suggestion: "Set EBX_OPENSANDBOX_API_KEY (or OPEN_SANDBOX_API_KEY) to a valid key.",
+      suggestion: "Set ABX_OPENSANDBOX_API_KEY (or OPEN_SANDBOX_API_KEY) to a valid key.",
     });
   }
   if (lower.includes("runtime server not configured")) {

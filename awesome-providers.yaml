@@ -1,14 +1,14 @@
-# Easy Sandbox provider plugins
+# Agent Sandbox provider plugins
 #
 # A curated index of installable sandbox providers. One directory per provider.
 # The SDK and the CLI do not ship these plugins; install one with:
 #
-#   ebx provider install Easy-Sandbox/awesome-providers//<path>
+#   abx provider install alibaba-agent-sandbox/awesome-providers//<path>
 #
 # Schema (schema_version 1):
 #   schema_version: 1
 #   providers:
-#     - name:         provider id (matches ebx-provider.toml [provider].id)
+#     - name:         provider id (matches abx-provider.toml [provider].id)
 #       description:  one line
 #       repo:         GitHub repository URL
 #       path:         directory inside this repo (omit only if the whole repo is one plugin)
@@ -24,10 +24,10 @@ schema_version: 1
 providers:
   - name: opensandbox
     description: "OpenSandbox server (Docker or Kubernetes) through a dependency-free Node EPP/1 plugin"
-    repo: https://github.com/Easy-Sandbox/awesome-providers
+    repo: https://github.com/alibaba-agent-sandbox/awesome-providers
     path: opensandbox
     tags: [opensandbox, exec, node, epp]
-    author: Easy-Sandbox
+    author: alibaba-agent-sandbox
     kind: exec
     license: Apache-2.0
     status: official

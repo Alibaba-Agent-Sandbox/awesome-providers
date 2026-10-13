@@ -1,7 +1,7 @@
 """Fixtures for the pytest tier: install the plugin into a throwaway store, talk to a live server.
 
-Opt in with ``OPENSANDBOX_LIVE=1`` plus ``EBX_OPENSANDBOX_BASE_URL`` and ``OPEN_SANDBOX_API_KEY``
-(or ``EBX_OPENSANDBOX_API_KEY``). Everything is skipped otherwise.
+Opt in with ``OPENSANDBOX_LIVE=1`` plus ``ABX_OPENSANDBOX_BASE_URL`` and ``OPEN_SANDBOX_API_KEY``
+(or ``ABX_OPENSANDBOX_API_KEY``). Everything is skipped otherwise.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 PLUGIN_DIR = Path(__file__).resolve().parents[2]
-BASE_URL = os.environ.get("EBX_OPENSANDBOX_BASE_URL") or os.environ.get("OPEN_SANDBOX_DOMAIN")
+BASE_URL = os.environ.get("ABX_OPENSANDBOX_BASE_URL") or os.environ.get("OPEN_SANDBOX_DOMAIN")
 
 
 def _live() -> bool:
@@ -31,7 +31,7 @@ def pytest_collection_modifyitems(config, items):
     if _live():
         return
     skip = pytest.mark.skip(
-        reason="set OPENSANDBOX_LIVE=1 and EBX_OPENSANDBOX_BASE_URL to a reachable server"
+        reason="set OPENSANDBOX_LIVE=1 and ABX_OPENSANDBOX_BASE_URL to a reachable server"
     )
     for item in items:
         if str(PLUGIN_DIR) in str(item.fspath):
@@ -40,14 +40,14 @@ def pytest_collection_modifyitems(config, items):
 
 @pytest.fixture(scope="session", autouse=True)
 def installed_plugin(tmp_path_factory):
-    """Install the plugin by local path into an isolated ``~/.ebx`` (never touches the real one)."""
+    """Install the plugin by local path into an isolated ``~/.abx`` (never touches the real one)."""
     if not _live():
         yield None
         return
-    import easy_sandbox.transport.config as config_module
-    from easy_sandbox.providers import installer, registry
+    import agent_sandbox.transport.config as config_module
+    from agent_sandbox.providers import installer, registry
 
-    home = tmp_path_factory.mktemp("ebx-home")
+    home = tmp_path_factory.mktemp("abx-home")
     saved = config_module._CONFIG_FILE
     config_module._CONFIG_FILE = home / "config.toml"
     try:

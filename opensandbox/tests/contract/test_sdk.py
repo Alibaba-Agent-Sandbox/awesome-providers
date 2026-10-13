@@ -7,13 +7,13 @@ import time
 
 import pytest
 
-from easy_sandbox.api.sandbox import Sandbox
-from easy_sandbox.models.errors import (
+from agent_sandbox.api.sandbox import Sandbox
+from agent_sandbox.models.errors import (
     FileNotFoundError_,
     ProviderFeatureNotSupportedError,
     ProviderResourceNotFoundError,
 )
-from easy_sandbox.models.process import ProcessChunkType
+from agent_sandbox.models.process import ProcessChunkType
 
 PID = "opensandbox"
 

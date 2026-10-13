@@ -6,7 +6,7 @@
 import { randomUUID } from "node:crypto";
 
 export function buildUpload({ path, mode, content }) {
-  const boundary = `----ebx-opensandbox-${randomUUID()}`;
+  const boundary = `----abx-opensandbox-${randomUUID()}`;
   const metadata = { path };
   if (mode !== undefined) metadata.mode = mode;
   const filename = (String(path).split("/").pop() || "file").replace(/["\r\n\\]/g, "_");

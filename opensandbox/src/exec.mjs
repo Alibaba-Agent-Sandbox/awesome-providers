@@ -13,7 +13,7 @@ const WATCHDOG_MS = 15_000;
 
 /** One shell script, no `ps`: slim images do not ship procps. Output: pid, ppid, state, user, cmd (tab separated). */
 const LIST_PROCESSES = [
-  "# __ebx_ps__",
+  "# __abx_ps__",
   "for d in /proc/[0-9]*; do",
   '  pid=${d#/proc/}; [ -r "$d/stat" ] || continue',
   '  line=$(cat "$d/stat" 2>/dev/null) || continue',
@@ -49,7 +49,7 @@ async function prepare(ctx, id, params, signal) {
   let argv = [String(params.cmd ?? ""), ...(params.args ?? []).map(String)];
   if (!argv[0]) throw badParams("Missing parameter 'cmd'.");
   if (typeof params.stdin === "string" && params.stdin.length > 0) {
-    const file = `/tmp/.ebx-stdin-${randomUUID()}`;
+    const file = `/tmp/.abx-stdin-${randomUUID()}`;
     await upload(ctx, id, file, Buffer.from(params.stdin, "utf8"), signal);
     argv = ["sh", "-c", STDIN_WRAPPER, "sh", file, ...argv];
   }
@@ -250,7 +250,7 @@ export const methods = {
     for (const line of res.stdout.split("\n")) {
       const [pid, ppid, state, user, ...cmd] = line.split("\t");
       const command = cmd.join("\t").trim();
-      if (!/^\d+$/.test(pid ?? "") || command.includes("__ebx_ps__")) continue;
+      if (!/^\d+$/.test(pid ?? "") || command.includes("__abx_ps__")) continue;
       processes.push({
         pid: Number(pid),
         ppid: Number(ppid),

@@ -1,7 +1,7 @@
 {
-  "name": "ebx-provider-opensandbox",
+  "name": "abx-provider-opensandbox",
   "version": "0.1.0",
-  "description": "OpenSandbox provider plugin (EPP/1) for Easy Sandbox: Python SDK and ebx CLI",
+  "description": "OpenSandbox provider plugin (EPP/1) for Agent Sandbox: Python SDK and abx CLI",
   "license": "Apache-2.0",
   "private": true,
   "type": "module",

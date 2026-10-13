@@ -78,7 +78,7 @@ export function memoryLimit(memoryMb) {
   return `${Math.round(n)}Mi`;
 }
 
-/** OpenSandbox accepts only a numeric GPU count; Easy Sandbox's gpu is a free-form spec such as "A10". */
+/** OpenSandbox accepts only a numeric GPU count; Agent Sandbox's gpu is a free-form spec such as "A10". */
 export function gpuLimit(gpu) {
   if (gpu === undefined || gpu === null || gpu === "") return undefined;
   if (/^\d+$/.test(String(gpu))) return String(gpu);
