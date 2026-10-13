@@ -21,6 +21,25 @@ import {
 } from "./convert.mjs";
 import { sleep } from "./http.mjs";
 
+function sameArgv(a, b) {
+  return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((part, i) => part === b[i]);
+}
+
+/**
+ * Entrypoint for one create.
+ *
+ * An omitted entrypoint, and the manifest default the host delivers when the user did not
+ * set one, are automatic: stock images stay up (`tail -f /dev/null`) so execd can serve
+ * exec and files, and a code-interpreter image keeps its runtime script. Any other
+ * command is used as given (`python3 commands.py` for a generated image).
+ */
+export function selectEntrypoint(cfg, image) {
+  const configured = cfg.entrypoint;
+  const automatic = !configured || sameArgv(configured, DEFAULT_ENTRYPOINT);
+  if (automatic && isCodeInterpreterImage(image)) return [...CODE_INTERPRETER_ENTRYPOINT];
+  return configured?.length ? configured : [...DEFAULT_ENTRYPOINT];
+}
+
 const need = (params, key) => {
   const value = params[key];
   if (typeof value !== "string" || value === "") throw badParams(`Missing parameter '${key}'.`);
@@ -54,7 +73,7 @@ export function buildCreateBody(params, baseCfg, log = () => {}) {
   const limits = { cpu: cpuLimit(params.cpu), memory: memoryLimit(params.memory) };
   const gpu = gpuLimit(params.gpu);
   if (gpu !== undefined) limits.gpu = gpu;
-  const entrypoint = cfg.entrypoint ?? (isCodeInterpreterImage(image) ? CODE_INTERPRETER_ENTRYPOINT : DEFAULT_ENTRYPOINT);
+  const entrypoint = selectEntrypoint(cfg, image);
   const body = {
     image: { uri: image },
     entrypoint,

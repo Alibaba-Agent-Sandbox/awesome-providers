@@ -6,8 +6,12 @@ import { parseAliasMap, shellSplit } from "./convert.mjs";
 export const DEFAULT_BASE_URL = "http://127.0.0.1:8080";
 export const DEFAULT_IMAGE = "python:3.12-slim";
 export const DEFAULT_ALIASES = { code: "opensandbox/code-interpreter:v1.1.0" };
-/** Matches a generated image `CMD ["python3", "commands.py"]` so port 9000 opens. */
-export const DEFAULT_ENTRYPOINT = ["python3", "commands.py"];
+/**
+ * Long-running command present on stock images. OpenSandbox requires an entrypoint and
+ * the container exits when that process exits, which takes execd with it.
+ * Generated images that serve port 9000 set `entrypoint` to `python3 commands.py`.
+ */
+export const DEFAULT_ENTRYPOINT = ["tail", "-f", "/dev/null"];
 export const CODE_INTERPRETER_ENTRYPOINT = ["/opt/code-interpreter/code-interpreter.sh"];
 
 const blank = (v) => v === undefined || v === null || (typeof v === "string" && v.trim() === "");

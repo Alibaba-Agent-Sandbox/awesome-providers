@@ -85,9 +85,9 @@ description_zh = "模板短名称，以逗号分隔的 name=image 键值对"
 
 [config.fields.entrypoint]
 type           = "string"
-default        = "python3 commands.py"
-description    = "Command used when the caller does not set an entrypoint (generated images serve port 9000 from commands.py). An explicit value wins."
-description_zh = "调用方未设置入口时使用的命令（生成镜像由 commands.py 在 9000 端口提供服务）。显式传入的值优先。"
+default        = "tail -f /dev/null"
+description    = "Command used when the caller does not set an entrypoint. The default keeps a stock image alive so execd can serve exec and files. Set \"python3 commands.py\" for a generated image that serves port 9000. A code-interpreter image keeps its runtime script unless this is set to something else."
+description_zh = "调用方未设置入口时使用的命令。默认值让通用镜像保持运行，以便 execd 提供执行和文件服务。为在 9000 端口提供服务的生成镜像设置为 \"python3 commands.py\"。除非改成其他命令，code-interpreter 镜像仍使用自己的运行时脚本。"
 
 [config.fields.ready_timeout]
 type           = "int"
