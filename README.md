@@ -21,13 +21,13 @@ The official site is <https://www.agent-sandbox.com>. The registry website is
 fetches.
 
 ```bash
-abx provider install registry:opensandbox --yes
-abx provider install registry:e2b --yes
-abx provider install registry:cubesandbox --yes
-abx provider install registry:alicloud-container --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox --allow-unpinned --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//e2b --allow-unpinned --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//cubesandbox --allow-unpinned --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//alicloud-container --allow-unpinned --yes
 ```
 
-`python -m agent_sandbox.providers install registry:<id> --yes` does the same.
+The CLI installs from the git tree. `--allow-unpinned` is needed without a terminal because `main` moves; add `--ref <40-hex-commit>` to pin. `registry:<id>` is a Python installer form (`python -m agent_sandbox.providers install registry:<id> --yes`) and needs the index above, which is not published yet; the `abx` CLI does not implement `registry:`.
 
 Each directory is one provider: `abx-provider.toml`, the plugin code, and
 `docs/README.md`. All four are `runtime.kind = "node"`. `opensandbox` exports `create(kit)` and runs its

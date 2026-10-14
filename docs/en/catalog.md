@@ -11,7 +11,7 @@ The registry website is <https://registry.agent-sandbox.com>. The official site 
 | `e2b` | [docs](../../e2b/docs/README.md) | `https://api.e2b.app` | The HTTP shape matches the current E2B API. There is no `ABX_E2B_API_KEY`, so live create did not run |
 | `alicloud-container` | [docs](../../alicloud-container/docs/README.md) | ACS/ACK sandbox-manager | Native and private URL shapes are wired. There is no cluster domain or key, so live create did not run |
 
-Install any of them with `abx provider install registry:<id> --yes` (or `python -m agent_sandbox.providers install registry:<id> --yes`). None of them reads the Express key `ABX_SANDBOX_API_KEY`.
+Install any of them with `abx provider install alibaba-agent-sandbox/awesome-providers//<id> --allow-unpinned --yes` (the Python installer also accepts `registry:<id>` once the index is published). None of them reads the Express key `ABX_SANDBOX_API_KEY`.
 
 ## Behavior changed after the review
 

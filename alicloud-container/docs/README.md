@@ -9,7 +9,7 @@
 ```bash
 export ABX_ALICLOUD_CONTAINER_DOMAIN=sbx.example.com
 export ABX_ALICLOUD_CONTAINER_API_KEY=REPLACE_ME
-abx provider install registry:alicloud-container --yes   # 或 python -m agent_sandbox.providers install registry:alicloud-container --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//alicloud-container --allow-unpinned --yes   # 或 Python：python -m agent_sandbox.providers install registry:alicloud-container --yes（索引上线后）
 abx --provider alicloud-container create --template code-interpreter
 ```
 
@@ -72,7 +72,7 @@ Catalog provider, id `alicloud-container`. This is the ACS/ACK OpenKruise Agents
 ```bash
 export ABX_ALICLOUD_CONTAINER_DOMAIN=sbx.example.com
 export ABX_ALICLOUD_CONTAINER_API_KEY=REPLACE_ME
-abx provider install registry:alicloud-container --yes   # or: python -m agent_sandbox.providers install registry:alicloud-container --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//alicloud-container --allow-unpinned --yes   # or, Python only once the index is live: python -m agent_sandbox.providers install registry:alicloud-container --yes
 ```
 
 | Setting | Environment |

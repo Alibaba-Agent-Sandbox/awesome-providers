@@ -7,12 +7,12 @@
     },
     {
       "id": "alicloud-container",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "url": "alicloud-container"
     },
     {
       "id": "cubesandbox",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "url": "cubesandbox"
     },
     {

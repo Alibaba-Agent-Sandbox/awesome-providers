@@ -5,15 +5,15 @@ Install copies files into `~/.abx/providers/<id>` and writes a receipt. There is
 ## From the official catalog
 
 ```bash
-abx provider install registry:opensandbox --yes
-abx provider install registry:cubesandbox --yes
-abx provider install registry:e2b --yes
-abx provider install registry:alicloud-container --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox --allow-unpinned --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//cubesandbox --allow-unpinned --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//e2b --allow-unpinned --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//alicloud-container --allow-unpinned --yes
 ```
 
-`python -m agent_sandbox.providers install registry:<id> --yes` does the same thing and writes the same directory. Use whichever tool you have; the plugin runs the same way afterwards.
+`--allow-unpinned` is required without a terminal because `main` moves; pass `--ref <40-hex-commit>` instead to pin.
 
-`registry:<id>` reads the index, turns that row into a local directory, then runs a normal install.
+The Python installer can do the same from the index: `python -m agent_sandbox.providers install registry:<id> --yes` reads the index, turns that row into a local directory, then runs a normal install. Only the Python installer has the `registry:` form (`abx` does not), and the public index is not published yet, so use the git form above or a local index (below). Both write the same directory; the plugin runs the same way afterwards.
 
 The default index is `https://registry.agent-sandbox.cn/providers/index.json`. The registry website is <https://registry.agent-sandbox.com>. The official site is <https://www.agent-sandbox.com>. To point the installer elsewhere:
 

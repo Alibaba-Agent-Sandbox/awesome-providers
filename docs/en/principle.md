@@ -14,7 +14,7 @@ The provider layer is written once, in Node.js, and hosted by the TypeScript CLI
 | `e2b` | `awesome-providers/e2b` | `node` |
 | `alicloud-container` | `awesome-providers/alicloud-container` | `node` |
 
-Install with `abx provider install registry:<id>` or `python -m agent_sandbox.providers install registry:<id> --yes`. Both write the same `~/.abx/providers/<id>` tree, and both hosts run the same code afterwards. The Python SDK calls a catalog provider as `Sandbox.create(provider="…")`; the CLI as `abx --provider <id> create`.
+Install with `abx provider install alibaba-agent-sandbox/awesome-providers//<id>` (CLI, git tree) or `python -m agent_sandbox.providers install registry:<id> --yes` (Python, needs the published index). Both write the same `~/.abx/providers/<id>` tree, and both hosts run the same code afterwards. The Python SDK calls a catalog provider as `Sandbox.create(provider="…")`; the CLI as `abx --provider <id> create`.
 
 `alicloud-express` is reserved and cannot be installed as a plugin. `opensandbox`, `cubesandbox`, `e2b`, and `alicloud-container` are official catalog ids: they can be installed, and they cannot be registered again as a different plugin.
 

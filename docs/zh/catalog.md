@@ -11,7 +11,7 @@
 | `e2b` | [docs](../../e2b/docs/README.md) | `https://api.e2b.app` | HTTP 形状已对照当前 E2B API。没有 `ABX_E2B_API_KEY`，真实创建没有跑 |
 | `alicloud-container` | [docs](../../alicloud-container/docs/README.md) | ACS/ACK sandbox-manager | native / private 两条 URL 已接上。没有集群域名和密钥，真实创建没有跑 |
 
-四个都用 `abx provider install registry:<id> --yes`（或 `python -m agent_sandbox.providers install registry:<id> --yes`）安装。都不要读极速版的 `ABX_SANDBOX_API_KEY`。
+四个都用 `abx provider install alibaba-agent-sandbox/awesome-providers//<id> --allow-unpinned --yes` 安装（索引发布后，Python 安装器也支持 `registry:<id>`）。都不要读极速版的 `ABX_SANDBOX_API_KEY`。
 
 ## 审查时改过的行为
 

@@ -8,7 +8,7 @@
 
 ```bash
 export ABX_E2B_API_KEY=REPLACE_ME
-abx provider install registry:e2b --yes      # 或 python -m agent_sandbox.providers install registry:e2b --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//e2b --allow-unpinned --yes   # 或 Python：python -m agent_sandbox.providers install registry:e2b --yes（索引上线后）
 abx --provider e2b create --template base
 ```
 
@@ -65,7 +65,7 @@ Catalog provider, id `e2b`, kind `node` (`provider.mjs`, loaded by the host). It
 
 ```bash
 export ABX_E2B_API_KEY=REPLACE_ME
-abx provider install registry:e2b --yes   # or python -m agent_sandbox.providers install registry:e2b --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//e2b --allow-unpinned --yes   # or, Python only once the index is live: python -m agent_sandbox.providers install registry:e2b --yes
 ```
 
 | Field | Environment | Default |

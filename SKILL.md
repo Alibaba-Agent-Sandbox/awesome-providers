@@ -1,6 +1,6 @@
 ---
 name: awesome-providers
-description: Write or install an Agent Sandbox provider from the awesome-providers catalog. Use when the task is abx-provider.toml, registry: install, a rest, exec or node provider, or E8004. Do not use this to call a sandbox that already exists; that is agent-sandbox-sdk.
+description: Write or install an Agent Sandbox provider from the awesome-providers catalog. Use when the task is abx-provider.toml, a provider install, a rest, exec or node provider, or E8004. Do not use this to call a sandbox that already exists; that is agent-sandbox-sdk.
 ---
 
 # Awesome Providers
@@ -10,13 +10,13 @@ The SDK and the CLI ship only `alicloud-express`. This catalog holds the other p
 ## Install an official provider
 
 ```bash
-abx provider install registry:opensandbox --yes
-abx provider install registry:cubesandbox --yes
-abx provider install registry:e2b --yes
-abx provider install registry:alicloud-container --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox --allow-unpinned --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//cubesandbox --allow-unpinned --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//e2b --allow-unpinned --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//alicloud-container --allow-unpinned --yes
 ```
 
-`python -m agent_sandbox.providers install registry:<id> --yes` is the same install.
+The CLI installs from the git tree; add `--ref <40-hex-commit>` to pin instead of `--allow-unpinned`. `registry:<id>` exists only in the Python installer (`python -m agent_sandbox.providers install registry:<id> --yes`) and needs the index below, which is not live yet; `abx` has no `registry:` form.
 
 Index: `https://registry.agent-sandbox.cn/providers/index.json`. Override with `ABX_PROVIDER_REGISTRY` (URL or a local `index.json` path). A background check writes `~/.abx/providers/updates.json`. It does not install. `ABX_PROVIDER_UPDATE_CHECK=0` skips it. The registry website is https://registry.agent-sandbox.com. The official site is https://www.agent-sandbox.com.
 

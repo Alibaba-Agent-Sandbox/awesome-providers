@@ -7,7 +7,7 @@
 ## 安装和调用
 
 ```bash
-abx provider install registry:opensandbox --yes      # 或 python -m agent_sandbox.providers install registry:opensandbox --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox --allow-unpinned --yes   # 或 Python：python -m agent_sandbox.providers install registry:opensandbox --yes（索引上线后）
 abx --provider opensandbox create
 ```
 
@@ -60,7 +60,7 @@ await sb.kill()
 Catalog provider, id `opensandbox`, kind `node`: an ES module (`provider.mjs`, no npm dependencies) that exports `create(kit)`; the host calls its EPP/1 methods in process (`kit.epp.infra`). The CLI uses it directly; the Python SDK and the Node, Go and Java SDKs use it through the local engine (`abx provider engine serve`). `node provider.mjs` still serves EPP/1 on stdio for other hosts. `node` must be on `PATH`.
 
 ```bash
-abx provider install registry:opensandbox --yes   # or python -m agent_sandbox.providers install registry:opensandbox --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox --allow-unpinned --yes   # or, Python only once the index is live: python -m agent_sandbox.providers install registry:opensandbox --yes
 ```
 
 `template="base"` is the image `python:3.12-slim` with entrypoint `tail -f /dev/null`. A template name that contains `:` or `/` is used as an image URI.

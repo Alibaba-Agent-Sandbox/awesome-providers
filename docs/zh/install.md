@@ -5,15 +5,15 @@
 ## 从官方目录
 
 ```bash
-abx provider install registry:opensandbox --yes
-abx provider install registry:cubesandbox --yes
-abx provider install registry:e2b --yes
-abx provider install registry:alicloud-container --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox --allow-unpinned --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//cubesandbox --allow-unpinned --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//e2b --allow-unpinned --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//alicloud-container --allow-unpinned --yes
 ```
 
-`python -m agent_sandbox.providers install registry:<id> --yes` 效果相同，写入同一个目录。用你手边有的那个即可，装好之后插件的运行方式一样。
+没有终端时必须加 `--allow-unpinned`（`main` 会移动）；要固定版本就改用 `--ref <40 位提交>`。
 
-`registry:<id>` 先读索引，再把该条变成一个本地目录，然后走普通安装。
+Python 安装器也能从索引安装：`python -m agent_sandbox.providers install registry:<id> --yes` 先读索引，再把该条变成一个本地目录，然后走普通安装。只有 Python 安装器有 `registry:` 写法（`abx` 没有），而且公开索引还没发布，所以请用上面的 git 写法，或下面的本地索引。两者写入同一个目录，装好之后插件的运行方式一样。
 
 索引默认是 `https://registry.agent-sandbox.cn/providers/index.json`。给人看的注册站是 <https://registry.agent-sandbox.com>。官网是 <https://www.agent-sandbox.com>。安装器改地址：
 

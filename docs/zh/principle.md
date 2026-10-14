@@ -14,7 +14,7 @@
 | `e2b` | `awesome-providers/e2b` | `node` |
 | `alicloud-container` | `awesome-providers/alicloud-container` | `node` |
 
-安装用 `abx provider install registry:<id>` 或 `python -m agent_sandbox.providers install registry:<id> --yes`。两者写入同一个 `~/.abx/providers/<id>` 目录，之后两边运行的是同一份代码。Python SDK 用 `Sandbox.create(provider="…")` 调用目录提供方，CLI 用 `abx --provider <id> create`。
+安装用 `abx provider install alibaba-agent-sandbox/awesome-providers//<id>`（CLI，从 git 树）或 `python -m agent_sandbox.providers install registry:<id> --yes`（Python，需要已发布的索引）。两者写入同一个 `~/.abx/providers/<id>` 目录，之后两边运行的是同一份代码。Python SDK 用 `Sandbox.create(provider="…")` 调用目录提供方，CLI 用 `abx --provider <id> create`。
 
 `alicloud-express` 是保留 id，不能安装成插件。`opensandbox`、`cubesandbox`、`e2b`、`alicloud-container` 是官方目录 id，可以安装，不能再拿去登记成另一个插件。
 

@@ -7,7 +7,7 @@
 ## 安装和调用
 
 ```bash
-abx provider install registry:cubesandbox --yes      # 或 python -m agent_sandbox.providers install registry:cubesandbox --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//cubesandbox --allow-unpinned --yes   # 或 Python：python -m agent_sandbox.providers install registry:cubesandbox --yes（索引上线后）
 abx --provider cubesandbox --opt base_url=http://127.0.0.1:3000 create --template base
 ```
 
@@ -67,7 +67,7 @@ OpenAPI 里还有卷、网络策略、分发范围，适配器不调用，清单
 Catalog provider, id `cubesandbox`, kind `node` (`provider.mjs`, loaded by the host). It runs from the CLI and from every SDK (through the local engine, `abx provider engine serve`).
 
 ```bash
-abx provider install registry:cubesandbox --yes   # or python -m agent_sandbox.providers install registry:cubesandbox --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//cubesandbox --allow-unpinned --yes   # or, Python only once the index is live: python -m agent_sandbox.providers install registry:cubesandbox --yes
 ```
 
 | Field | Environment | Default |
