@@ -3,23 +3,25 @@
 While developing, install with a link so edits do not need a reinstall. A link install does not check the tree digest. It is for the local machine.
 
 ```bash
-python -m agent_sandbox.providers install ./my-cloud --link --yes
-python -m agent_sandbox.providers doctor my-cloud
-python -m agent_sandbox.providers test my-cloud
+abx provider install ./my-cloud --link --yes
+abx provider doctor my-cloud
+abx provider test my-cloud
 ```
 
 `--link` requires `--yes`. Without it the error is `ProviderTrustError` (E8012).
 
-The CLI has the same commands for `exec` and `rest`: `abx provider install ./my-cloud --link --yes`, then `abx provider doctor` and `abx provider test`. A `python` provider uses the Python module above. The CLI rejects a manifest whose `kind` is `python`.
+The Python SDK has the same commands (`python -m agent_sandbox.providers install|doctor|test`) and installs to the same directory. Both call the same plugin code. The CLI rejects a manifest whose `kind` is `python`.
+
+To check what an SDK sees, start the engine (`abx provider engine serve`) and call `GET /v1/providers`, or run your Python code. The routes are in the CLI's [Engine HTTP API](https://github.com/Alibaba-Agent-Sandbox/cli/blob/main/docs/en/reference/engine-api.md).
 
 ## What to look at
 
 1. `doctor` checks the manifest, `requires`, configuration, and the handshake.
 2. `test` runs the contract suite. Features you did not declare are skipped, not failed. A declared feature you did not implement fails. The suite covers lifecycle, exec, streaming, files, processes, timeouts, and error mapping.
-3. A local fake TCP server should show the request path and the auth header, and that `ABX_SANDBOX_API_KEY` is not sent.
+3. A local fake TCP server should show the request path and the auth header, and that `ABX_SANDBOX_API_KEY` is not sent. For `node` plugins the CLI repository has an E2B-shaped mock (`cli/tests/_support/e2b_mock.ts`); an `exec` plugin should keep its own mock server and unit tests, as `opensandbox/tests` does.
 4. With a real backend, the minimum live check is create, one command, one file round-trip, and kill. Without a backend, skip that check and name the missing variable. Do not borrow another provider's key.
 
-The contract suite needs pytest. `python -m agent_sandbox.providers test my-cloud` and `abx provider test my-cloud` run the same kit.
+`abx provider test my-cloud` needs no extra tools. `python -m agent_sandbox.providers test my-cloud` needs pytest and runs the same kit.
 
 ## After the manifest changes
 

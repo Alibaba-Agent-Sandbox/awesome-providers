@@ -1,13 +1,14 @@
 # CubeSandbox
 
-目录提供方，id 是 `cubesandbox`。安装之后由 Python SDK 加载。CLI 不加载 `kind = "python"`。
+目录提供方，id 是 `cubesandbox`，类型 `node`（`provider.mjs`，由宿主进程加载）。CLI 和所有 SDK 都能用：CLI 直接运行，SDK 经由本机引擎（`abx provider engine serve`）。
 
 总说明：[工作原理](../../docs/zh/principle.md) · [安装](../../docs/zh/install.md) · [审查里还没跑到的项](../../docs/zh/catalog.md)
 
 ## 安装和调用
 
 ```bash
-python -m agent_sandbox.providers install registry:cubesandbox --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//cubesandbox --allow-unpinned --yes   # 或 Python：python -m agent_sandbox.providers install registry:cubesandbox --yes（索引上线后）
+abx --provider cubesandbox --opt base_url=http://127.0.0.1:3000 create --template base
 ```
 
 ```python
@@ -53,20 +54,20 @@ sb = await Sandbox.create(
 
 ## 会抛出 E8004 的调用
 
-`pty`、`process.manage`、`files.transfer`、`templates.read`、`templates.build`、`ports.domain`、`storage.mount`、`network.vpc`、`sessions`。
+`process.manage`、`files.transfer`、`templates.read`、`templates.build`、`ports.domain`、`storage.mount`、`network.vpc`、`sessions`。`pty` 也没有声明，宿主不会替它兜底。
 
-OpenAPI 里还有卷、网络策略、分发范围。它们登记成扩展，`implemented=False`，适配器不调用。`GET /sandboxes` 忽略 `status` 和 `offset`，按状态过滤要等改打 `GET /v2/sandboxes`。
+OpenAPI 里还有卷、网络策略、分发范围，适配器不调用，清单里也不再登记。`GET /sandboxes` 忽略 `status` 和 `offset`，按状态过滤要等改打 `GET /v2/sandboxes`。
 
 ## 实测
 
-单元测试打的是本机假 API，锁住的是上面这些路径和帧。这台环境没有 Cube 集群（端口 3000 没有 CubeAPI），所以 `e2e/test_08_providers.py` 里的真实创建没有执行。拿到集群之后按 [目录与审查](../../docs/zh/catalog.md) 里 Cube 那几行再跑一遍。
+单元测试打的是本机假 API（`cli/tests/test_providers/test_node_plugins.test.ts`），锁住的是上面这些路径、Connect 帧、代理拨号和可选令牌；Python SDK 经引擎的整条链路由 `python-sdk/client-sdk/tests/test_providers/test_engine_provider.py` 覆盖。这台环境没有 Cube 集群（端口 3000 没有 CubeAPI），所以真实创建没有执行。拿到集群之后按 [目录与审查](../../docs/zh/catalog.md) 里 Cube 那几行再跑一遍。
 
 ## English
 
-Catalog provider, id `cubesandbox`. The Python SDK loads it after install. The CLI does not load `kind = "python"`.
+Catalog provider, id `cubesandbox`, kind `node` (`provider.mjs`, loaded by the host). It runs from the CLI and from every SDK (through the local engine, `abx provider engine serve`).
 
 ```bash
-python -m agent_sandbox.providers install registry:cubesandbox --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//cubesandbox --allow-unpinned --yes   # or, Python only once the index is live: python -m agent_sandbox.providers install registry:cubesandbox --yes
 ```
 
 | Field | Environment | Default |
@@ -78,6 +79,6 @@ python -m agent_sandbox.providers install registry:cubesandbox --yes
 
 The data plane is `http://49983-{id}.{domain}`. The `49983` prefix is how CubeProxy routes; HTTP is port 80. It does not read `ABX_SANDBOX_API_KEY`. Process and file calls default the user to `root` and use a 5-byte Connect envelope. `run_code` is Jupyter `POST /execute` on port 49999, read as ndjson. `resume` sends `{}`.
 
-`E8004`: `pty`, `process.manage`, `files.transfer`, template features, `ports.domain`, `storage.mount`, `network.vpc`, `sessions`. Volume, network policy, and distribution scope are extensions with `implemented=False`.
+`E8004`: `process.manage`, `files.transfer`, template features, `ports.domain`, `storage.mount`, `network.vpc`, `sessions`. `pty` is not declared either, and the host does not stand in for it. Volume, network policy, and distribution scope are not called and no longer listed in the manifest.
 
-Unit tests hit a local fake API. This environment has no Cube cluster, so the live create in `e2e/test_08_providers.py` did not run. Use a real template id from the cluster; do not assume `base` exists.
+Unit tests hit a local fake API. This environment has no Cube cluster, so a live create did not run. Use a real template id from the cluster; do not assume `base` exists.

@@ -11,7 +11,7 @@
 | `e2b` | [docs](../../e2b/docs/README.md) | `https://api.e2b.app` | HTTP 形状已对照当前 E2B API。没有 `ABX_E2B_API_KEY`，真实创建没有跑 |
 | `alicloud-container` | [docs](../../alicloud-container/docs/README.md) | ACS/ACK sandbox-manager | native / private 两条 URL 已接上。没有集群域名和密钥，真实创建没有跑 |
 
-四个都用 `python -m agent_sandbox.providers install registry:<id> --yes` 安装。都不要读极速版的 `ABX_SANDBOX_API_KEY`。
+四个都用 `abx provider install alibaba-agent-sandbox/awesome-providers//<id> --allow-unpinned --yes` 安装（索引发布后，Python 安装器也支持 `registry:<id>`）。都不要读极速版的 `ABX_SANDBOX_API_KEY`。
 
 ## 审查时改过的行为
 
@@ -42,4 +42,4 @@
 | 容器版 native | 创建响应里没有 `envdUrl` | 补 `https://49983-{id}.{domain}`。集群 envd 端口如果不是 49983，命令会连错主机 |
 | 容器版 private | 创建 | 数据面是 `https://{domain}/kruise/{id}/49983`，端口 URL 是 `https://{domain}/kruise/{id}/{port}` |
 
-真实调用的入口是 `python-sdk/e2e/test_08_providers.py`。缺密钥或后端时对应测试跳过，不会把另一家的密钥发出去。
+离线测试：`cli/tests/test_providers/test_node_plugins.test.ts`（三个 `node` 插件对 E2B 形状的 mock，包括 Connect 信封、代理拨号、可选令牌和终端）、`cli/tests/test_engine/test_engine.test.ts`（引擎）、`opensandbox/tests`（OpenSandbox 插件）以及 `python-sdk/client-sdk/tests/test_providers/test_engine_provider.py`（Python SDK 到引擎到插件到 mock）。本机 `127.0.0.1:8080` 有 OpenSandbox 服务时，CLI 测试和 Python 也会对它做真实调用。缺密钥或后端时对应测试跳过，不会把另一家的密钥发出去。

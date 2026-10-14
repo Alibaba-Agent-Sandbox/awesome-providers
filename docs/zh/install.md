@@ -5,13 +5,15 @@
 ## 从官方目录
 
 ```bash
-python -m agent_sandbox.providers install registry:opensandbox --yes
-python -m agent_sandbox.providers install registry:cubesandbox --yes
-python -m agent_sandbox.providers install registry:e2b --yes
-python -m agent_sandbox.providers install registry:alicloud-container --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox --allow-unpinned --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//cubesandbox --allow-unpinned --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//e2b --allow-unpinned --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//alicloud-container --allow-unpinned --yes
 ```
 
-`registry:<id>` 先读索引，再把该条变成一个本地目录，然后走普通安装。
+没有终端时必须加 `--allow-unpinned`（`main` 会移动）；要固定版本就改用 `--ref <40 位提交>`。
+
+Python 安装器也能从索引安装：`python -m agent_sandbox.providers install registry:<id> --yes` 先读索引，再把该条变成一个本地目录，然后走普通安装。只有 Python 安装器有 `registry:` 写法（`abx` 没有），而且公开索引还没发布，所以请用上面的 git 写法，或下面的本地索引。两者写入同一个目录，装好之后插件的运行方式一样。
 
 索引默认是 `https://registry.agent-sandbox.cn/providers/index.json`。给人看的注册站是 <https://registry.agent-sandbox.com>。官网是 <https://www.agent-sandbox.com>。安装器改地址：
 
@@ -35,7 +37,7 @@ python -m agent_sandbox.providers install \
   --ref <40-hex-commit> --yes
 ```
 
-CLI 对 `exec` 和 `rest` 用同样的参数：`abx provider install`。`python` 提供方用 Python 模块安装。
+`abx provider install` 用同样的参数。两个工具都能安装 `rest`、`exec` 和 `node` 提供方。
 
 钉死来源的方式是 40 位 commit（`--ref`）或 `--sha256 <目录树摘要>`。tag 和分支是未钉死的：只能在终端里由人看完同意界面后接受，或显式 `--allow-unpinned`。单独的 `--yes` 不会接受会移动的 ref，失败时会打印应该钉的 commit。
 
@@ -75,7 +77,7 @@ python -m agent_sandbox.providers update opensandbox --yes
 
 ## 装上之后怎么调用
 
-目录里的四个官方提供方都是 `python`。安装之后：
+四个官方提供方都是 `node`。安装之后，CLI（`abx --provider e2b create`）和 Python SDK 都能调用：
 
 ```python
 import asyncio
@@ -94,4 +96,4 @@ asyncio.run(main())
 
 各家要的环境变量写在该目录的 `docs/README.md`。没装就 `ProviderNotFoundError`，提示里会建议安装命令。
 
-`exec` 和 `rest` 安装之后，CLI 和 SDK 都能用：`abx --provider my-cloud create --template base`。
+任何类型安装之后，CLI 和 SDK 都能用：`abx --provider my-cloud create --template base`。Python SDK 需要时会启动本机引擎（`abx provider engine serve`），所以 SDK 调用 `node` 或 `exec` 提供方时，`abx` 要在 `PATH` 里（或用 `ABX_BIN` 指定）。

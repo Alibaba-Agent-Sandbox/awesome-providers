@@ -10,7 +10,7 @@ and from the `abx` CLI (`abx --provider opensandbox ...`).
 This directory is the canonical plugin. It lives in
 [alibaba-agent-sandbox/awesome-providers](https://github.com/alibaba-agent-sandbox/awesome-providers), not in the Python SDK.
 
-* Runtime: **Node.js >= 20, no npm dependencies** (built-in `fetch`). Chosen because the `abx` CLI is a
+* Runtime: **Node.js >= 20, no npm dependencies** (built-in `fetch`; the terminal needs the global `WebSocket` of Node 22+). Chosen because the `abx` CLI is a
   Node program, so every `abx` user already has Node; the Python SDK needs `node` on `PATH` to use it.
 * Design and API mapping: [`provider-opensandbox-mapping.md`](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/docs/en/design/provider-opensandbox-mapping.md).
 * Authoring review that produced this plugin: [`provider-authoring-evaluation.md`](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/docs/en/design/provider-authoring-evaluation.md).
@@ -87,7 +87,8 @@ Both hosts load this plugin. A method or command works only when its feature is 
 | `files.rw` | yes | read (offset/length), write (mode), list, stat, mkdir, remove, move, plus `files.search` and `files.chmod` extensions (not called by any host yet) |
 | `ports.url` | yes | `ports.url` method (direct endpoint, or the server proxy with `use_server_proxy`) |
 | `sessions` | yes | detached commands through the `detached` extension of `exec.start` (no host adapter sends it yet) |
-| `pty`, `code.interpret`, `templates.*`, `files.watch`, transfer URLs | no | `E8004` (`-32003`) |
+| `pty` | yes (Node 22+) | `pty.open` creates an execd terminal (`POST /pty`) and bridges its WebSocket (`/pty/{id}/ws`): input is `0x00` + bytes, `pty.output` carries the output, `pty.exit` ends it. On Node 20/21 there is no global WebSocket, so the plugin does not advertise `pty` |
+| `code.interpret`, `templates.*`, `files.watch`, transfer URLs | no | `E8004` (`-32003`) |
 
 ## Test
 

@@ -3,14 +3,16 @@
 开发时用链接安装，改文件不用重装。链接安装不校验目录树摘要，只用于本机。
 
 ```bash
-python -m agent_sandbox.providers install ./my-cloud --link --yes
-python -m agent_sandbox.providers doctor my-cloud
-python -m agent_sandbox.providers test my-cloud
+abx provider install ./my-cloud --link --yes
+abx provider doctor my-cloud
+abx provider test my-cloud
 ```
 
 `--link` 必须带 `--yes`。没有 `--yes` 是 `ProviderTrustError`（E8012）。
 
-CLI 对 `exec` 和 `rest` 有同样的命令：`abx provider install ./my-cloud --link --yes`，然后 `abx provider doctor` 和 `abx provider test`。`python` 提供方用上面的 Python 模块。CLI 读到 `kind = "python"` 会拒绝这份清单。
+Python SDK 有同样的命令（`python -m agent_sandbox.providers install|doctor|test`），安装到同一个目录，两边调用的是同一份插件代码。CLI 读到 `kind = "python"` 会拒绝这份清单。
+
+想看 SDK 看到什么，可以启动引擎（`abx provider engine serve`）并调用 `GET /v1/providers`，或直接跑你的 Python 代码。路由见 CLI 的[引擎 HTTP API](https://github.com/Alibaba-Agent-Sandbox/cli/blob/main/docs/zh/reference/engine-api.md)。
 
 ## 开发时看什么
 
@@ -19,7 +21,7 @@ CLI 对 `exec` 和 `rest` 有同样的命令：`abx provider install ./my-cloud 
 3. 用本机假的 TCP 服务看请求路径和认证头，确认 `ABX_SANDBOX_API_KEY` 没有被发出去。
 4. 有真实后端时，最少做一次创建、一条命令、一次文件往返、一次销毁。没有后端就跳过，并写明缺哪个变量。不要拿另一家的密钥去试。
 
-契约套件需要 pytest。`python -m agent_sandbox.providers test my-cloud` 和 `abx provider test my-cloud` 是同一套。
+`abx provider test my-cloud` 不需要额外工具。`python -m agent_sandbox.providers test my-cloud` 需要 pytest，跑的是同一套。
 
 ## 改清单之后
 

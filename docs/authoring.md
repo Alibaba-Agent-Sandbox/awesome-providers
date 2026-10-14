@@ -1,108 +1,63 @@
-# Writing a provider
+# Authoring a provider
 
-[简体中文](authoring.zh-CN.md)
+This is the contributor guide for the catalog. The same material, split by task, is in [How a provider works](en/principle.md), [Create](en/create.md), [Develop](en/develop.md), and [Install](en/install.md). Chinese: [文档目录](README.md).
 
-A provider is an installable sandbox backend. One directory in this repository is one provider. The Python SDK and the `abx` CLI do not contain provider implementations; they install a directory from here into `~/.abx/providers/<id>` and talk to it.
+An agent should load [SKILL.md](../SKILL.md) instead of this page.
 
-Copy [opensandbox/](../opensandbox/) when the backend is a real HTTP service, or the `local-process` example in the Python SDK (`examples/providers/local-process/`) when you want the smallest exec plugin.
+## What you are adding
 
-## How `abx create` reaches your plugin
+A provider plugin is a directory with `abx-provider.toml`. The SDK and the CLI ship only `alicloud-express`. This catalog holds everything else. Publish one directory per provider and add a row to `index.json`.
 
-`abx create` never imports your code. It calls `Sandbox.create`. That call chooses a provider before any sandbox API runs.
+Three runtimes:
 
-```text
-abx --provider my-cloud create --template base
-        │
-        │  1. The CLI takes --provider and --opt off the command line
-        │     (any position) and keeps them for this process only.
-        ▼
-Sandbox.create({ template, timeout, envs, metadata, ... })
-        │
-        │  2. Provider id, first match wins:
-        │     provider= argument
-        │     > --provider
-        │     > ABX_PROVIDER
-        │     > ./.env  >  ~/.abx/.env
-        │     > [core] provider in ~/.abx/config.toml
-        │     > alicloud-express
-        ▼
-   alicloud-express? ── yes ──► built-in Alibaba Cloud client.
-        │                         Your plugin is not started.
-        no
-        ▼
-   3. Read ~/.abx/providers/my-cloud. Check the tree digest (E8011 if a
-      file changed). Do not start the process when the digest fails.
-        ▼
-   4. Spawn the manifest command. cwd is the plugin directory.
-      Environment is scrubbed: PATH, locale, ABX_PROVIDER_DATA_DIR,
-      and only the env names the manifest listed.
-        ▼
-   5. initialize → plugin returns features.
-        ▼
-   6. sandbox.create → SandboxRecord with sandbox_id.
-        ▼
-   7. The CLI prints my-cloud:<sandbox_id>. Later exec / files / kill
-      use that id. A feature you did not declare fails with E8004
-      and the method is not sent.
-```
+| Kind | Protocol | What you write |
+|---|---|---|
+| `rest` | `e2b-rest/1` | Manifest only |
+| `exec` | `epp/1` | A process that speaks JSON-RPC on stdin/stdout, any language |
+| `node` | `node/1` | `provider.mjs`: an ES module the host loads, default export `create(kit)` |
 
-`Sandbox.create(template="base", provider="my-cloud")` in Python starts at step 2. It uses the same installed directory.
+The CLI and every SDK run all three, because the Node.js CLI hosts the provider layer and SDKs reach it through the local engine. Manifest-installed Python plugins (`kind = "python"`) are gone. All four (`opensandbox`, `e2b`, `cubesandbox`, `alicloud-container`) are `node`. Install with `abx provider install registry:<id> --yes` or `python -m agent_sandbox.providers install registry:<id> --yes`.
 
-These do not enter your plugin:
+## Id, features, secrets
 
-- `abx create --template base` with no provider selected. That is `alicloud-express`.
-- `abx create "a node api"` with a sentence and no `--template`. The CLI first runs the built-in template authoring pipeline (generate, build, deploy). Only the final create uses the selected provider. Launch a plugin with `abx --provider my-cloud create --template <image-or-name>`.
+The id matches `^[a-z][a-z0-9]*(-[a-z0-9]+)*$`, length 2–40. Do not reuse `alicloud-express` or the catalog ids `opensandbox`, `cubesandbox`, `e2b`, `alicloud-container`. Do not start a new id with `abx-`, `alicloud-`, or `shortcuts`.
 
-## What you ship
+`[features] supported` may contain only the 18 ids listed in [Create](en/create.md). Anything else is rejected at install. A call whose id is absent raises `E8004` before I/O.
 
-```text
-my-cloud/
-  abx-provider.toml    required
-  provider.mjs         or provider.py; whatever [runtime] command names
-  README.md            what works, what returns E8004, how to configure
-```
+Name the key `api_key`. The variable is `ABX_<ID>_API_KEY`. Leave `[core] inherit` empty unless the user asked to share `sandbox_api_key`, `sandbox_base_url`, or `sandbox_domain`. Never copy `ABX_SANDBOX_API_KEY` into the new provider.
 
-`exec` plugins are one process speaking JSON-RPC 2.0, one JSON object per line, on stdin/stdout. No npm or pip install at plugin install time. `rest` plugins are a manifest only: an E2B-protocol base URL.
+## EPP/1 methods
 
-Declare a feature only when you implement every method the host sends for it. The machine-readable list is `docs/design/fixtures/epp-methods.json` in the CLI repository.
+An `exec` plugin answers these JSON-RPC methods. A method you did not implement must not be listed under `supported`.
 
-| Feature | Methods you must answer |
+| Group | Methods |
 |---|---|
-| (always) | `initialize`, `shutdown` |
-| `sandbox.lifecycle` | `sandbox.create`, `sandbox.get`, `sandbox.list`, `sandbox.kill`. `sandbox.connect` is optional (`-32601` makes the host call `sandbox.get`) |
-| `sandbox.timeout` | `sandbox.set_timeout` |
-| `sandbox.pause` | `sandbox.pause`, `sandbox.resume` |
-| `exec.run` | `exec.run` |
-| `exec.stream` | `exec.start`, then notifications `exec.output` and one `exec.exit` |
+| handshake | `initialize`, `shutdown` |
+| `sandbox.lifecycle` | `sandbox.create`, `sandbox.get`, `sandbox.list`, `sandbox.kill`. `sandbox.connect` is optional: on `-32601` the host calls `sandbox.get` |
+| `sandbox.timeout` / `sandbox.pause` | `sandbox.set_timeout`, `sandbox.pause`, `sandbox.resume` |
+| `exec.run` / `exec.stream` | `exec.run`. Streaming is `exec.start`, then `exec.output` / `exec.exit` notifications |
 | `process.manage` | `process.list`, `process.kill`, `process.signal`, `process.stdin` |
 | `files.rw` | `files.read`, `files.write`, `files.list`, `files.stat`, `files.mkdir`, `files.remove`, `files.move` |
 | `ports.url` | `ports.url` |
 
-`sandbox.create` params: `template`, `timeout`, `metadata`, `envs`, `cpu`, `memory`, `disk`, `gpu`, `request_timeout`, and `secure` / `options` only when the caller set them. The result needs `sandbox_id`. Also return `template`, `status`, `metadata`, `envd_url` or `url`, `envd_access_token`, `created_at`, `expires_at`, `region` when you have them.
+`sandbox.create` returns a record with `sandbox_id`. Also return, when you have them: `template`, `status`, `metadata`, `envd_url`, `envd_access_token`, `created_at`, `expires_at`, `region`. An `http(s)` `envd_url` means later file, process, and terminal calls use the envd transport. No `envd_url` means the host keeps talking to the plugin (`epp://<id>/<sandbox_id>`).
 
-No `envd_url` means the host keeps using EPP (`epp://<provider>/<sandbox_id>`). An `http(s)` `envd_url` means later file, process, and terminal calls use the E2B envd transport and do not come back to your process.
+| Situation | JSON-RPC | User-facing code |
+|---|---|---|
+| Feature missing | `-32003` | `E8004` |
+| Unknown sandbox on get / connect / timeout / pause / resume | `-32002` | `E2009` |
+| Other missing object, no `sdk_code` | `-32002` | `E8005` |
 
-## Develop
+`sandbox.kill` of an unknown sandbox is not an error. The plugin may succeed or answer `-32002`.
+
+Configuration arrives only in `initialize`. The process starts with a scrubbed environment.
+
+## Check before you publish
 
 ```bash
-abx provider install ./my-cloud --link --yes
-abx provider doctor my-cloud
-abx provider test my-cloud
-abx --provider my-cloud create --template base
-abx exec my-cloud:<id> "echo hello"
+python -m agent_sandbox.providers install ./my-cloud --link --yes
+python -m agent_sandbox.providers doctor my-cloud
+python -m agent_sandbox.providers test my-cloud
 ```
 
-`--link` is a development symlink. It skips the digest check and prints a warning. A real install copies the files and checks the digest on every start.
-
-Config reaches the plugin only inside `initialize.config`. Secret fields are not accepted as `--opt` (they would land in shell history). Users set them with `abx config set providers.<id>.<key>`.
-
-## Add it to this catalog
-
-1. Directory name equals `[provider].id`.
-2. Add an entry to [`awesome-providers.yaml`](../awesome-providers.yaml): `name`, `path`, `description`, `kind`, `license`, `status`.
-3. README states which CLI commands and SDK methods work, which return E8004, and which are partial.
-4. Open a pull request. Install from the catalog with `abx provider install alibaba-agent-sandbox/awesome-providers//my-cloud`.
-
-## For an AI agent
-
-Install [`SKILL.md`](../SKILL.md) (`name: agent-sandbox-provider`) into the coding tool before editing a plugin. The skill is the same rules as this page, in the form an agent loads: where the code lives, the create call path, the method names, and the checks to run.
+Pin a git install to a 40-hex commit. Write a README that matches the consent screen: command, features, security block, config fields. Put the provider's own notes under `<id>/docs/`.

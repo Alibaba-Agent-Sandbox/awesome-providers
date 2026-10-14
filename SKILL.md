@@ -1,63 +1,45 @@
 ---
-name: agent-sandbox-provider
-description: >-
-  Write an installable Agent Sandbox provider plugin (EPP/1) that the abx CLI and
-  the Python SDK both load. Use when adding a sandbox backend, implementing
-  sandbox.create, or explaining how abx create reaches a provider.
-  编写可安装的 Agent Sandbox provider：调用链、EPP/1 方法、清单和目录仓库的提交方式。
+name: awesome-providers
+description: Write or install an Agent Sandbox provider from the awesome-providers catalog. Use when the task is abx-provider.toml, a provider install, a rest, exec or node provider, or E8004. Do not use this to call a sandbox that already exists; that is agent-sandbox-sdk.
 ---
 
-# Agent Sandbox provider
+# Awesome Providers
 
-Write a provider plugin. Do not add the plugin to the Python SDK or the CLI repository. Add a directory to [alibaba-agent-sandbox/awesome-providers](https://github.com/alibaba-agent-sandbox/awesome-providers).
+The SDK and the CLI ship only `alicloud-express`. This catalog holds the other providers. Read `docs/zh/principle.md` (or `docs/en/principle.md`) before editing one.
 
-Human guide: [docs/authoring.zh-CN.md](docs/authoring.zh-CN.md) and [docs/authoring.md](docs/authoring.md). Method list: `docs/design/fixtures/epp-methods.json` in the CLI repository. Copy `opensandbox/` for a real HTTP backend.
+## Install an official provider
 
-## Call path
+```bash
+abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox --allow-unpinned --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//cubesandbox --allow-unpinned --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//e2b --allow-unpinned --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//alicloud-container --allow-unpinned --yes
+```
 
-`abx create` calls `Sandbox.create`. It does not import the plugin.
+The CLI installs from the git tree; add `--ref <40-hex-commit>` to pin instead of `--allow-unpinned`. `registry:<id>` exists only in the Python installer (`python -m agent_sandbox.providers install registry:<id> --yes`) and needs the index below, which is not live yet; `abx` has no `registry:` form.
 
-1. `--provider` / `--opt` are taken off the argv in `main()` and stored for this process.
-2. Provider id: `provider=` argument, then `--provider`, then `ABX_PROVIDER`, then `./.env`, then `~/.abx/.env`, then `[core] provider`, then `alicloud-express`.
-3. `alicloud-express` uses the built-in client. The plugin process is not started.
-4. Any other id loads `~/.abx/providers/<id>`, checks the tree digest, and spawns the manifest command with a scrubbed environment.
-5. The host sends `initialize`, then `sandbox.create`.
-6. The plugin returns `sandbox_id`. The CLI prints `<id>:<sandbox_id>`.
-7. Later commands check the declared feature first. A missing feature is `E8004` and the method is not sent.
+Index: `https://registry.agent-sandbox.cn/providers/index.json`. Override with `ABX_PROVIDER_REGISTRY` (URL or a local `index.json` path). A background check writes `~/.abx/providers/updates.json`. It does not install. `ABX_PROVIDER_UPDATE_CHECK=0` skips it. The registry website is https://registry.agent-sandbox.com. The official site is https://www.agent-sandbox.com.
 
-`abx create "some description"` without `--template` runs the built-in template authoring pipeline before that create. It is not implemented by the plugin. Tell the user to run `abx --provider <id> create --template <image-or-name>`.
+All four providers are `node` (an ES module the host loads; `opensandbox` runs its EPP methods in process through `kit.epp.infra`). Both run from the CLI (`abx --provider e2b create`) and from every SDK (`Sandbox.create(provider="e2b")`); SDKs reach the plugin through the local engine, `abx provider engine serve`, which needs `abx` on `PATH` or `ABX_BIN`.
 
-Python `Sandbox.create(template=..., provider="<id>")` starts at step 2 and uses the same installed directory.
+## Write a new provider
 
-## Implement
+New id, new directory, one row in `index.json`. Do not reuse `alicloud-express`, `opensandbox`, `cubesandbox`, `e2b`, or `alicloud-container`.
 
-- One directory. Name equals `[provider].id`. Files: `abx-provider.toml`, the program named by `[runtime] command`, and a README.
-- `exec`: JSON-RPC 2.0, one JSON object per line, stdin/stdout. No package install step.
-- Declare only features whose methods you implement.
-- `sandbox.lifecycle`: `sandbox.create`, `sandbox.get`, `sandbox.list`, `sandbox.kill`. `sandbox.connect` is optional.
-- `exec.run` is `exec.run`. Streaming (`exec.stream`) is `exec.start` plus `exec.output` / `exec.exit` notifications. There is no method named `exec.stream`.
-- `files.rw` uses `files.move`, not `rename`. `process.manage` uses `process.stdin`, not `send_stdin`.
-- `sandbox.create` must return `sandbox_id`. Omit `envd_url` to stay on EPP. An `http(s)` `envd_url` switches later file and process calls to the envd transport.
-- Secrets go through `initialize.config` only. Never read `ABX_SANDBOX_API_KEY` unless `[core] inherit` lists it and the user consented.
-- Do not log config values marked `secret`.
+| Kind | Write | Hosts |
+|---|---|---|
+| `rest` | `abx-provider.toml` only, protocol `e2b-rest/1` | SDK and CLI |
+| `exec` | manifest plus an EPP/1 process, protocol `epp/1` | SDK and CLI |
+| `node` | `provider.mjs` with `export default create(kit)`, protocol `node/1` | SDK and CLI |
 
-## Checks
+`[features] supported` is only the 18 ids in `docs/en/create.md`. Undeclared calls raise `E8004` before I/O. Leave `[core] inherit` empty. Do not read `ABX_SANDBOX_API_KEY`.
 
 ```bash
 abx provider install ./my-cloud --link --yes
 abx provider doctor my-cloud
 abx provider test my-cloud
-abx --provider my-cloud create --template base
 ```
 
-`provider test` is the contract suite. A declared feature that fails the contract is a bug. An undeclared feature must come back as E8004.
+Without a real backend, say which variable is missing. Do not borrow another provider's key.
 
-## Catalog PR
-
-Add the directory and one `awesome-providers.yaml` entry (`name`, `path`, `description`, `kind`, `license`, `status`). The README table must say what works, what is partial, and what returns E8004. Install line for users:
-
-```bash
-abx provider install alibaba-agent-sandbox/awesome-providers//my-cloud
-```
-
-`//` is the subdirectory, the same spelling as `abx template install owner/repo//subdir`.
+Each provider directory has `docs/README.md`. Update that file when you change paths, features, or what has actually been run.

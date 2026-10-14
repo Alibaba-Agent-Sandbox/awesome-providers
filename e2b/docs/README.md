@@ -1,6 +1,6 @@
 # E2B
 
-目录提供方，id 是 `e2b`。安装之后由 Python SDK 加载。CLI 不加载 `kind = "python"`。它用和 `rest` 提供方同一套 HTTP 客户端打 E2B 公开 API，不启动 Node 插件。
+目录提供方，id 是 `e2b`，类型 `node`（`provider.mjs`，由宿主进程加载）。它用宿主内置的 E2B 协议类打 E2B 公开 API。CLI 和所有 SDK 都能用：CLI 直接运行，SDK 经由本机引擎（`abx provider engine serve`）。
 
 总说明：[工作原理](../../docs/zh/principle.md) · [安装](../../docs/zh/install.md)
 
@@ -8,7 +8,8 @@
 
 ```bash
 export ABX_E2B_API_KEY=REPLACE_ME
-python -m agent_sandbox.providers install registry:e2b --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//e2b --allow-unpinned --yes   # 或 Python：python -m agent_sandbox.providers install registry:e2b --yes（索引上线后）
+abx --provider e2b create --template base
 ```
 
 ```python
@@ -48,23 +49,23 @@ sb = await Sandbox.create(provider="e2b", template="base", timeout=300)
 
 ## 会抛出 E8004 的调用
 
-`pty`、`files.transfer`、`templates.read`、`templates.build`、`ports.domain`、`storage.mount`、`network.vpc`、`sessions`。
+`files.transfer`、`templates.read`、`templates.build`、`ports.domain`、`storage.mount`、`network.vpc`、`sessions`。`pty` 也没有声明。
 
-公开 envd 没有单独的 `/terminal`。交互终端要等进程 Start 的 `pty` 字段，不要把 `get_terminal` 改成静默成功。
+公开 envd 没有单独的 `/terminal`。交互终端要等进程 Start 的 `pty` 字段，所以这里不声明 `pty`。
 
 没接、也不登记成扩展的接口：沙箱日志、指标、快照、fork、更新网络、卷、模板标签、团队密钥、事件和 webhook。
 
 ## 实测
 
-单元测试在 `127.0.0.1` 上用假的 `POST /sandboxes`，不访问公网。`e2e/test_08_providers.py` 只在设置了 `ABX_E2B_API_KEY` 时访问 E2B。这台环境没有这把密钥，所以真实创建没有执行。没有密钥时，测试确认创建在发请求前拒绝，并且极速版密钥不会被送出去。
+单元测试在 `127.0.0.1` 上用假的 `POST /sandboxes`（`cli/tests/test_providers/test_node_plugins.test.ts`），不访问公网。真实调用只在设置了 `ABX_E2B_API_KEY` 时才有意义。这台环境没有这把密钥，所以真实创建没有执行。没有密钥时，测试确认创建在发请求前拒绝，并且极速版密钥不会被送出去。
 
 ## English
 
-Catalog provider, id `e2b`. After install, the Python SDK loads it. The CLI does not load `kind = "python"`. It uses the same HTTP client as a `rest` provider against the public E2B API.
+Catalog provider, id `e2b`, kind `node` (`provider.mjs`, loaded by the host). It uses the host's E2B protocol classes against the public E2B API and runs from the CLI and from every SDK (through the local engine, `abx provider engine serve`).
 
 ```bash
 export ABX_E2B_API_KEY=REPLACE_ME
-python -m agent_sandbox.providers install registry:e2b --yes
+abx provider install alibaba-agent-sandbox/awesome-providers//e2b --allow-unpinned --yes   # or, Python only once the index is live: python -m agent_sandbox.providers install registry:e2b --yes
 ```
 
 | Field | Environment | Default |
@@ -75,6 +76,6 @@ python -m agent_sandbox.providers install registry:e2b --yes
 
 Missing `ABX_E2B_API_KEY` raises `InvalidAPIKeyError` before any request. It does not read `ABX_SANDBOX_API_KEY` or `E2B_API_KEY`. An old account on `e2b.dev` sets both `ABX_E2B_BASE_URL` and `ABX_E2B_DOMAIN`.
 
-Connect tries `POST /v2/sandboxes/{id}/connect`, then `POST /sandboxes/{id}/connect`, then GET. Process Start sends `stdin: false`. `files.watch` is declared. `get_terminal` is `E8004` because public envd has no `/terminal`.
+Connect tries `POST /v2/sandboxes/{id}/connect`, then `POST /sandboxes/{id}/connect`, then GET. Process Start sends `stdin: false`. `files.watch` is declared. `pty` is not declared because public envd has no `/terminal`.
 
-Unit tests use a local fake API. Live create runs only when `ABX_E2B_API_KEY` is set. This environment does not have that key.
+Unit tests use a local fake API. A live create needs `ABX_E2B_API_KEY`. This environment does not have that key.

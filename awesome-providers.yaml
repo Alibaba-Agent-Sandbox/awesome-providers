@@ -14,7 +14,7 @@
 #       path:         directory inside this repo (omit only if the whole repo is one plugin)
 #       tags:         search tags
 #       author:       author name or GitHub handle
-#       kind:         exec | rest | python
+#       kind:         node | exec | rest
 #       license:      SPDX identifier
 #       status:       official | community | experimental
 #
@@ -23,39 +23,39 @@
 schema_version: 1
 providers:
   - name: opensandbox
-    description: "OpenSandbox server (Docker or Kubernetes) through a dependency-free Node EPP/1 plugin"
+    description: "OpenSandbox server (Docker or Kubernetes) through a dependency-free Node ES module"
     repo: https://github.com/alibaba-agent-sandbox/awesome-providers
     path: opensandbox
-    tags: [opensandbox, exec, node, epp]
+    tags: [opensandbox, node]
     author: alibaba-agent-sandbox
-    kind: exec
+    kind: node
     license: Apache-2.0
     status: official
 
   - name: cubesandbox
-    description: "Tencent CubeSandbox CubeAPI. Default http://127.0.0.1:3000. Python plugin for the SDK."
+    description: "Tencent CubeSandbox CubeAPI. Default http://127.0.0.1:3000."
     repo: https://github.com/alibaba-agent-sandbox/awesome-providers
     path: cubesandbox
-    tags: [cubesandbox, python]
+    tags: [cubesandbox, node]
     author: alibaba-agent-sandbox
-    kind: python
+    kind: node
     license: Apache-2.0
     status: official
   - name: e2b
-    description: "E2B public API. Set ABX_E2B_API_KEY. Does not read the Express key. Python plugin for the SDK."
+    description: "E2B public API. Set ABX_E2B_API_KEY. Does not read the Express key."
     repo: https://github.com/alibaba-agent-sandbox/awesome-providers
     path: e2b
-    tags: [e2b, python]
+    tags: [e2b, node]
     author: alibaba-agent-sandbox
-    kind: python
+    kind: node
     license: Apache-2.0
     status: official
   - name: alicloud-container
-    description: "ACS/ACK sandbox-manager. Set ABX_ALICLOUD_CONTAINER_DOMAIN and ABX_ALICLOUD_CONTAINER_API_KEY. Python plugin for the SDK."
+    description: "ACS/ACK sandbox-manager. Set ABX_ALICLOUD_CONTAINER_DOMAIN and ABX_ALICLOUD_CONTAINER_API_KEY."
     repo: https://github.com/alibaba-agent-sandbox/awesome-providers
     path: alicloud-container
-    tags: [alicloud, container, python]
+    tags: [alicloud, container, node]
     author: alibaba-agent-sandbox
-    kind: python
+    kind: node
     license: Apache-2.0
     status: official

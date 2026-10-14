@@ -2,13 +2,13 @@
 
 A provider is a directory: `abx-provider.toml`, plus the program that runtime needs. Do not put it in the SDK or CLI repository. A new backend is a new subdirectory here, plus one row in `index.json`.
 
-Pick a runtime first. All three install under `~/.abx/providers/<id>`. The CLI loads only the first two.
+Pick a runtime first. All three install under `~/.abx/providers/<id>`. The CLI and every SDK run all of them, because the host that loads a provider is the Node.js CLI (SDKs reach it through the local engine).
 
 | Kind | What you write | When |
 |---|---|---|
 | `rest` | Manifest only | The backend is E2B HTTP: `POST /sandboxes` with `templateID`, header `X-API-Key` or bearer, envd at `https://{port}-{id}.{domain}` |
 | `exec` | Manifest plus a process | The API is not E2B-shaped. Any language. The process speaks EPP/1. Nothing runs at install time |
-| `python` | Manifest plus `load()` in `provider.py` | You need a Python class in the SDK process. The CLI does not load this kind |
+| `node` | Manifest plus `provider.mjs` | The backend is E2B-shaped but needs a tweak (a proxy dial, an optional token, different paths). An ES module, loaded in the host process through a kit |
 
 Do not start from the Express engine. Do not read `ABX_SANDBOX_API_KEY`. That key is Express only.
 
@@ -17,7 +17,7 @@ Do not start from the Express engine. Do not read `ABX_SANDBOX_API_KEY`. That ke
 ```text
 my-cloud/
   abx-provider.toml
-  provider.py          # only when kind = "python"
+  provider.mjs         # only when kind = "node"
   README.md            # this provider's own notes
 ```
 
@@ -51,12 +51,12 @@ description = "What this backend is."
 license = "Apache-2.0"
 
 [compat]
-protocol = "python/1"
-requires = { sdk = ">=0.3" }
+protocol = "node/1"
+requires = { sdk = ">=0.3", cli = ">=0.3" }
 
 [runtime]
-kind = "python"
-entry = "provider.py"
+kind = "node"
+entry = "provider.mjs"
 
 [features]
 supported = [
@@ -101,7 +101,7 @@ For `exec`, set `protocol` to `epp/1` and add `command`:
 ```toml
 [runtime]
 kind = "exec"
-command = ["python", "./provider.py"]
+command = ["node", "./provider.mjs"]
 startup_timeout_ms = 10000
 call_timeout_ms = 60000
 ```
@@ -135,32 +135,32 @@ sessions            named commands on the in-sandbox server
 
 Declare a feature only when the backend implements that call. A declared feature that 404s is worse than `E8004`, because the caller thinks the request was sent.
 
-An API outside those 18 ids is an extension, not a new feature id. On a Python `Provider`, set `extensions = (Extension(id, summary, summary_zh, implemented, when),)`. `when` is `sandbox`, `code_interpreter_image`, `egress`, or `command`. `implemented=False` still raises `E8004` from `require_extension`. Manifest `[features.extensions.*]` is documentation; the installer does not parse it.
+An API outside those 18 ids is not a feature id. Say so in the provider's README; the manifest has no place to declare it.
 
-## Python entry
+## Node entry
 
-```python
-from agent_sandbox.providers import Provider
-from agent_sandbox.providers.feature_gate import gate_protocol
-
-class MyCloud(Provider):
-    id = "my-cloud"
-    display_name = "My Cloud"
-    kind = "python"
-    features = frozenset({"sandbox.lifecycle", "exec.run", "files.rw"})
-    inherit = frozenset()
-
-    async def build_infra(self, config):
-        # Build the HTTP client from config.provider_options and ABX_MY_CLOUD_*.
-        # Pass protocol objects through gate_protocol so undeclared methods
-        # become E8004 before any request.
-        ...
-
-def load() -> MyCloud:
-    return MyCloud()
+```js
+export default function create(kit) {
+  return {
+    async buildInfra(ctx) {
+      const base_url = String(ctx.options.base_url || "https://api.example.com");
+      const auth = ctx.headerKeyAuth(String(ctx.options.api_key), "X-API-Key");
+      const http = ctx.http({ base_url, domain: "example.app", auth });
+      return {
+        auth,
+        http_client: http,
+        endpoint: { base_url, domain: "example.app" },
+        sandbox_protocol: new kit.SandboxProtocol(http),
+        process_protocol: new kit.ProcessProtocol(http),
+        filesystem_protocol: new kit.FilesystemProtocol(http),
+        code_interpreter_protocol: new kit.CodeInterpreterProtocol(http),
+      };
+    },
+  };
+}
 ```
 
-`load()` is the entry after install. `register_provider` is only for in-process registration; the installer does not call it.
+The host passes `kit` and a `ctx`: `ctx.options` holds only the fields you declared under `[config.fields.*]`, and `ctx.core` the generic keys you inherit. The host gates every protocol by the declared features, so undeclared methods become `E8004` before any request. To change one call, wrap a protocol with `kit.e2b.overlay(inner, { method })` or subclass it (see `cubesandbox/provider.mjs`). `buildInfra` may also return `envd_dial: [host, port]` and `envd_auth: { allow_missing, basic_user }` for backends behind a proxy or with an optional envd token.
 
 An `exec` process receives configuration in `initialize`. It must not read the parent environment. Secrets arrive only there. The method table and error codes are in [authoring.md](../authoring.md).
 

@@ -1,20 +1,20 @@
 manifest_version = 1
 
 [provider]
-id = "alicloud-container"
-name = "Alibaba Cloud Agent Sandbox Container Edition"
-name_zh = "阿里云智能体沙箱容器版"
-version = "0.1.0"
+id          = "alicloud-container"
+name        = "Alibaba Cloud Agent Sandbox Container Edition"
+name_zh     = "阿里云智能体沙箱容器版"
+version     = "0.2.1"
 description = "ACS/ACK sandbox-manager. Set ABX_ALICLOUD_CONTAINER_DOMAIN and ABX_ALICLOUD_CONTAINER_API_KEY."
-license = "Apache-2.0"
+license     = "Apache-2.0"
 
 [compat]
-protocol = "python/1"
-requires = { sdk = ">=0.3" }
+protocol = "node/1"
+requires = { sdk = ">=0.3", cli = ">=0.3" }
 
 [runtime]
-kind = "python"
-entry = "provider.py"
+kind  = "node"
+entry = "provider.mjs"
 
 [features]
 supported = [
@@ -24,3 +24,33 @@ supported = [
 
 [security]
 network = ["*"]
+
+[core]
+inherit = []
+
+[config.fields.domain]
+type           = "string"
+description    = "sandbox-manager domain. Native API is https://api.{domain}."
+description_zh = "sandbox-manager 域名。原生协议的 API 是 https://api.{domain}。"
+
+[config.fields.base_url]
+type           = "url"
+description    = "Override the API origin. Private protocol is https://{domain}/kruise/api."
+description_zh = "覆盖 API 源站。私有协议是 https://{domain}/kruise/api。"
+
+[config.fields.api_key]
+type           = "string"
+secret         = true
+credential     = true
+description    = "sandbox-manager API key, sent as X-API-Key."
+description_zh = "sandbox-manager 的 API Key，放在 X-API-Key。"
+
+[config.fields.protocol]
+type           = "enum"
+choices        = ["native", "private"]
+default        = "native"
+description    = "native uses {port}-{id}.{domain}. private uses /kruise/{id}/{port}."
+description_zh = "native 用 {port}-{id}.{domain}。private 用 /kruise/{id}/{port}。"
+
+[auth]
+any_of = [["api_key"]]
