@@ -1,6 +1,6 @@
 # 阿里云智能体沙箱容器版
 
-目录提供方，id 是 `alicloud-container`。这不是极速版 `alicloud-express`。它是 ACS 或 ACK 上的 OpenKruise Agents sandbox-manager，说的是 E2B 形状的 HTTP。安装之后由 Python SDK 加载。CLI 不加载 `kind = "python"`。
+目录提供方，id 是 `alicloud-container`。这不是极速版 `alicloud-express`。它是 ACS 或 ACK 上的 OpenKruise Agents sandbox-manager，说的是 E2B 形状的 HTTP。类型 `node`（`provider.mjs`，由宿主进程加载）。CLI 和所有 SDK 都能用：CLI 直接运行，SDK 经由本机引擎（`abx provider engine serve`）。
 
 总说明：[工作原理](../../docs/zh/principle.md) · [安装](../../docs/zh/install.md)
 
@@ -9,7 +9,8 @@
 ```bash
 export ABX_ALICLOUD_CONTAINER_DOMAIN=sbx.example.com
 export ABX_ALICLOUD_CONTAINER_API_KEY=REPLACE_ME
-python -m agent_sandbox.providers install registry:alicloud-container --yes
+abx provider install registry:alicloud-container --yes   # 或 python -m agent_sandbox.providers install registry:alicloud-container --yes
+abx --provider alicloud-container create --template code-interpreter
 ```
 
 ```python
@@ -56,22 +57,22 @@ sb = await Sandbox.create(
 
 ## 会抛出 E8004 的调用
 
-`pty`、`files.watch`、`files.transfer`、`templates.read`、`templates.build`、`ports.domain`、`storage.mount`、`network.vpc`、`sessions`。
+`files.watch`、`files.transfer`、`templates.read`、`templates.build`、`ports.domain`、`storage.mount`、`network.vpc`、`sessions`。
 
-sandbox-manager 没有 `/terminal`。PTY 要走带 `pty` 字段的进程启动，这个适配器还没接，所以 `get_terminal` 是 `E8004`。官方说明里，预签名上传下载、日志、指标和卷也不在容器版的 E2B 兼容范围内。
+sandbox-manager 没有 `/terminal`。PTY 要走带 `pty` 字段的进程启动，这个适配器还没接，所以清单不声明 `pty`。官方说明里，预签名上传下载、日志、指标和卷也不在容器版的 E2B 兼容范围内。
 
 ## 实测
 
-单元测试打的是本机假 API。`e2e/test_08_providers.py` 在同时设置了 `ABX_ALICLOUD_CONTAINER_DOMAIN` 和 `ABX_ALICLOUD_CONTAINER_API_KEY` 时走真实 sandbox-manager。这台环境没有 ACS/ACK 集群，所以真实创建没有执行。没有这两项时，测试只确认适配器在发请求前拒绝，不会把极速版密钥发出去。
+单元测试打的是本机假 API（`cli/tests/test_providers/test_node_plugins.test.ts`）。真实 sandbox-manager 需要同时设置 `ABX_ALICLOUD_CONTAINER_DOMAIN` 和 `ABX_ALICLOUD_CONTAINER_API_KEY`。这台环境没有 ACS/ACK 集群，所以真实创建没有执行。没有这两项时，测试只确认适配器在发请求前拒绝，不会把极速版密钥发出去。
 
 ## English
 
-Catalog provider, id `alicloud-container`. This is the ACS/ACK OpenKruise Agents sandbox-manager, not Express (`alicloud-express`). After install, the Python SDK loads it. The CLI does not load `kind = "python"`.
+Catalog provider, id `alicloud-container`. This is the ACS/ACK OpenKruise Agents sandbox-manager, not Express (`alicloud-express`). Kind `node` (`provider.mjs`, loaded by the host). It runs from the CLI and from every SDK (through the local engine, `abx provider engine serve`).
 
 ```bash
 export ABX_ALICLOUD_CONTAINER_DOMAIN=sbx.example.com
 export ABX_ALICLOUD_CONTAINER_API_KEY=REPLACE_ME
-python -m agent_sandbox.providers install registry:alicloud-container --yes
+abx provider install registry:alicloud-container --yes   # or: python -m agent_sandbox.providers install registry:alicloud-container --yes
 ```
 
 | Setting | Environment |
@@ -83,6 +84,6 @@ python -m agent_sandbox.providers install registry:alicloud-container --yes
 
 `native` uses `https://api.{domain}` and `https://{port}-{id}.{domain}`. `private` uses `https://{domain}/kruise/api` and `https://{domain}/kruise/{id}/49983`. It does not read `ABX_SANDBOX_API_KEY`.
 
-Declared: `sandbox.lifecycle`, `sandbox.timeout`, `sandbox.pause`, `exec.run`, `exec.stream`, `process.manage`, `files.rw`, `code.interpret`, `ports.url`. `run_code` is Jupyter `POST /execute` on port 49999. `get_terminal` is `E8004`; sandbox-manager has no `/terminal`.
+Declared: `sandbox.lifecycle`, `sandbox.timeout`, `sandbox.pause`, `exec.run`, `exec.stream`, `process.manage`, `files.rw`, `code.interpret`, `ports.url`. `run_code` is Jupyter `POST /execute` on port 49999. `pty` is not declared; sandbox-manager has no `/terminal`.
 
-Unit tests use a local fake API. Live create needs both the domain and the API key. This environment has no ACS/ACK cluster, so that create did not run. The example template id is `code-interpreter`, not Express `base`.
+Unit tests use a local fake API. A live create needs both the domain and the API key. This environment has no ACS/ACK cluster, so that create did not run. The example template id is `code-interpreter`, not Express `base`.

@@ -38,14 +38,15 @@ test("handshake: protocol, features, config validation", async () => {
   const init = await host.initialize({});
   assert.equal(init.protocol, "epp/1");
   assert.ok(init.features.includes("sandbox.lifecycle"));
-  assert.ok(!init.features.includes("pty") && !init.features.includes("code.interpret"));
+  assert.ok(!init.features.includes("code.interpret"));
+  assert.equal(init.features.includes("pty"), typeof WebSocket === "function");
   assert.equal((await rpcError(host.call("no.such.method"))).code, -32601);
   assert.equal(await host.close(), 0);
 });
 
 test("undeclared features answer -32003 with the feature name", async () => {
   await withPlugin({}, {}, async (host) => {
-    for (const [method, feature] of [["pty.open", "pty"], ["code.run", "code.interpret"], ["templates.list", "templates.read"], ["templates.build", "templates.build"], ["files.watch", "files.watch"], ["files.upload_url", "files.transfer"], ["process.stdin", "process.stdin"]]) {
+    for (const [method, feature] of [["code.run", "code.interpret"], ["templates.list", "templates.read"], ["templates.build", "templates.build"], ["files.watch", "files.watch"], ["files.upload_url", "files.transfer"], ["process.stdin", "process.stdin"]]) {
       const err = await rpcError(host.call(method, { sandbox_id: "x" }));
       assert.equal(err.code, -32003, method);
       assert.equal(err.data.details.feature, feature, method);
@@ -382,4 +383,36 @@ test("garbage on stdin is answered with a parse error and does not kill the plug
   await new Promise((r) => setTimeout(r, 100));
   assert.equal((await host.call("shutdown")).constructor, Object);
   await host.exited;
+});
+
+test("pty: open, write, resize, output, exit and close", { skip: typeof WebSocket !== "function" }, async () => {
+  await withPlugin({}, {}, async (host, mock) => {
+    const id = await newSandbox(host);
+    const opened = await host.call("pty.open", { sandbox_id: id, cols: 100, rows: 30 });
+    const ptyId = opened.process_id;
+    assert.ok(ptyId);
+    const text = (note) => Buffer.from(note.params.data_b64, "base64").toString();
+    await host.call("pty.write", { sandbox_id: id, process_id: ptyId, data_b64: Buffer.from("ls\n").toString("base64") });
+    const echoed = await host.waitNote((n) => n.method === "pty.output" && text(n) === "echo:ls\n");
+    assert.equal(echoed.params.process_id, ptyId);
+    await host.call("pty.resize", { sandbox_id: id, process_id: ptyId, cols: 120, rows: 40 });
+    await host.call("pty.write", { sandbox_id: id, process_id: ptyId, data_b64: Buffer.from("exit\n").toString("base64") });
+    await host.waitNote((n) => n.method === "pty.exit" && n.params.process_id === ptyId);
+    for (let i = 0; i < 50 && mock.pty.deleted.length === 0; i += 1) await new Promise((r) => setTimeout(r, 20));
+    assert.deepEqual(mock.pty.resizes, [[100, 30], [120, 40]]);
+    assert.deepEqual(mock.pty.stdin, ["ls\n", "exit\n"]);
+    assert.equal((await rpcError(host.call("pty.write", { sandbox_id: id, process_id: ptyId, data_b64: "" }))).code, -32002);
+    assert.equal(mock.pty.deleted.length, 1, "the execd session is deleted when the terminal ends");
+  });
+});
+
+test("pty: closing from the host ends the stream and deletes the session", { skip: typeof WebSocket !== "function" }, async () => {
+  await withPlugin({ gateway: true }, {}, async (host, mock) => {
+    const id = await newSandbox(host);
+    const { process_id: ptyId } = await host.call("pty.open", { sandbox_id: id });
+    await host.call("pty.close", { sandbox_id: id, process_id: ptyId });
+    await host.waitNote((n) => n.method === "pty.exit" && n.params.process_id === ptyId);
+    for (let i = 0; i < 50 && mock.pty.deleted.length === 0; i += 1) await new Promise((r) => setTimeout(r, 20));
+    assert.equal(mock.pty.deleted.length, 1);
+  });
 });

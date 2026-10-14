@@ -11,7 +11,7 @@ import { spawn } from "node:child_process";
 import { mkdtempSync, mkdirSync, rmSync, readFileSync, writeFileSync, statSync, readdirSync, renameSync, existsSync, chmodSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname, resolve, sep } from "node:path";
-import { randomUUID, randomBytes } from "node:crypto";
+import { randomUUID, randomBytes, createHash } from "node:crypto";
 
 const LABEL = /^[A-Za-z0-9]([-A-Za-z0-9_.]*[A-Za-z0-9])?$/;
 const send = (res, status, body, headers = {}) => {
@@ -51,6 +51,8 @@ export async function startMock(options = {}) {
   const { apiKey = "mock-key", legacyExecd = false, gateway = false, onRequest } = options;
   const sandboxes = new Map();
   const commands = new Map();
+  const pty = { resizes: [], stdin: [], deleted: [], sockets: 0 };
+  const upgraded = new Set();
   let origin = "";
 
   const fsPath = (sb, p) => {
@@ -96,6 +98,17 @@ export async function startMock(options = {}) {
     if (gateway && req.headers["x-gw-route"] !== "1") return send(res, 401, { error: "Unauthorized: invalid or missing header X-GW-ROUTE" });
     const method = req.method;
     if (path === "/ping") return send(res, 200);
+    if (path === "/pty" && method === "POST") {
+      const sessionId = randomUUID();
+      sb.ptys.set(sessionId, { opened: false });
+      return send(res, 201, { session_id: sessionId });
+    }
+    const ptyDelete = /^\/pty\/([^/]+)$/.exec(path);
+    if (ptyDelete && method === "DELETE") {
+      pty.deleted.push(ptyDelete[1]);
+      sb.ptys.delete(ptyDelete[1]);
+      return send(res, 200);
+    }
     if (path === "/command" && method === "POST") {
       const body = JSON.parse((await readBody(req)).toString());
       if (legacyExecd && body.argv) {
@@ -278,7 +291,7 @@ export async function startMock(options = {}) {
       const root = mkdtempSync(join(tmpdir(), "mock-osb-"));
       const sb = {
         id, root, image: body.image.uri, state: "Running", metadata: body.metadata ?? {}, env: body.env ?? {}, entrypoint: body.entrypoint,
-        createdAt: new Date().toISOString(), expiresAt: body.timeout ? new Date(Date.now() + body.timeout * 1000).toISOString() : undefined, request: body,
+        ptys: new Map(), createdAt: new Date().toISOString(), expiresAt: body.timeout ? new Date(Date.now() + body.timeout * 1000).toISOString() : undefined, request: body,
       };
       sandboxes.set(id, sb);
       return send(res, 202, { id, status: { state: "Running" }, metadata: sb.metadata, expiresAt: sb.expiresAt, createdAt: sb.createdAt, entrypoint: sb.entrypoint });
@@ -321,6 +334,60 @@ export async function startMock(options = {}) {
     return send(res, 404, { code: "NOT_FOUND", message: "no route" });
   }
 
+  /** Just enough RFC 6455 for the terminal: handshake, masked client frames in, plain frames out. */
+  function upgrade(req, socket) {
+    const url = new URL(req.url, "http://x");
+    const m = /^(?:\/execd\/([^/]+)|\/v1\/sandboxes\/([^/]+)\/proxy\/44772)\/pty\/([^/]+)\/ws$/.exec(url.pathname);
+    const sb = m && sandboxes.get(m[1] ?? m[2]);
+    if (!sb || !sb.ptys.has(m[3]) || (gateway && req.headers["x-gw-route"] !== "1")) {
+      socket.end("HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n");
+      return;
+    }
+    const accept = createHash("sha1").update(`${req.headers["sec-websocket-key"]}258EAFA5-E914-47DA-95CA-C5AB0DC85B11`).digest("base64");
+    socket.write(`HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${accept}\r\n\r\n`);
+    pty.sockets += 1;
+    upgraded.add(socket);
+    socket.on("close", () => upgraded.delete(socket));
+    const out = (opcode, payload) => {
+      const head = payload.length < 126 ? Buffer.from([0x80 | opcode, payload.length]) : Buffer.from([0x80 | opcode, 126, payload.length >> 8, payload.length & 255]);
+      socket.write(Buffer.concat([head, payload]));
+    };
+    out(1, Buffer.from(JSON.stringify({ type: "connected", session_id: m[3], mode: "pty", role: "holder" })));
+    let buf = Buffer.alloc(0);
+    socket.on("data", (chunk) => {
+      buf = Buffer.concat([buf, chunk]);
+      for (;;) {
+        if (buf.length < 2) return;
+        const opcode = buf[0] & 15;
+        let len = buf[1] & 127;
+        let at = 2;
+        if (len === 126) {
+          if (buf.length < 4) return;
+          len = buf.readUInt16BE(2);
+          at = 4;
+        }
+        if (buf.length < at + 4 + len) return;
+        const mask = buf.subarray(at, at + 4);
+        const data = Buffer.from(buf.subarray(at + 4, at + 4 + len));
+        for (let i = 0; i < data.length; i += 1) data[i] ^= mask[i % 4];
+        buf = buf.subarray(at + 4 + len);
+        if (opcode === 8) {
+          socket.end();
+          return;
+        }
+        if (opcode === 1) {
+          const msg = JSON.parse(data.toString());
+          if (msg.type === "resize") pty.resizes.push([msg.cols, msg.rows]);
+        } else if (opcode === 2 && data[0] === 0) {
+          pty.stdin.push(data.subarray(1).toString());
+          out(2, Buffer.concat([Buffer.from([1]), Buffer.from(`echo:${data.subarray(1).toString()}`)]));
+          if (data.subarray(1).toString().includes("exit")) out(1, Buffer.from(JSON.stringify({ type: "exit" })));
+        }
+      }
+    });
+    socket.on("error", () => undefined);
+  }
+
   const server = createServer(async (req, res) => {
     const url = new URL(req.url, "http://x");
     onRequest?.(req);
@@ -344,14 +411,17 @@ export async function startMock(options = {}) {
       return send(res, 500, { code: "MOCK_ERROR", message: String(err?.stack ?? err) });
     }
   });
+  server.on("upgrade", (req, socket) => upgrade(req, socket));
   await new Promise((r) => server.listen(0, "127.0.0.1", r));
   origin = `http://127.0.0.1:${server.address().port}`;
   return {
     origin,
     apiKey,
     sandboxes,
+    pty,
     async close() {
       for (const sb of sandboxes.values()) rmSync(sb.root, { recursive: true, force: true });
+      for (const socket of upgraded) socket.destroy();
       server.closeAllConnections?.();
       await new Promise((r) => server.close(r));
     },

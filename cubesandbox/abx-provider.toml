@@ -1,20 +1,20 @@
 manifest_version = 1
 
 [provider]
-id = "cubesandbox"
-name = "CubeSandbox"
-name_zh = "CubeSandbox"
-version = "0.1.0"
+id          = "cubesandbox"
+name        = "CubeSandbox"
+name_zh     = "CubeSandbox"
+version     = "0.2.0"
 description = "Tencent CubeSandbox CubeAPI. Default http://127.0.0.1:3000."
-license = "Apache-2.0"
+license     = "Apache-2.0"
 
 [compat]
-protocol = "python/1"
-requires = { sdk = ">=0.3" }
+protocol = "node/1"
+requires = { sdk = ">=0.3", cli = ">=0.3" }
 
 [runtime]
-kind = "python"
-entry = "provider.py"
+kind  = "node"
+entry = "provider.mjs"
 
 [features]
 supported = [
@@ -24,3 +24,29 @@ supported = [
 
 [security]
 network = ["*"]
+
+[core]
+inherit = []
+
+[config.fields.base_url]
+type           = "url"
+default        = "http://127.0.0.1:3000"
+description    = "CubeAPI origin, without a path prefix. SDK default port is 3000."
+description_zh = "CubeAPI 源站，不带路径前缀。SDK 默认端口是 3000。"
+
+[config.fields.api_key]
+type           = "string"
+secret         = true
+description    = "Optional X-API-Key. Omitted when unset. Not ABX_SANDBOX_API_KEY."
+description_zh = "可选的 X-API-Key。未设置则不发送。不是 ABX_SANDBOX_API_KEY。"
+
+[config.fields.domain]
+type           = "string"
+default        = "cube.app"
+description    = "Suffix for {port}-{sandboxID}.{domain}. Default cube.app."
+description_zh = "端口主机名后缀。默认 cube.app。"
+
+[config.fields.proxy]
+type           = "string"
+description    = "CubeProxy host:port. TCP goes there; Host stays the virtual name."
+description_zh = "CubeProxy 的 host:port。TCP 打到这里，Host 仍是虚拟主机名。"

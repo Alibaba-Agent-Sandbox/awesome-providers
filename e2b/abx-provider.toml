@@ -1,20 +1,20 @@
 manifest_version = 1
 
 [provider]
-id = "e2b"
-name = "E2B"
-name_zh = "E2B"
-version = "0.1.0"
+id          = "e2b"
+name        = "E2B"
+name_zh     = "E2B"
+version     = "0.2.0"
 description = "E2B cloud sandboxes. Set ABX_E2B_API_KEY. Does not read the Express key."
-license = "Apache-2.0"
+license     = "Apache-2.0"
 
 [compat]
-protocol = "python/1"
-requires = { sdk = ">=0.3" }
+protocol = "node/1"
+requires = { sdk = ">=0.3", cli = ">=0.3" }
 
 [runtime]
-kind = "python"
-entry = "provider.py"
+kind  = "node"
+entry = "provider.mjs"
 
 [features]
 supported = [
@@ -25,3 +25,28 @@ supported = [
 
 [security]
 network = ["api.e2b.app", "e2b.app"]
+
+[core]
+inherit = []
+
+[config.fields.base_url]
+type           = "url"
+default        = "https://api.e2b.app"
+description    = "E2B platform API origin. Requests go to /sandboxes."
+description_zh = "E2B 平台 API 源站。请求发到 /sandboxes。"
+
+[config.fields.domain]
+type           = "string"
+default        = "e2b.app"
+description    = "Domain suffix for https://{port}-{sandboxID}.{domain}."
+description_zh = "envd 主机名 https://{port}-{sandboxID}.{domain} 的域名后缀。"
+
+[config.fields.api_key]
+type           = "string"
+secret         = true
+credential     = true
+description    = "Value of the X-API-Key header. Set ABX_E2B_API_KEY."
+description_zh = "X-API-Key 请求头。设置 ABX_E2B_API_KEY。"
+
+[auth]
+any_of = [["api_key"]]

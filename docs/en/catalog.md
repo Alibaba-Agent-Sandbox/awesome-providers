@@ -11,7 +11,7 @@ The registry website is <https://registry.agent-sandbox.com>. The official site 
 | `e2b` | [docs](../../e2b/docs/README.md) | `https://api.e2b.app` | The HTTP shape matches the current E2B API. There is no `ABX_E2B_API_KEY`, so live create did not run |
 | `alicloud-container` | [docs](../../alicloud-container/docs/README.md) | ACS/ACK sandbox-manager | Native and private URL shapes are wired. There is no cluster domain or key, so live create did not run |
 
-Install any of them with `python -m agent_sandbox.providers install registry:<id> --yes`. None of them reads the Express key `ABX_SANDBOX_API_KEY`.
+Install any of them with `abx provider install registry:<id> --yes` (or `python -m agent_sandbox.providers install registry:<id> --yes`). None of them reads the Express key `ABX_SANDBOX_API_KEY`.
 
 ## Behavior changed after the review
 
@@ -42,4 +42,4 @@ These were changed to match the current official SDK or OpenAPI. Unit tests lock
 | Container native | Create response has no `envdUrl` | The adapter fills `https://49983-{id}.{domain}`. If the cluster's envd port is not 49983, commands dial the wrong host |
 | Container private | Create | Data plane is `https://{domain}/kruise/{id}/49983`. A port URL is `https://{domain}/kruise/{id}/{port}` |
 
-The live entry point is `python-sdk/e2e/test_08_providers.py`. A missing key or backend skips that provider. It does not send another provider's key.
+Offline tests: `cli/tests/test_providers/test_node_plugins.test.ts` (the three `node` plugins against an E2B-shaped mock, including the Connect envelope, the proxy dial, the optional token and the terminal), `cli/tests/test_engine/test_engine.test.ts` (the engine), `opensandbox/tests` (the OpenSandbox plugin) and `python-sdk/client-sdk/tests/test_providers/test_engine_provider.py` (Python SDK to engine to plugin to mock). A live OpenSandbox server, when one answers on `127.0.0.1:8080`, is also exercised from the CLI tests and from Python. A missing key or backend skips that provider. It does not send another provider's key.

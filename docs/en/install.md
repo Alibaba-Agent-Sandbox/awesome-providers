@@ -5,11 +5,13 @@ Install copies files into `~/.abx/providers/<id>` and writes a receipt. There is
 ## From the official catalog
 
 ```bash
-python -m agent_sandbox.providers install registry:opensandbox --yes
-python -m agent_sandbox.providers install registry:cubesandbox --yes
-python -m agent_sandbox.providers install registry:e2b --yes
-python -m agent_sandbox.providers install registry:alicloud-container --yes
+abx provider install registry:opensandbox --yes
+abx provider install registry:cubesandbox --yes
+abx provider install registry:e2b --yes
+abx provider install registry:alicloud-container --yes
 ```
+
+`python -m agent_sandbox.providers install registry:<id> --yes` does the same thing and writes the same directory. Use whichever tool you have; the plugin runs the same way afterwards.
 
 `registry:<id>` reads the index, turns that row into a local directory, then runs a normal install.
 
@@ -35,7 +37,7 @@ python -m agent_sandbox.providers install \
   --ref <40-hex-commit> --yes
 ```
 
-The CLI takes the same flags for `exec` and `rest`: `abx provider install`. Install a `python` provider with the Python module.
+`abx provider install` takes the same flags. Both tools install `rest`, `exec` and `node` providers.
 
 A source is pinned with a 40-hex commit (`--ref`) or `--sha256 <tree digest>`. A tag or branch is unpinned. An unpinned ref is accepted only after a person reads the consent screen in a terminal, or with `--allow-unpinned`. `--yes` alone never accepts a moving ref; the error prints the commit to pin.
 
@@ -75,7 +77,7 @@ Turn the background check off with `ABX_PROVIDER_UPDATE_CHECK=0`.
 
 ## Calling it after install
 
-The four official providers in this catalog are `python`. After install:
+The four official providers are all `node`. After install, call them from the CLI (`abx --provider e2b create`) or from the Python SDK:
 
 ```python
 import asyncio
@@ -94,4 +96,4 @@ asyncio.run(main())
 
 Each provider's environment variables are in that directory's `docs/README.md`. A missing install is `ProviderNotFoundError`, and the message names the install command.
 
-After an `exec` or `rest` install, both the CLI and the SDK can call it: `abx --provider my-cloud create --template base`.
+After any install, both the CLI and the SDK can call it: `abx --provider my-cloud create --template base`. The Python SDK starts the local engine (`abx provider engine serve`) when it needs one, so the `abx` CLI must be on `PATH` (or named in `ABX_BIN`) for the SDK to call a `node` or `exec` provider.

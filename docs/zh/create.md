@@ -2,13 +2,13 @@
 
 一个提供方是一个目录：`abx-provider.toml`，再加上这种运行时需要的程序。不要把它放进 SDK 或 CLI 仓库。新的后端放在本目录的一个新子目录里，并在 `index.json` 加一条。
 
-先选运行时。三种都安装到 `~/.abx/providers/<id>`，但 CLI 只能加载前两种。
+先选运行时。三种都安装到 `~/.abx/providers/<id>`。CLI 和所有 SDK 都能运行它们，因为加载提供方的宿主是 Node.js 的 CLI（SDK 通过本机引擎使用它）。
 
 | Kind | 你要写的 | 什么时候用 |
 |---|---|---|
 | `rest` | 只有清单 | 后端就是 E2B HTTP：`POST /sandboxes`，正文 `templateID`，头 `X-API-Key` 或 bearer，envd 在 `https://{port}-{id}.{domain}` |
 | `exec` | 清单加一个进程 | API 不是 E2B 形状。任意语言。进程说 EPP/1。安装时不执行 |
-| `python` | 清单加 `provider.py` 的 `load()` | 要在 SDK 进程里写 Python 类。CLI 不加载这种 |
+| `node` | 清单加 `provider.mjs` | 后端是 E2B 形状但需要小改动（代理拨号、可选令牌、不同路径）。一个 ES 模块，由宿主进程通过 kit 加载 |
 
 不要从极速版引擎抄。不要读 `ABX_SANDBOX_API_KEY`。那是极速版的密钥。
 
@@ -17,7 +17,7 @@
 ```text
 my-cloud/
   abx-provider.toml
-  provider.py          # 只有 kind = "python" 需要
+  provider.mjs         # 只有 kind = "node" 需要
   README.md            # 这个提供方自己的说明
 ```
 
@@ -51,12 +51,12 @@ description = "这个后端是什么。"
 license = "Apache-2.0"
 
 [compat]
-protocol = "python/1"
-requires = { sdk = ">=0.3" }
+protocol = "node/1"
+requires = { sdk = ">=0.3", cli = ">=0.3" }
 
 [runtime]
-kind = "python"
-entry = "provider.py"
+kind = "node"
+entry = "provider.mjs"
 
 [features]
 supported = [
@@ -101,7 +101,7 @@ auth = { scheme = "header", header = "X-API-Key" }
 ```toml
 [runtime]
 kind = "exec"
-command = ["python", "./provider.py"]
+command = ["node", "./provider.mjs"]
 startup_timeout_ms = 10000
 call_timeout_ms = 60000
 ```
@@ -135,32 +135,32 @@ sessions            沙箱内具名命令
 
 只声明后端真的实现了的。声明了却 404，比 `E8004` 更糟，因为调用方以为请求已经发出去了。
 
-18 个之外的接口是扩展，不是新的能力 id。Python `Provider` 上设置 `extensions = (Extension(id, summary, summary_zh, implemented, when),)`。`when` 是 `sandbox`、`code_interpreter_image`、`egress` 或 `command`。`implemented=False` 时 `require_extension` 仍然抛 `E8004`。清单里的 `[features.extensions.*]` 只是文档，安装器不解析。
+18 个之外的接口不是能力 id。请在提供方自己的 README 里说明；清单里没有地方声明它。
 
-## Python 入口
+## Node 入口
 
-```python
-from agent_sandbox.providers import Provider, register_provider
-from agent_sandbox.providers.base import ProviderInfra
-from agent_sandbox.providers.feature_gate import gate_protocol
-
-class MyCloud(Provider):
-    id = "my-cloud"
-    display_name = "My Cloud"
-    kind = "python"
-    features = frozenset({"sandbox.lifecycle", "exec.run", "files.rw"})
-    inherit = frozenset()
-
-    async def build_infra(self, config):
-        # 用 config.provider_options 和 ABX_MY_CLOUD_* 组 HTTP 客户端，
-        # 再把协议对象交给 gate_protocol，未声明的方法会在请求前变成 E8004。
-        ...
-
-def load() -> MyCloud:
-    return MyCloud()
+```js
+export default function create(kit) {
+  return {
+    async buildInfra(ctx) {
+      const base_url = String(ctx.options.base_url || "https://api.example.com");
+      const auth = ctx.headerKeyAuth(String(ctx.options.api_key), "X-API-Key");
+      const http = ctx.http({ base_url, domain: "example.app", auth });
+      return {
+        auth,
+        http_client: http,
+        endpoint: { base_url, domain: "example.app" },
+        sandbox_protocol: new kit.SandboxProtocol(http),
+        process_protocol: new kit.ProcessProtocol(http),
+        filesystem_protocol: new kit.FilesystemProtocol(http),
+        code_interpreter_protocol: new kit.CodeInterpreterProtocol(http),
+      };
+    },
+  };
+}
 ```
 
-`load()` 是安装后的入口。`register_provider` 只用于进程内登记，安装器不调用它。
+宿主传入 `kit` 和 `ctx`：`ctx.options` 只含你在 `[config.fields.*]` 下声明的字段，`ctx.core` 是你 inherit 的通用键。宿主按声明的能力给每个协议加闸，未声明的方法会在请求前变成 `E8004`。要改某一个调用，用 `kit.e2b.overlay(inner, { method })` 包一层，或继承协议类（见 `cubesandbox/provider.mjs`）。`buildInfra` 还可以返回 `envd_dial: [host, port]` 和 `envd_auth: { allow_missing, basic_user }`，用于走代理、或 envd 令牌可有可无的后端。
 
 `exec` 进程在 `initialize` 里收配置，不要自己读父进程环境。密钥只从 `initialize` 来。方法表和错误码见 CLI 的 [Authoring Providers](https://github.com/alibaba-agent-sandbox/python-sdk/blob/main/docs/en/guide/authoring-providers.md) 里 EPP/1 那一节；同一份约定也写在本目录的 [authoring.md](../authoring.md)。
 

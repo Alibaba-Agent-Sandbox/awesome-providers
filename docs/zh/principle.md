@@ -1,18 +1,20 @@
 # 提供方怎么工作
 
-提供方是一个沙箱后端。`Sandbox.create` 先选定提供方，再由它建立控制面和数据面。SDK 和 CLI 只把 `alicloud-express`（阿里云极速版）编译进去。其余提供方在本目录，安装之后才加载。
+提供方是一个沙箱后端。`Sandbox.create`（或 `abx create`）先选定提供方，再由它建立控制面和数据面。SDK 和 CLI 只把 `alicloud-express`（阿里云极速版）编译进去。其余提供方在本目录，安装之后才加载。
+
+提供方这一层只用 Node.js 写一次，由 TypeScript 的 CLI 承载。CLI 直接使用它；所有 SDK 通过本机引擎（`abx provider engine serve`，`127.0.0.1` 上的 HTTP + SSE + WebSocket）使用目录提供方。所以装一次，CLI、Python SDK，以及之后的 Node、Go、Java SDK 行为完全一致。宿主、四种类型和引擎的规格在 [Node 提供方架构](../../../cli/docs/zh/design/node-provider-architecture.md)。
 
 ## 内置和目录
 
-| Id | 放在哪里 | 运行时 |
+| Id | 放在哪里 | 类型 |
 |---|---|---|
-| `alicloud-express` | SDK 和 CLI 内置 | Python `Provider`。创建、命令、文件和终端走本机引擎 `~/.abx/engine.sock` |
-| `opensandbox` | `awesome-providers/opensandbox` | 目录插件里的 HTTP 客户端。`provider.py` 的 `load()`。引擎不包含它 |
-| `cubesandbox` | `awesome-providers/cubesandbox` | 同上 |
-| `e2b` | `awesome-providers/e2b` | 同上 |
-| `alicloud-container` | `awesome-providers/alicloud-container` | 同上 |
+| `alicloud-express` | SDK 和 CLI 内置 | `builtin` |
+| `opensandbox` | `awesome-providers/opensandbox` | `node`：EPP 方法在宿主进程内运行（`kit.epp.infra`） |
+| `cubesandbox` | `awesome-providers/cubesandbox` | `node`：宿主加载的 ES 模块 |
+| `e2b` | `awesome-providers/e2b` | `node` |
+| `alicloud-container` | `awesome-providers/alicloud-container` | `node` |
 
-这四个目录提供方的清单是 `protocol = "python/1"`。Python SDK 会导入 `provider.py` 并调用 `load()`。CLI 的清单解析只接受 `exec` 和 `rest`，所以 `abx --provider opensandbox`（以及另外三个 id）不会启动它们。安装用 `python -m agent_sandbox.providers`，调用用 `Sandbox.create(provider="…")`。
+安装用 `abx provider install registry:<id>` 或 `python -m agent_sandbox.providers install registry:<id> --yes`。两者写入同一个 `~/.abx/providers/<id>` 目录，之后两边运行的是同一份代码。Python SDK 用 `Sandbox.create(provider="…")` 调用目录提供方，CLI 用 `abx --provider <id> create`。
 
 `alicloud-express` 是保留 id，不能安装成插件。`opensandbox`、`cubesandbox`、`e2b`、`alicloud-container` 是官方目录 id，可以安装，不能再拿去登记成另一个插件。
 
@@ -38,17 +40,19 @@
 3. 分发包入口点 `agent_sandbox.providers`。
 4. `~/.abx/providers/<id>` 里的已安装插件。
 
-已安装插件再按清单分叉：
+已安装插件再按清单分叉。在 CLI 里由宿主直接运行。在 Python SDK 里，`node` 插件经由引擎（`EngineProvider`），返回的沙箱是形如 `engine://<provider>/<id>` 的标记，SDK 的适配器把它翻译成引擎调用。`rest` 和 `exec` 留在 Python 进程里：
 
 | `runtime.kind` | 协议 | 宿主做什么 |
 |---|---|---|
 | `rest` | `e2b-rest/1` | 只读清单。用内置 HTTP 客户端打 E2B 形状的控制面，数据面打 envd |
 | `exec` | `epp/1` | 启动清单里的进程，stdin/stdout 上走 JSON-RPC。安装时不执行插件 |
-| `python` | `python/1` | 导入清单 `entry`（默认 `provider.py`），调用 `load()`。返回的对象 `id` 必须和清单一致 |
+| `node` | `node/1` | 在宿主进程里导入清单 `entry`（默认 `provider.mjs`），调用它的默认导出 `create(kit)`。返回的 `buildInfra(ctx)` 交出协议对象。除非用 `--link` 安装，每次加载都校验目录摘要 |
 
-`python` 插件的 `load()` 返回一个 `Provider`。`build_infra` 交出 `ProviderInfra`：沙箱、进程、文件、代码解释器四组协议对象。SDK 之后的 `commands.run`、`files.write`、`run_code` 都打在这些对象上，不再另开一套客户端。
+从清单安装的 Python 插件（`kind = "python"`）已不存在。代码里仍可写 Python `Provider` 子类并用 `register_provider` 登记。
 
-未声明的能力在发请求之前被挡住，错误码 `E8004`（`ProviderFeatureNotSupportedError`）。`exec` 在写给插件之前挡，`rest` 和 `python` 用 `feature_gate` 包住协议方法。声明了但后端失败，不是 `E8004`，那是后端自己的错误。
+`build_infra` 交出 `ProviderInfra`：沙箱、进程、文件、代码解释器四组协议对象。之后的 `commands.run`、`files.write`、`run_code` 都打在这些对象上，不再另开一套客户端。
+
+未声明的能力在发请求之前被挡住，错误码 `E8004`（`ProviderFeatureNotSupportedError`）。`exec` 在写给插件之前挡，`rest` 和 `node` 用 `feature_gate` 包住协议方法。声明了但后端失败，不是 `E8004`，那是后端自己的错误。
 
 ## 一次创建
 
@@ -63,7 +67,7 @@ Sandbox.create(provider="e2b", template="base", timeout=300)
 
 `timeout` 是沙箱寿命，不是 HTTP 超时。
 
-OpenSandbox 不走本机引擎。它的 `build_infra` 在插件进程里直接打 OpenSandbox 的 HTTP、execd 的 SSE 和 WebSocket。引擎只服务极速版。
+OpenSandbox 不用那个 HTTP 客户端。它的模块自己打 OpenSandbox 的 HTTP 和每个沙箱里的 execd（SSE 和 WebSocket），宿主在进程内调用它的 EPP/1 分发器，再适配成协议对象。
 
 ## 密钥不会串
 
@@ -71,7 +75,7 @@ OpenSandbox 不走本机引擎。它的 `build_infra` 在插件进程里直接�
 
 `[core] inherit` 才会收到极速版那一组通用键（`sandbox_api_key`、`sandbox_base_url`、`sandbox_domain`），而且安装时要用户同意。默认留空。极速版的 `ABX_SANDBOX_API_KEY` 不会发给 E2B、CubeSandbox 或容器版。
 
-OpenSandbox 的清单把 `sandbox_api_key` 和 `sandbox_base_url` 放进了 inherit。适配器只有在通用键的值和 `ABX_SANDBOX_API_KEY` 不同时才采用它，所以极速版密钥仍然不会被送去。
+OpenSandbox 的清单同样不 inherit 任何键，它读 `ABX_OPENSANDBOX_API_KEY` 和 `ABX_OPENSANDBOX_BASE_URL`。
 
 ## 后台检查更新
 
