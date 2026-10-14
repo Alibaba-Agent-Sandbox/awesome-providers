@@ -1,0 +1,26 @@
+manifest_version = 1
+
+[provider]
+id = "alicloud-container"
+name = "Alibaba Cloud Agent Sandbox Container Edition"
+name_zh = "阿里云智能体沙箱容器版"
+version = "0.1.0"
+description = "ACS/ACK sandbox-manager. Set ABX_ALICLOUD_CONTAINER_DOMAIN and ABX_ALICLOUD_CONTAINER_API_KEY."
+license = "Apache-2.0"
+
+[compat]
+protocol = "python/1"
+requires = { sdk = ">=0.3" }
+
+[runtime]
+kind = "python"
+entry = "provider.py"
+
+[features]
+supported = [
+  "sandbox.lifecycle", "sandbox.timeout", "sandbox.pause",
+  "exec.run", "exec.stream", "process.manage", "files.rw", "code.interpret", "ports.url",
+]
+
+[security]
+network = ["*"]

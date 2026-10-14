@@ -1,0 +1,88 @@
+# 阿里云智能体沙箱容器版
+
+目录提供方，id 是 `alicloud-container`。这不是极速版 `alicloud-express`。它是 ACS 或 ACK 上的 OpenKruise Agents sandbox-manager，说的是 E2B 形状的 HTTP。安装之后由 Python SDK 加载。CLI 不加载 `kind = "python"`。
+
+总说明：[工作原理](../docs/zh/principle.md) · [安装](../docs/zh/install.md)
+
+## 安装和调用
+
+```bash
+export ABX_ALICLOUD_CONTAINER_DOMAIN=sbx.example.com
+export ABX_ALICLOUD_CONTAINER_API_KEY=REPLACE_ME
+python -m agent_sandbox.providers install registry:alicloud-container --yes
+```
+
+```python
+from agent_sandbox import Sandbox
+
+sb = await Sandbox.create(
+    provider="alicloud-container",
+    template="code-interpreter",
+    provider_options={
+        "domain": "sbx.example.com",
+        "api_key": "REPLACE_ME",
+        "protocol": "native",
+    },
+)
+```
+
+模板 id 按集群里的镜像。文档示例是 `code-interpreter`，不是极速版的 `base`。
+
+## 配置
+
+| 项 | 环境变量 | 说明 |
+|---|---|---|
+| 域名 | `ABX_ALICLOUD_CONTAINER_DOMAIN` | 必填，除非 `base_url` 已经给了源站 |
+| API 源站 | `ABX_ALICLOUD_CONTAINER_BASE_URL` | 可省略 |
+| API Key | `ABX_ALICLOUD_CONTAINER_API_KEY` | 请求头 `X-API-Key`。不读 `ABX_SANDBOX_API_KEY` |
+| 协议 | `ABX_ALICLOUD_CONTAINER_PROTOCOL` | `native`（默认）或 `private` |
+
+`native`：API 是 `https://api.{domain}`，数据面是 `https://{port}-{id}.{domain}`。创建响应里没有 `envdUrl` 时，适配器补 `https://49983-{id}.{domain}`。集群的 envd 端口如果不是 49983，命令会连错主机。
+
+`private`：API 是 `https://{domain}/kruise/api`，数据面是 `https://{domain}/kruise/{id}/49983`，端口 URL 是 `https://{domain}/kruise/{id}/{port}`。
+
+## 这个适配器会打的路径
+
+| 能力 | 请求 |
+|---|---|
+| `sandbox.lifecycle` | `POST /sandboxes`、查询、列表、`DELETE`。`connect` 先 POST，4xx 再 GET。列表也会打 `GET /v2/sandboxes` |
+| `sandbox.timeout` | `POST /sandboxes/{id}/timeout` |
+| `sandbox.pause` | `POST /sandboxes/{id}/pause` 和 `POST /sandboxes/{id}/resume` |
+| `exec.run`、`exec.stream` | envd `POST /process.Process/Start`，`stdin: false` |
+| `process.manage` | envd 的进程列表、标准输入和信号 |
+| `files.rw` | envd 的读、写、列目录、移动和删除 |
+| `code.interpret` | Jupyter `POST /execute`，端口 49999，读 ndjson。不是 envd 的 CodeInterpreter RPC |
+| `ports.url` | 按上面的 native 或 private 规则在本地计算 |
+
+## 会抛出 E8004 的调用
+
+`pty`、`files.watch`、`files.transfer`、`templates.read`、`templates.build`、`ports.domain`、`storage.mount`、`network.vpc`、`sessions`。
+
+sandbox-manager 没有 `/terminal`。PTY 要走带 `pty` 字段的进程启动，这个适配器还没接，所以 `get_terminal` 是 `E8004`。官方说明里，预签名上传下载、日志、指标和卷也不在容器版的 E2B 兼容范围内。
+
+## 实测
+
+单元测试打的是本机假 API。`e2e/test_08_providers.py` 在同时设置了 `ABX_ALICLOUD_CONTAINER_DOMAIN` 和 `ABX_ALICLOUD_CONTAINER_API_KEY` 时走真实 sandbox-manager。这台环境没有 ACS/ACK 集群，所以真实创建没有执行。没有这两项时，测试只确认适配器在发请求前拒绝，不会把极速版密钥发出去。
+
+## English
+
+Catalog provider, id `alicloud-container`. This is the ACS/ACK OpenKruise Agents sandbox-manager, not Express (`alicloud-express`). After install, the Python SDK loads it. The CLI does not load `kind = "python"`.
+
+```bash
+export ABX_ALICLOUD_CONTAINER_DOMAIN=sbx.example.com
+export ABX_ALICLOUD_CONTAINER_API_KEY=REPLACE_ME
+python -m agent_sandbox.providers install registry:alicloud-container --yes
+```
+
+| Setting | Environment |
+|---|---|
+| Domain | `ABX_ALICLOUD_CONTAINER_DOMAIN` |
+| API origin, optional | `ABX_ALICLOUD_CONTAINER_BASE_URL` |
+| API key, header `X-API-Key` | `ABX_ALICLOUD_CONTAINER_API_KEY` |
+| `native` or `private` | `ABX_ALICLOUD_CONTAINER_PROTOCOL`, default `native` |
+
+`native` uses `https://api.{domain}` and `https://{port}-{id}.{domain}`. `private` uses `https://{domain}/kruise/api` and `https://{domain}/kruise/{id}/49983`. It does not read `ABX_SANDBOX_API_KEY`.
+
+Declared: `sandbox.lifecycle`, `sandbox.timeout`, `sandbox.pause`, `exec.run`, `exec.stream`, `process.manage`, `files.rw`, `code.interpret`, `ports.url`. `run_code` is Jupyter `POST /execute` on port 49999. `get_terminal` is `E8004`; sandbox-manager has no `/terminal`.
+
+Unit tests use a local fake API. Live create needs both the domain and the API key. This environment has no ACS/ACK cluster, so that create did not run. The example template id is `code-interpreter`, not Express `base`.

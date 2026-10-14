@@ -14,7 +14,7 @@
 #       path:         directory inside this repo (omit only if the whole repo is one plugin)
 #       tags:         search tags
 #       author:       author name or GitHub handle
-#       kind:         exec | rest
+#       kind:         exec | rest | python
 #       license:      SPDX identifier
 #       status:       official | community | experimental
 #
@@ -29,5 +29,33 @@ providers:
     tags: [opensandbox, exec, node, epp]
     author: alibaba-agent-sandbox
     kind: exec
+    license: Apache-2.0
+    status: official
+
+  - name: cubesandbox
+    description: "Tencent CubeSandbox CubeAPI. Default http://127.0.0.1:3000. Python plugin for the SDK."
+    repo: https://github.com/alibaba-agent-sandbox/awesome-providers
+    path: cubesandbox
+    tags: [cubesandbox, python]
+    author: alibaba-agent-sandbox
+    kind: python
+    license: Apache-2.0
+    status: official
+  - name: e2b
+    description: "E2B public API. Set ABX_E2B_API_KEY. Does not read the Express key. Python plugin for the SDK."
+    repo: https://github.com/alibaba-agent-sandbox/awesome-providers
+    path: e2b
+    tags: [e2b, python]
+    author: alibaba-agent-sandbox
+    kind: python
+    license: Apache-2.0
+    status: official
+  - name: alicloud-container
+    description: "ACS/ACK sandbox-manager. Set ABX_ALICLOUD_CONTAINER_DOMAIN and ABX_ALICLOUD_CONTAINER_API_KEY. Python plugin for the SDK."
+    repo: https://github.com/alibaba-agent-sandbox/awesome-providers
+    path: alicloud-container
+    tags: [alicloud, container, python]
+    author: alibaba-agent-sandbox
+    kind: python
     license: Apache-2.0
     status: official

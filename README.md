@@ -15,6 +15,9 @@ provider host (installer, EPP client, registry). Plugins are installed into
 | Provider | Kind | What it is | Install |
 |---|---|---|---|
 | [opensandbox](./opensandbox/) | `exec` (Node, no npm dependencies) | Runs sandboxes on an [OpenSandbox](https://github.com/opensandbox-group/OpenSandbox) server | `abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox` |
+| [cubesandbox](./cubesandbox/) | `python` | Tencent CubeSandbox CubeAPI. Default `http://127.0.0.1:3000` | `python -m agent_sandbox.providers install alibaba-agent-sandbox/awesome-providers//cubesandbox --yes` |
+| [e2b](./e2b/) | `python` | E2B public API. Key is `ABX_E2B_API_KEY` | `python -m agent_sandbox.providers install alibaba-agent-sandbox/awesome-providers//e2b --yes` |
+| [alicloud-container](./alicloud-container/) | `python` | ACS/ACK sandbox-manager. Needs `ABX_ALICLOUD_CONTAINER_DOMAIN` and `ABX_ALICLOUD_CONTAINER_API_KEY` | `python -m agent_sandbox.providers install alibaba-agent-sandbox/awesome-providers//alicloud-container --yes` |
 
 ## Install
 
@@ -39,6 +42,9 @@ abx provider list
 abx provider info opensandbox
 ```
 
+
+`cubesandbox`, `e2b`, and `alicloud-container` are `runtime.kind = "python"`. The CLI does not load that kind. Install them with the Python SDK command in the table, then call `Sandbox.create(provider="<id>")`. They do not read `ABX_SANDBOX_API_KEY`.
+
 `abx provider info opensandbox` is the list of features this install actually implements. The CLI and the Python SDK both refuse anything outside that list with `E8004`. What each feature maps to, and the OpenSandbox row, is in the [CLI providers guide](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/docs/en/guide/providers.md#what-you-can-run-after-installing) and the [SDK providers guide](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/docs/en/guide/providers.md#what-you-can-call-after-installing).
 
 The same store is what the Python SDK reads:
@@ -59,12 +65,12 @@ sb = await Sandbox.create(provider="opensandbox")
 ```
 awesome-providers.yaml    index (schema_version, one entry per provider)
 LICENSE                   Apache-2.0
-opensandbox/              first provider
+opensandbox/              Node exec plugin
   abx-provider.toml       manifest
   provider.mjs            EPP/1 entry (Node >= 20, no dependencies)
-  src/                    protocol implementation
-  tests/                  unit, mock, live, contract
-<future-provider>/        another directory, plus an index entry
+cubesandbox/              Python plugin
+e2b/                      Python plugin
+alicloud-container/       Python plugin
 ```
 
 ## Test
