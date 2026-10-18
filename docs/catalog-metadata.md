@@ -41,4 +41,4 @@ The built-in Express provider is owned and released with its host, outside this
 plugin catalog. `provider update alicloud-express --check` in the coordinating host
 change reports the bundled lifecycle and upgrade instructions, not a separate
 plugin or an automatic host installation. See the
-[host design](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/en/design/provider-portability-and-updates.md).
+[host design](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/c5a6a3c75921cfb4359f1c23041ec847ce63c932/docs/en/design/provider-portability-and-updates.md).

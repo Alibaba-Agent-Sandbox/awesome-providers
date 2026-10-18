@@ -20,7 +20,7 @@ Keeping switches in each frontend duplicates technical assumptions. Embedding ex
 
 ## Dependencies
 
-Registry consumer: https://github.com/Alibaba-Agent-Sandbox/registry. Host lifecycle: https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/en/design/provider-portability-and-updates.md.
+Registry consumer: https://github.com/Alibaba-Agent-Sandbox/registry. Host lifecycle: https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/c5a6a3c75921cfb4359f1c23041ec847ce63c932/docs/en/design/provider-portability-and-updates.md.
 
 ## Test Strategy
 

@@ -32,4 +32,4 @@ Python catalog 更新依据版本和摘要；本地/link 安装使用审阅的�
 内置极速版由宿主仓库维护并随宿主发布，不属于插件目录。协调宿主变更中的
 `provider update alicloud-express --check` 报告内置生命周期及升级指引，不是一个独立
 插件，也不自动安装宿主。见
-[宿主设计](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/zh/design/provider-portability-and-updates.md)。
+[宿主设计](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/c5a6a3c75921cfb4359f1c23041ec847ce63c932/docs/zh/design/provider-portability-and-updates.md)。
