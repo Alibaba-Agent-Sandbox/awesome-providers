@@ -6,6 +6,17 @@ on:
   pull_request:
 
 jobs:
+  cubesandbox:
+    name: CubeSandbox image adapter (T0, native API loopback)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Native API contract and failure/privacy regressions
+        working-directory: cubesandbox
+        run: node tests/run.mjs
   opensandbox:
     name: OpenSandbox plugin (T0)
     runs-on: ubuntu-latest
