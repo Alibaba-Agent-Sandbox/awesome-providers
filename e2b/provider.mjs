@@ -1,6 +1,13 @@
 // E2B cloud sandboxes. A `node/1` plugin: the host passes the kit, this file only builds the protocol objects.
+import { createTemplates } from "./templates.mjs";
+
 export default function create(kit) {
   return {
+    // Host extension; keep templates.deploy undeclared until host dispatch is available.
+    async buildTemplates(ctx) {
+      if (!ctx.features?.has("templates.deploy")) throw new kit.errors.ProviderFeatureNotSupportedError("e2b", "templates.deploy");
+      return createTemplates({ Template: kit.e2b.Template, options: ctx.options, errors: kit.errors });
+    },
     async buildInfra(ctx) {
       const key = String(ctx.options.api_key ?? "");
       if (!key) {

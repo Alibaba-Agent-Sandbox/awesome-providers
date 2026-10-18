@@ -1,18 +1,31 @@
 # Engineering records: awesome-providers
 
-This version-controlled directory records changes owned by this repository.
-Records are written in English; credentials and raw sensitive logs are excluded.
+This repository owns provider plugins, catalog metadata and their verification.
+Read [CONTRIBUTING.md](../CONTRIBUTING.md), the provider [skill](../SKILL.md)
+and the [test tiers](../docs/e2e.md) before changing a provider.
 
-- `notes/proposed/<category>/YYYY-MM-DD-<slug>.md`: decisions pending acceptance.
-- `notes/implemented/<category>/YYYY-MM-DD-<slug>.md`: accepted decisions reflected in code.
-- `evidence/verify/YYYY-MM-DD-<slug>.md`: immutable point-in-time verification evidence.
+## Records and lifecycle
 
-Categories are `architecture`, `feature` and `process`. Move a note and update its
-`Status:` together when its acceptance state changes. Local code does not prove a
-PR merged. A later verification run receives a new evidence file.
+New records use English. Decisions live in
+`notes/{proposed,implemented}/<architecture|feature|process>/YYYY-MM-DD-<slug>.md`;
+rejected and superseded records are flat. `Status:` matches the state directory.
+Keep a proposal pending until its actual acceptance and merge gates pass.
 
-Every change includes a decision note and evidence recording the tested revision or
-scoped files, actual commands and outcomes, limitations and resource cleanup. Use
-`Result: PASS | PARTIAL | BLOCKED | FAIL`; missing mandatory checks prevent completion.
-Mock and real-backend results are separate claims. Cross-repository dependencies use
-absolute GitHub URLs so a standalone checkout retains its context.
+Use the sections Problem, Decision, API Design, Alternatives considered, Dependencies,
+Test Strategy and Acceptance criteria, with optional Evidence links. Record ownership,
+compatibility, alternatives, affected contracts and observable acceptance conditions.
+
+Dated verification lives in `evidence/verify/`. Include tested revision/scoped files,
+environment, actual commands/results, failures/skips, missing prerequisites and owned
+resource cleanup. Mocks, installed-host tests and native backend tests are distinct.
+Use `Result: PASS | PARTIAL | BLOCKED | FAIL`; missing mandatory checks prevent completion.
+Preserve historical evidence; add a dated result instead of rewriting merged history.
+Never store credentials, raw sensitive logs or private resource identifiers.
+Cross-repository references use absolute GitHub URLs. Include records in the owning PR.
+
+## Index
+
+- [E2B image adapter](notes/proposed/feature/2026-10-16-e2b-image-template-adapter.md) · [verification](evidence/verify/2026-10-16-e2b-image-template-adapter.md)
+- [Provider portability and updates](notes/proposed/architecture/2026-10-18-provider-portability-updates.md) · [verification](evidence/verify/2026-10-18-provider-portability-updates.md)
+
+- [Integrated adapter CI](notes/proposed/process/2026-10-18-integrated-provider-ci.md) · [verification](evidence/verify/2026-10-18-integrated-provider-ci.md)
