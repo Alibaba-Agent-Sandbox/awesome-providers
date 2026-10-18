@@ -18,6 +18,7 @@ compatibility, alternatives, affected contracts and observable acceptance condit
 Dated verification lives in `evidence/verify/`. Include tested revision/scoped files,
 environment, actual commands/results, failures/skips, missing prerequisites and owned
 resource cleanup. Mocks, installed-host tests and native backend tests are distinct.
+Use `Result: PASS | PARTIAL | BLOCKED | FAIL`; missing mandatory checks prevent completion.
 Preserve historical evidence; add a dated result instead of rewriting merged history.
 Never store credentials, raw sensitive logs or private resource identifiers.
 Cross-repository references use absolute GitHub URLs. Include records in the owning PR.

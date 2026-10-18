@@ -362,7 +362,11 @@ test("a paused sandbox yields a clear, retryable error for data-plane calls", as
     await host.call("sandbox.pause", { sandbox_id: id });
     const err = await rpcError(host.call("exec.run", { sandbox_id: id, cmd: "true", args: [], timeout: 5 }));
     assert.equal(err.code, -32000);
-    assert.match(err.message, /Cannot reach OpenSandbox/);
+    assert.equal(err.data.retryable, true);
+    assert.equal(err.data.http_status, 503);
+    assert.match(err.message, /sandbox is paused/);
+    await host.call("sandbox.resume", { sandbox_id: id });
+    assert.equal((await host.call("exec.run", { sandbox_id: id, cmd: "true", args: [], timeout: 5 })).exit_code, 0);
   });
 });
 
