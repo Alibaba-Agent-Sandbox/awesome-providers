@@ -59,6 +59,40 @@ sb = await Sandbox.create(provider="e2b", template="base", timeout=300)
 
 单元测试在 `127.0.0.1` 上用假的 `POST /sandboxes`（`cli/tests/test_providers/test_node_plugins.test.ts`），不访问公网。真实调用只在设置了 `ABX_E2B_API_KEY` 时才有意义。这台环境没有这把密钥，所以真实创建没有执行。没有密钥时，测试确认创建在发请求前拒绝，并且极速版密钥不会被送出去。
 
+## 镜像转模板适配器（待宿主接线）
+
+`templates.mjs` 实现了官方 E2B Template SDK 的镜像构建适配器；`provider.mjs` 的异步 `buildTemplates(ctx)` 返回它。宿主必须提供 `kit.e2b.Template` 并支持独立的 `templates.deploy` 能力。本目录当前清单尚未声明该能力：仅更新这个 provider 不会使现有 CLI 的 `deploy`、`build`、`list`、`info` 或 `delete` 可用。跟踪：[issue #4](https://github.com/Alibaba-Agent-Sandbox/awesome-providers/issues/4)。
+
+适配器接受已推送、后端可拉取的镜像，不读取本地文件、不调用 Docker、不上传到 ACR。输入合同：
+
+```js
+await adapter.deploy({
+  source: { kind: "image", image: "docker.io/example/runtime:v1" },
+  name: "runtime:v1",
+  spec: { cpu: 2, memory: 2048,
+    start_cmd: "python3 /app/server.py", ready_cmd: "curl -f http://localhost:9000/health" },
+  timeout: 600, // 整个构建等待时间（秒）；最多 3600
+  // registry: { username, password }, // 私有镜像才提供，不能写入日志
+  // signal: abortController.signal,
+});
+// { template_id, build_id, status: "ready", ref: image }
+```
+
+`spec` 字段均可省略，CPU 为整数核数，内存单位 MB。`start_cmd` 必须同时提供 `ready_cmd`；仅提供 `ready_cmd` 也可用。其他 spec 字段、Dockerfile、构建步骤和文件上下文会在发请求前拒绝，不会静默丢弃。私有仓库用户名与密码必须成对提供。SDK 的 API key、API origin 和 domain 全部显式使用本 provider 的配置；不采用 `E2B_*`、Express 或 SDK debug 环境默认。不会输出 SDK 原始日志或错误正文，错误只保留可验证的 HTTP 状态。超时或取消停止等待与网络请求；远端已经提交的构建可能仍存在，不会擅自删除模板。
+
+镜像部署功能的兼容性基线是 Node 22+ 和官方 `e2b@2.55.0`，由支持此合同的新版宿主安装并注入，不在插件加载时安装包。这不是已发布版本声明。虽然 SDK 顶层元数据声称支持部分 Node 20 版本，它静态导入的 `@e2b/dockerfile-utils@0.1.1` 要求 Node 22+，因此本功能不承诺 Node 20 支持；CLI 的常规 Node 20 支持与此功能分开。使用 SDK 的 `Template().fromImage(...)`、可选 `setStartCmd(...)` / `setReadyCmd(...)` 和 `Template.build(...)`，后者成功返回后才报告 ready。SDK 真实 HTTP 路径已用 loopback 验证为 `POST /v3/templates`、`POST /v2/templates/{templateID}/builds/{buildID}`、`GET /templates/{templateID}/builds/{buildID}/status`。旧的 `POST /templates`、`POST /v2/templates` 不应作为回退路径。
+
+```bash
+cd e2b
+node tests/run.mjs
+# 可选：将路径改为宿主安装的官方 e2b@2.55.0
+E2B_TEMPLATE_SDK_MODULE=file:///absolute/path/to/e2b/dist/index.mjs node tests/run.mjs
+```
+
+2026-10-16：适配器 T0 单元测试及官方 SDK 对 loopback 假后端的完整构建协议测试已执行。没有授权的 `ABX_E2B_API_KEY`，因此 E2B 实云构建、创建、执行和清理均未执行。根配置的通用 `E2B_*` 指向另一家后端，不能当作 E2B 账号使用。此结果不构成 T4 实云通过，也不证明镜像已在 E2B 上运行。
+
+官方依据：[Template quickstart](https://docs.e2b.dev/template/quickstart)、[Base image / registry credentials](https://docs.e2b.dev/template/base-image)、[SDK releases](https://github.com/e2b-dev/E2B/releases)。
+
 ## English
 
 Catalog provider, id `e2b`, kind `node` (`provider.mjs`, loaded by the host). It uses the host's E2B protocol classes against the public E2B API and runs from the CLI and from every SDK (through the local engine, `abx provider engine serve`).
@@ -79,3 +113,7 @@ Missing `ABX_E2B_API_KEY` raises `InvalidAPIKeyError` before any request. It doe
 Connect tries `POST /v2/sandboxes/{id}/connect`, then `POST /sandboxes/{id}/connect`, then GET. Process Start sends `stdin: false`. `files.watch` is declared. `pty` is not declared because public envd has no `/terminal`.
 
 Unit tests use a local fake API. A live create needs `ABX_E2B_API_KEY`. This environment does not have that key.
+
+The image adapter in `templates.mjs` is implemented and tested with the official `e2b@2.55.0` SDK against loopback HTTP, including v3 template creation, v2 build triggering and ready polling. It exposes `buildTemplates(ctx).deploy({source: {kind: "image", image}, name, spec?, registry?, timeout?, signal?})`. The feature requires Node 22+ and a new host implementing this contract and injecting `kit.e2b.Template`; this does not claim that host version has been released. Despite the SDK's top-level Node 20 engine claim, its statically imported `@e2b/dockerfile-utils@0.1.1` requires Node 22+. Normal CLI Node 20 compatibility is separate; image deployment on Node 20 is not supported by this contract. All endpoint and authentication options are explicit and provider scoped. Only `cpu`, `memory` (MB), `start_cmd` and `ready_cmd` are supported in `spec`; start requires ready. Unknown fields fail before submission. Raw SDK logs/errors are omitted to protect credentials. Cancellation stops waiting, but an already submitted remote build may remain.
+
+Host dispatch and the `templates.deploy` manifest declaration are pending [issue #4](https://github.com/Alibaba-Agent-Sandbox/awesome-providers/issues/4). Installing this plugin alone does not enable existing CLI template commands. Dockerfile/steps builds, template list/get/delete and live E2B verification remain unsupported or unverified. Run `node tests/run.mjs` from `e2b`; the actual-SDK contract check requires `E2B_TEMPLATE_SDK_MODULE` pointing at the installed pinned SDK's `dist/index.mjs`. Missing credentials are a skip, never a live pass.
