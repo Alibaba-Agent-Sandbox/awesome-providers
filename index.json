@@ -2,22 +2,22 @@
   "providers": [
     {
       "id": "opensandbox",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "url": "opensandbox"
     },
     {
       "id": "alicloud-container",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "url": "alicloud-container"
     },
     {
       "id": "cubesandbox",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "url": "cubesandbox"
     },
     {
       "id": "e2b",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "url": "e2b"
     }
   ]

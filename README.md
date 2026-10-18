@@ -44,3 +44,5 @@ work from `abx --provider <id>` and from `Sandbox.create(provider="<id>")`.
 | `cubesandbox/` | [docs/README.md](cubesandbox/docs/README.md) |
 | `e2b/` | [docs/README.md](e2b/docs/README.md) |
 | `alicloud-container/` | [docs/README.md](alicloud-container/docs/README.md) |
+
+Provider create examples are owned by each plugin in `catalog.json`; see [catalog metadata](docs/catalog-metadata.md) ([中文](docs/catalog-metadata.zh-CN.md)). These patch versions do not activate pending image factories.

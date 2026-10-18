@@ -4,7 +4,7 @@ manifest_version = 1
 id          = "alicloud-container"
 name        = "Alibaba Cloud Agent Sandbox Container Edition"
 name_zh     = "阿里云智能体沙箱容器版"
-version     = "0.2.1"
+version     = "0.2.2"
 description = "ACS/ACK sandbox-manager. Set ABX_ALICLOUD_CONTAINER_DOMAIN and ABX_ALICLOUD_CONTAINER_API_KEY."
 license     = "Apache-2.0"
 
