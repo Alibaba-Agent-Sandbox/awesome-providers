@@ -396,7 +396,9 @@ export async function startMock(options = {}) {
       if (m) {
         const sb = sandboxes.get(m[1]);
         if (!sb) return send(res, 502, "bad gateway: sandbox gone");
-        if (sb.state === "Paused") return req.socket.destroy();
+        // Keep the failure at the HTTP boundary: an intermediary may translate a
+        // reset socket into its own 502 response and replace the error message.
+        if (sb.state === "Paused") return send(res, 503, { code: "SANDBOX_PAUSED", message: "sandbox is paused" });
         return await execd(req, res, sb, m[2] ?? "/", url.searchParams);
       }
       const proxy = /^\/v1\/sandboxes\/([^/]+)\/proxy\/(\d+)(\/.*)?$/.exec(url.pathname);
