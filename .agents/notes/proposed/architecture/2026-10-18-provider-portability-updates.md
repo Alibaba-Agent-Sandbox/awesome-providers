@@ -33,3 +33,5 @@ Each provider owns its example and patch version; registry consumes it as data; 
 ## Evidence
 
 [Verification](../../../evidence/verify/2026-10-18-provider-portability-updates.md).
+
+Catalog owner issue: https://github.com/Alibaba-Agent-Sandbox/registry/issues/6.
