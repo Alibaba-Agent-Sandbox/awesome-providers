@@ -25,10 +25,12 @@ await sb.kill()
 
 | 项 | 环境变量 | 默认 |
 |---|---|---|
-| 生命周期地址，不带 `/v1` | `ABX_OPENSANDBOX_BASE_URL`，别名 `OPENSANDBOX_BASE_URL` | `http://127.0.0.1:8080` |
-| 请求头 `OPEN-SANDBOX-API-KEY` | `ABX_OPENSANDBOX_API_KEY`，别名 `OPEN_SANDBOX_API_KEY`、`OPENSANDBOX_API_KEY` | 不设置 |
+| 生命周期地址，不带 `/v1` | `ABX_OPENSANDBOX_BASE_URL` | `http://127.0.0.1:8080` |
+| 请求头 `OPEN-SANDBOX-API-KEY` | `ABX_OPENSANDBOX_API_KEY`，原生别名 `OPEN_SANDBOX_API_KEY` | 不设置 |
 
-也可以放在 `provider_options` 里。清单继承了 `sandbox_api_key` 和 `sandbox_base_url`，但适配器只有在通用键的值和 `ABX_SANDBOX_API_KEY` 不同时才采用它。极速版密钥不会被送去。
+每个配置字段都由宿主解析为 `ABX_OPENSANDBOX_<FIELD>`，也可放在 `provider_options` 或 `~/.abx/config.toml` 的 `[providers.opensandbox]` 段。同一环境配置层内，规范名称优先于清单声明的原生别名。其他原生别名是 `OPEN_SANDBOX_DOMAIN`、`OPEN_SANDBOX_PROTOCOL` 和 `OPEN_SANDBOX_USE_SERVER_PROXY`；完整字段表见[提供方 README](../README.zh-CN.md#配置)。插件本身只接收宿主传入的配置，直接运行 EPP/1 时由 `initialize.config` 提供。
+
+清单的 `[core] inherit = []`，不接收极速版的 `sandbox_api_key`、`sandbox_base_url` 或 `sandbox_domain`。未声明 `OPENSANDBOX_API_KEY`、`OPENSANDBOX_BASE_URL` 这两种别名。
 
 ## 请求留在插件进程
 
@@ -44,12 +46,13 @@ await sb.kill()
 | `pty` | `POST /pty`，WebSocket `/pty/{id}/ws` |
 | `files.rw` | execd `/files` 和 `/directories` |
 | `ports.url` | `GET /v1/sandboxes/{id}/endpoints/{port}` |
+| `sessions` | `exec.start` 的 `detached` 扩展，后台命令通过日志游标跟踪；目前宿主适配器尚未发送该参数 |
 
 ## 会抛出 E8004 的调用
 
-`files.watch`、`files.transfer`、`templates.read`、`templates.build`、`ports.domain`、`storage.mount`、`network.vpc`、`sessions`、`code.interpret`。
+`files.watch`、`files.transfer`、`templates.read`、`templates.build`、`ports.domain`、`storage.mount`、`network.vpc`、`code.interpret`。
 
-`POST /code` 只有带 Jupyter 的 code-interpreter 镜像才有。默认的 `python:3.12-slim` 没有，所以代码解释器不声明。`POST /session` 那种有状态 shell 也没接。
+`POST /code` 只有带 Jupyter 的 code-interpreter 镜像才有。默认的 `python:3.12-slim` 没有，所以代码解释器不声明。已声明的 `sessions` 指后台命令扩展；`POST /session` 那种有状态 shell 也没接。
 
 ## 实测
 
@@ -67,11 +70,15 @@ abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox --allo
 
 | Setting | Environment | Default |
 |---|---|---|
-| Lifecycle origin, no `/v1` | `ABX_OPENSANDBOX_BASE_URL`, also `OPENSANDBOX_BASE_URL` | `http://127.0.0.1:8080` |
-| Header `OPEN-SANDBOX-API-KEY` | `ABX_OPENSANDBOX_API_KEY`, also `OPEN_SANDBOX_API_KEY`, `OPENSANDBOX_API_KEY` | unset |
+| Lifecycle origin, no `/v1` | `ABX_OPENSANDBOX_BASE_URL` | `http://127.0.0.1:8080` |
+| Header `OPEN-SANDBOX-API-KEY` | `ABX_OPENSANDBOX_API_KEY`, native alias `OPEN_SANDBOX_API_KEY` | unset |
+
+The host resolves each field through its canonical `ABX_OPENSANDBOX_<FIELD>` name, `provider_options`, or `[providers.opensandbox]` in `~/.abx/config.toml`. Within an environment layer the canonical name takes precedence over native aliases declared in the manifest. Other native aliases are `OPEN_SANDBOX_DOMAIN`, `OPEN_SANDBOX_PROTOCOL` and `OPEN_SANDBOX_USE_SERVER_PROXY`; see the [full field table](../README.md#configure). The plugin receives resolved configuration from its host; direct EPP/1 callers supply `initialize.config`.
+
+The manifest has `[core] inherit = []`: Express `sandbox_api_key`, `sandbox_base_url` and `sandbox_domain` are not passed to this plugin. `OPENSANDBOX_API_KEY` and `OPENSANDBOX_BASE_URL` are not declared aliases.
 
 The plugin module (in the host process) talks to the OpenSandbox lifecycle API and to each sandbox's execd (command SSE, files, the terminal WebSocket). The terminal needs the global `WebSocket` of Node 22+. `Sandbox.connect` in a second interpreter asks the lifecycle API for the execd address and can run a command; it does not need the session object kept by the process that created the sandbox.
 
-Declared: `sandbox.lifecycle`, `sandbox.timeout`, `sandbox.pause`, `exec.run`, `exec.stream`, `process.manage`, `pty`, `files.rw`, `ports.url`. `commands.send_input` is `E8004` because `/command` has no stdin. `code.interpret` is `E8004` because `POST /code` exists only on a Jupyter image.
+Declared: `sandbox.lifecycle`, `sandbox.timeout`, `sandbox.pause`, `exec.run`, `exec.stream`, `process.manage`, `pty`, `files.rw`, `ports.url`, `sessions`. `sessions` is the `detached` extension of `exec.start`, following background command output through a log cursor; no host adapter sends it yet. It does not implement a stateful shell through `POST /session`. `commands.send_input` is `E8004` because `/command` has no stdin. `code.interpret` is `E8004` because `POST /code` exists only on a Jupyter image.
 
 On 2026-10-14 a local OpenSandbox 1.1.1 returned real results for create, list, kill, renew, pause/resume, exec, streaming, a `/proc` process list, a PTY `echo`, a file round-trip, and a port URL. `Sandbox.connect` in a second interpreter also ran `echo fresh-exec-ok`. The capability table is `python-sdk/docs/en/design/provider-opensandbox-mapping.md`.
