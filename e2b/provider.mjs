@@ -3,10 +3,11 @@ import { createTemplates } from "./templates.mjs";
 
 export default function create(kit) {
   return {
-    // Host extension; keep templates.deploy undeclared until host dispatch is available.
+    // Host extension; keep templates.deploy undeclared until native backend acceptance is recorded.
     async buildTemplates(ctx) {
       if (!ctx.features?.has("templates.deploy")) throw new kit.errors.ProviderFeatureNotSupportedError("e2b", "templates.deploy");
-      return createTemplates({ Template: kit.e2b.Template, options: ctx.options, errors: kit.errors });
+      const Template = kit.e2b.loadTemplate ? await kit.e2b.loadTemplate() : kit.e2b.Template;
+      return createTemplates({ Template, options: ctx.options, errors: kit.errors });
     },
     async buildInfra(ctx) {
       const key = String(ctx.options.api_key ?? "");
