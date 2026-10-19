@@ -23,7 +23,7 @@ jobs:
     env:
       OSB_WORKDIR: /tmp/abx-opensandbox-ci
       OSB_WITH_EGRESS: '0'
-      OSB_EXECD_IMAGE: opensandbox/execd@sha256:3dc3ac95183ead7e4fc12716c5e8759d3876c29443940201bfcbfd6537ddb5a1
+      OSB_EXECD_IMAGE: opensandbox/execd@sha256:cda2bc35409bbf57561599b316cafb899598f7dce671332e7ceda14eb1cfeded
       ABX_OPENSANDBOX_BASE_URL: http://127.0.0.1:8080
       ABX_OPENSANDBOX_API_KEY: local-dev-key
       OPENSANDBOX_API_KEY: local-dev-key

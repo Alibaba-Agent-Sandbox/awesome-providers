@@ -29,4 +29,6 @@ The copy of this table that the CLI and SDK repositories keep is `cli/e2e/provid
 
 ## Automated OpenSandbox native checks
 
-The `OpenSandbox live integration` workflow runs T4 on a disposable Ubuntu Docker runner using reviewed CLI/SDK commits, server 1.1.1 and a digest-pinned execd image. It runs direct EPP, installed SDK contracts, configuration precedence and the CLI round trip, then removes all test containers from that isolated runner. No cloud credentials are used. This scoped Docker result does not promote OpenSandbox from Beta or prove Kubernetes/network-policy/code-interpreter coverage.
+The `OpenSandbox live integration` workflow runs T4 on a disposable Ubuntu Docker runner using reviewed CLI/SDK commits, server 1.1.1 and the digest-pinned matching release-1.1.1 execd image. It runs direct EPP, installed SDK contracts, configuration precedence and the CLI round trip, then removes all test containers from that isolated runner. No cloud credentials are used. This scoped Docker result does not promote OpenSandbox from Beta or prove Kubernetes/network-policy/code-interpreter coverage.
+
+Do not pair a released server with a moving nightly `latest` execd. Newer execd generations may require a newer control-plane initialization protocol. Upgrade the tested pair deliberately and rerun T4; a changed upstream tag is not verification.
