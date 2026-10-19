@@ -14,7 +14,7 @@ abx --provider opensandbox create
 ```
 
 ```python
-from agent_sandbox import Sandbox
+from agent_sandbox.api.sandbox import Sandbox
 
 sb = await Sandbox.create(provider="opensandbox", template="base", timeout=300)
 print((await sb.commands.run("echo ok", timeout=30)).stdout)

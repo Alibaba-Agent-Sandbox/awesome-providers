@@ -15,7 +15,7 @@ abx --provider e2b create --template base
 ```
 
 ```python
-from agent_sandbox import Sandbox
+from agent_sandbox.api.sandbox import Sandbox
 
 sb = await Sandbox.create(provider="e2b", template="base", timeout=300)
 ```
