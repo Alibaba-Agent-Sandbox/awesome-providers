@@ -35,3 +35,5 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [OpenSandbox native Docker subset](evidence/verify/2026-10-19-opensandbox-native-docker.md).
 
 - [Consumer entry compatibility](notes/proposed/process/2026-10-19-consumer-entries.md) · [verification](evidence/verify/2026-10-19-consumer-entries.md)
+
+- [Lazy template SDK request](notes/proposed/feature/2026-10-19-provider-image-beta-merge.md) · [verification](evidence/verify/2026-10-19-provider-image-beta-merge.md)

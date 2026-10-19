@@ -139,3 +139,16 @@ test("provider factory enforces deploy feature and does not alias coarse build s
   assert.equal(adapter.delete, undefined);
   assert.equal(adapter.list, undefined);
 });
+
+
+test("template SDK helper is requested explicitly only after feature opt-in", async () => {
+  const { Template } = setup();
+  let loaded = 0;
+  const plugin = create({ e2b: { async loadTemplate() { loaded++; return Template; } }, errors });
+  assert.equal(loaded, 0);
+  await assert.rejects(plugin.buildTemplates({ options: { api_key: "key" }, features: new Set(["templates.build"]) }), ProviderFeatureNotSupportedError);
+  assert.equal(loaded, 0);
+  const adapter = await plugin.buildTemplates({ options: { api_key: "key" }, features: new Set(["templates.deploy"]) });
+  assert.equal(loaded, 1);
+  assert.equal(typeof adapter.deploy, "function");
+});
