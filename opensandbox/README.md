@@ -73,7 +73,7 @@ Both hosts load this plugin. A method or command works only when its feature is 
 | Change TTL, pause, resume | `sandbox timeout/pause/resume` | `set_timeout`, `pause`, `resume` | yes |
 | Public URL of a port | `sandbox url` | `network.get_url` | yes |
 | Process list, signal, kill | `sandbox process` | `commands.list/kill` | partial: stdin is E8004; an execd command id accepts only SIGKILL |
-| PTY, `run_code`, templates, file watch, signed URLs, domains, OSS, VPC | those commands | `get_terminal`, `run_code`, template build | no (E8004) |
+| PTY, `run_code`, EPP template RPCs, file watch, signed URLs, domains, OSS, VPC | those commands | `get_terminal`, `run_code`, EPP template RPCs | no (E8004) |
 
 `template` on create is a container image. `base` means `default_image` (`python:3.12-slim` unless you change it).
 
@@ -90,7 +90,7 @@ Both hosts load this plugin. A method or command works only when its feature is 
 | `ports.url` | yes | `ports.url` method (direct endpoint, or the server proxy with `use_server_proxy`) |
 | `sessions` | yes | detached commands through the `detached` extension of `exec.start` (no host adapter sends it yet) |
 | `pty` | yes (Node 22+) | `pty.open` creates an execd terminal (`POST /pty`) and bridges its WebSocket (`/pty/{id}/ws`): input is `0x00` + bytes, `pty.output` carries the output, `pty.exit` ends it. On Node 20/21 there is no global WebSocket, so the plugin does not advertise `pty` |
-| `code.interpret`, `templates.*`, `files.watch`, transfer URLs | no | `E8004` (`-32003`) |
+| `code.interpret`, EPP template RPCs, `files.watch`, transfer URLs | no | `E8004` (`-32003`) |
 
 ## Test
 
@@ -131,3 +131,9 @@ tests/              unit/, mock/ (in-process fake server), live/, contract/ (pyt
 * Legacy execd v1.1.0 lacks `argv` and strips line endings; the plugin detects it and falls back (use a newer execd image for exact output).
 
 Licensed under Apache-2.0.
+
+## Project source preparation / 项目源码准备
+
+The Node template manager supports `templates.build` for `abx template launch`: Docker builds and pushes the source and OpenSandbox consumes the returned image reference. The EPP template RPCs in the table remain unsupported. See [prerequisites and Beta limits](docs/README.md).
+
+Node 模板管理器通过 `templates.build` 支持 `abx template launch`：Docker 构建并推送源码，OpenSandbox 使用返回的镜像引用。上表中的 EPP 模板 RPC 仍不支持。参见[前置条件与 Beta 范围](docs/README.md)。

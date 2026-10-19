@@ -56,7 +56,7 @@ sb = await Sandbox.create(
 
 ## 会抛出 E8004 的调用
 
-`process.manage`、`files.transfer`、`templates.read`、`templates.build`、`ports.domain`、`storage.mount`、`network.vpc`、`sessions`。`pty` 也没有声明，宿主不会替它兜底。
+`process.manage`、`files.transfer`、`templates.read`、`ports.domain`、`storage.mount`、`network.vpc`、`sessions`。`pty` 也没有声明，宿主不会替它兜底。
 
 OpenAPI 里还有卷、网络策略、分发范围，适配器不调用，清单里也不再登记。`GET /sandboxes` 忽略 `status` 和 `offset`，按状态过滤要等改打 `GET /v2/sandboxes`。
 
@@ -81,7 +81,7 @@ abx provider install alibaba-agent-sandbox/awesome-providers//cubesandbox --allo
 
 The data plane is `http://49983-{id}.{domain}`. The `49983` prefix is how CubeProxy routes; HTTP is port 80. It does not read `ABX_SANDBOX_API_KEY`. Process and file calls default the user to `root` and use a 5-byte Connect envelope. `run_code` is Jupyter `POST /execute` on port 49999, read as ndjson. `resume` sends `{}`.
 
-`E8004`: `process.manage`, `files.transfer`, template features, `ports.domain`, `storage.mount`, `network.vpc`, `sessions`. `pty` is not declared either, and the host does not stand in for it. Volume, network policy, and distribution scope are not called and no longer listed in the manifest.
+`E8004`: `process.manage`, `files.transfer`, template read/delete APIs, `ports.domain`, `storage.mount`, `network.vpc`, `sessions`. `pty` is not declared either, and the host does not stand in for it. Volume, network policy, and distribution scope are not called and no longer listed in the manifest.
 
 Unit tests hit a local fake API. This environment has no Cube cluster, so a live create did not run. Use a real template id from the cluster; do not assume `base` exists.
 
@@ -175,3 +175,23 @@ in a temporary plugin copy. Re-run with `ABX_CLI_ENTRY=<absolute reviewed CLI en
 node tests/installed-host.mjs`. Compatible host/schema delivery and live template
 build/create/exec/kill remain gates before capability enablement; no released host
 compatibility is claimed.
+
+## 自动准备项目（Beta） / Automatic project preparation (Beta)
+
+使用包含 `template launch` 和 `kit.project` 的 CLI 源码版，安装或更新本插件后运行：
+
+```sh
+abx --provider cubesandbox template launch alibaba-agent-sandbox/awesome-templates//python-hello --yes
+```
+
+提供方现在声明 `templates.build`，用于 node/1 管理器的 `prepareProject`。旧模板管理/API 方法和独立的 `templates.deploy` 不会因此自动启用。CLI 自动把适配器返回的 ID、名称或镜像传给创建，启动服务并验证就绪；缺少模板声明的运行时能力时，在构建前拒绝。正常沙箱行为不变。
+
+Use a CLI source build containing `template launch` and `kit.project`. The node/1 `prepareProject` manager is guarded by `templates.build`; legacy template management APIs and the standalone `templates.deploy` factory are not implied. The exact returned native reference is handed to sandbox creation. Missing runtime capabilities fail before build. Normal sandbox operations remain unchanged.
+
+先配置 Docker 登录、可写 `ABX_CUBESANDBOX_IMAGE_REPOSITORY` 及原生运行时 `ABX_CUBESANDBOX_BUILD_BASE_IMAGE`。镜像需包含 Cube 启动、envd/Jupyter 等要求。API、私有镜像拉取认证分别使用此插件自己的字段。适配器构建/推送不可变镜像，用原生 CubeAPI 登记并轮询，再返回 ID；PTY 仍未声明。
+
+Configure Docker login, a writable `ABX_CUBESANDBOX_IMAGE_REPOSITORY` and a compatible native `ABX_CUBESANDBOX_BUILD_BASE_IMAGE`, including Cube startup/envd/Jupyter requirements. API and private image pull credentials remain provider-scoped. The adapter builds/pushes an immutable image, registers it through native CubeAPI and waits for its exact job. PTY remains undeclared.
+
+所有新路径保持 Beta；原生 E2B、Cube、集群验收仍按维护者要求暂缓。单元/回环/实际 SDK 测试不能当成云验收。临时目录会清理；成功沙箱、镜像和已登记模板不会自动删除，可能继续计费。准备超时可能遗留已提交产物，启动/就绪失败会尝试删除本次新建沙箱并报告清理状态。源码安装、引用契约及完整限制见[指南](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/zh/guide/template-launch.md)。
+
+All new paths remain Beta. Native E2B/Cube/cluster acceptance is explicitly deferred by the maintainer; unit/loopback/official SDK protocol tests are not cloud acceptance. Temporary staging is cleaned. Successful sandboxes, images and registered templates are retained and may incur cost. Preparation timeout may leave submitted artifacts; startup/readiness failure attempts cleanup of this invocation's new sandbox. See the [host guide](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/en/guide/template-launch.md) for installation, reference contracts and limits.

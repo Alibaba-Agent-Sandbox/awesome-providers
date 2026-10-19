@@ -1,3 +1,4 @@
+import { projectManager } from "./project.mjs";
 // E2B cloud sandboxes. A `node/1` plugin: the host passes the kit, this file only builds the protocol objects.
 import { createTemplates } from "./templates.mjs";
 
@@ -8,6 +9,10 @@ export default function create(kit) {
       if (!ctx.features?.has("templates.deploy")) throw new kit.errors.ProviderFeatureNotSupportedError("e2b", "templates.deploy");
       const Template = kit.e2b.loadTemplate ? await kit.e2b.loadTemplate() : kit.e2b.Template;
       return createTemplates({ Template, options: ctx.options, errors: kit.errors });
+    },
+    async buildTemplateManager(ctx) {
+      if (!ctx.features?.has("templates.build")) throw new kit.errors.ProviderFeatureNotSupportedError(ctx.id, "templates.build");
+      return projectManager(kit, ctx);
     },
     async buildInfra(ctx) {
       const key = String(ctx.options.api_key ?? "");

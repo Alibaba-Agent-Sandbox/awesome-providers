@@ -4,7 +4,7 @@ manifest_version = 1
 id          = "alicloud-container"
 name        = "Alibaba Cloud Agent Sandbox Container Edition"
 name_zh     = "阿里云智能体沙箱容器版"
-version     = "0.2.3"
+version     = "0.3.0"
 description = "ACS/ACK sandbox-manager. Set ABX_ALICLOUD_CONTAINER_DOMAIN and ABX_ALICLOUD_CONTAINER_API_KEY."
 license     = "Apache-2.0"
 
@@ -18,11 +18,12 @@ entry = "provider.mjs"
 
 [features]
 supported = [
-  "sandbox.lifecycle", "sandbox.timeout", "sandbox.pause",
+  "templates.build", "sandbox.lifecycle", "sandbox.timeout", "sandbox.pause",
   "exec.run", "exec.stream", "process.manage", "files.rw", "code.interpret", "ports.url",
 ]
 
 [security]
+spawns_processes = true
 network = ["*"]
 
 [core]
@@ -54,3 +55,31 @@ description_zh = "native 用 {port}-{id}.{domain}。private 用 /kruise/{id}/{po
 
 [auth]
 any_of = [["api_key"]]
+
+[config.fields.build_base_image]
+type = "string"
+description = "Native runtime base image used to replace the project's first FROM. Configure once for unresolved template placeholders. Must provide this backend's envd/code runtime when required."
+description_zh = "替换项目首个 FROM 的原生运行时基础镜像。模板含占位符时配置一次；需包含该后端要求的 envd/代码运行时。"
+
+[config.fields.image_repository]
+type = "string"
+description = "Writable OCI registry/repository without a tag. Project launch builds/pushes immutable tags with the existing Docker login."
+description_zh = "可写 OCI 仓库/镜像路径，不带标签。项目启动使用已有 Docker 登录构建并推送不可变标签。"
+
+[config.fields.kube_namespace]
+type = "string"
+description = "Kubernetes namespace for preparation; must match the sandbox-manager API-key namespace."
+description_zh = "构建登记使用的 Kubernetes 命名空间，须与 sandbox-manager API Key 所属命名空间一致。"
+[config.fields.kube_context]
+type = "string"
+description = "Optional explicit kubectl context for preparation."
+description_zh = "准备模板时可选的 kubectl 上下文。"
+[config.fields.build_template]
+type = "string"
+default = "code-interpreter"
+description = "Existing base SandboxSet to clone, preserving runtime injection and probes."
+description_zh = "克隆的基础 SandboxSet 名称，保留运行时注入和探针。"
+[config.fields.build_container]
+type = "string"
+description = "Main container name when the base SandboxSet contains multiple containers."
+description_zh = "基础 SandboxSet 有多个容器时指定主容器名称。"

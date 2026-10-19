@@ -4,7 +4,7 @@ manifest_version = 1
 id          = "cubesandbox"
 name        = "CubeSandbox"
 name_zh     = "CubeSandbox"
-version     = "0.2.3"
+version     = "0.3.0"
 description = "Tencent CubeSandbox CubeAPI. Default http://127.0.0.1:3000."
 license     = "Apache-2.0"
 
@@ -18,11 +18,12 @@ entry = "provider.mjs"
 
 [features]
 supported = [
-  "sandbox.lifecycle", "sandbox.timeout", "sandbox.pause",
+  "templates.build", "sandbox.lifecycle", "sandbox.timeout", "sandbox.pause",
   "exec.run", "exec.stream", "files.rw", "files.watch", "code.interpret", "ports.url",
 ]
 
 [security]
+spawns_processes = true
 network = ["*"]
 
 [core]
@@ -50,3 +51,24 @@ description_zh = "端口主机名后缀。默认 cube.app。"
 type           = "string"
 description    = "CubeProxy host:port. TCP goes there; Host stays the virtual name."
 description_zh = "CubeProxy 的 host:port。TCP 打到这里，Host 仍是虚拟主机名。"
+
+[config.fields.build_base_image]
+type = "string"
+description = "Native runtime base image used to replace the project's first FROM. Configure once for unresolved template placeholders. Must provide this backend's envd/code runtime when required."
+description_zh = "替换项目首个 FROM 的原生运行时基础镜像。模板含占位符时配置一次；需包含该后端要求的 envd/代码运行时。"
+
+[config.fields.image_repository]
+type = "string"
+description = "Writable OCI registry/repository without a tag. Project launch builds/pushes immutable tags with the existing Docker login."
+description_zh = "可写 OCI 仓库/镜像路径，不带标签。项目启动使用已有 Docker 登录构建并推送不可变标签。"
+
+[config.fields.registry_username]
+type = "string"
+secret = true
+description = "Private image pull username, scoped to this provider."
+description_zh = "该提供方拉取私有镜像的用户名。"
+[config.fields.registry_password]
+type = "string"
+secret = true
+description = "Private image pull password; configure separately from the Cube API key."
+description_zh = "私有镜像拉取密码，与 Cube API Key 分开配置。"

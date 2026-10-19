@@ -4,7 +4,7 @@ manifest_version = 1
 id          = "e2b"
 name        = "E2B"
 name_zh     = "E2B"
-version     = "0.2.3"
+version     = "0.3.0"
 description = "E2B cloud sandboxes. Set ABX_E2B_API_KEY. Does not read the Express key."
 license     = "Apache-2.0"
 
@@ -18,12 +18,13 @@ entry = "provider.mjs"
 
 [features]
 supported = [
-  "sandbox.lifecycle", "sandbox.timeout", "sandbox.pause",
+  "templates.build", "sandbox.lifecycle", "sandbox.timeout", "sandbox.pause",
   "exec.run", "exec.stream", "process.manage", "files.rw", "files.watch",
   "code.interpret", "ports.url",
 ]
 
 [security]
+spawns_processes = true
 network = ["api.e2b.app", "e2b.app"]
 
 [core]
@@ -50,3 +51,8 @@ description_zh = "X-API-Key 请求头。设置 ABX_E2B_API_KEY。"
 
 [auth]
 any_of = [["api_key"]]
+
+[config.fields.build_base_image]
+type = "string"
+description = "Native runtime base image used to replace the project's first FROM. Configure once for unresolved template placeholders. Must provide this backend's envd/code runtime when required."
+description_zh = "替换项目首个 FROM 的原生运行时基础镜像。模板含占位符时配置一次；需包含该后端要求的 envd/代码运行时。"

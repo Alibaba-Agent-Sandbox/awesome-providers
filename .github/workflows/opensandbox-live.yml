@@ -39,7 +39,7 @@ jobs:
       - name: Fetch reviewed host sources
         run: |
           git clone https://github.com/Alibaba-Agent-Sandbox/agent-sandbox.git /tmp/abx-cli
-          git -C /tmp/abx-cli checkout b2af4949aa8ed9dc496a4849a58450b7ccc1639b
+          git -C /tmp/abx-cli checkout 9c8ae218a33d6e540861e49a22bb778930e631b9
           git clone https://github.com/Alibaba-Agent-Sandbox/python-sdk.git /tmp/abx-python
           git -C /tmp/abx-python checkout 81cca585e5ac59be14f47cb53ade976f35d6446b
       - name: Install locked CLI and matching SDK packages
@@ -52,6 +52,8 @@ jobs:
           printf '#!/bin/sh\nexec node /tmp/abx-cli/dist/bin/abx.js "$@"\n' > /tmp/abx-cli/bin/abx
           chmod +x /tmp/abx-cli/bin/abx
           echo "ABX_OPENSANDBOX_PLUGIN=$GITHUB_WORKSPACE/opensandbox" >> "$GITHUB_ENV"
+      - name: Project parser with actual host staging and pinned official SDK
+        run: E2B_TEMPLATE_SDK_MODULE="file:///tmp/abx-cli/node_modules/e2b/dist/index.mjs" ABX_PROJECT_HELPER_MODULE="file:///tmp/abx-cli/dist/providers/shared/project.js" node --test tests/project-sdk.test.mjs
       - name: Verify SDK fixture and CLI share an isolated home
         run: python -m pytest -q opensandbox/tests/harness --confcutdir=opensandbox/tests/harness
       - name: Start real Docker-backed OpenSandbox
@@ -69,10 +71,15 @@ jobs:
           python -m pytest -vv -s -o faulthandler_timeout=60 -p no:cacheprovider --rootdir "$task_home" --confcutdir "$GITHUB_WORKSPACE/opensandbox" "$GITHUB_WORKSPACE/opensandbox/tests/contract"
       - name: Run CLI lifecycle, commands and files
         run: bash /tmp/abx-cli/e2e/providers/run.sh opensandbox
+      - name: Run native project build, registry push and automatic launch
+        run: |
+          docker run -d --name abx-project-registry -p 5000:5000 registry:2.8.3
+          node opensandbox/tests/project-launch.mjs
       - name: Cleanup and verify no sandbox containers remain
         if: always()
         run: |
           if [ -f /tmp/abx-python/e2e/opensandbox/local-up.sh ]; then
             bash /tmp/abx-python/e2e/opensandbox/local-up.sh down
           fi
+          docker rm -f abx-project-registry >/dev/null 2>&1 || true
           test -z "$(docker ps -aq --filter name=sandbox-)"

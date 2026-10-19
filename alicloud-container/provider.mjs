@@ -1,3 +1,4 @@
+import { projectManager } from "./project.mjs";
 // Alibaba Cloud Agent Sandbox container edition (OpenKruise sandbox-manager, E2B-shaped). A `node/1` plugin.
 const ENVD_PORT = 49983;
 const CODE_PORT = 49999;
@@ -74,6 +75,10 @@ function apiBase(raw, kit) {
 
 export default function create(kit) {
   return {
+    async buildTemplateManager(ctx) {
+      if (!ctx.features?.has("templates.build")) throw new kit.errors.ProviderFeatureNotSupportedError(ctx.id, "templates.build");
+      return projectManager(kit, ctx);
+    },
     async buildInfra(ctx) {
       const protocol = String(ctx.options.protocol || "native").toLowerCase();
       if (protocol !== "native" && protocol !== "private") {

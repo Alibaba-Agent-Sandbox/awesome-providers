@@ -29,7 +29,7 @@ sb = await Sandbox.create(
 )
 ```
 
-模板 id 按集群里的镜像。文档示例是 `code-interpreter`，不是极速版的 `base`。
+已有模板可以直接传 SandboxSet 名称；自动准备可通过下方的新入口完成，不要求手查 ID。文档示例是 `code-interpreter`，不是极速版的 `base`。
 
 ## 配置
 
@@ -59,7 +59,7 @@ sb = await Sandbox.create(
 
 ## 会抛出 E8004 的调用
 
-`files.watch`、`files.transfer`、`templates.read`、`templates.build`、`ports.domain`、`storage.mount`、`network.vpc`、`sessions`。
+`files.watch`、`files.transfer`、`templates.read`、`ports.domain`、`storage.mount`、`network.vpc`、`sessions`。
 
 sandbox-manager 没有 `/terminal`。PTY 要走带 `pty` 字段的进程启动，这个适配器还没接，所以清单不声明 `pty`。官方说明里，预签名上传下载、日志、指标和卷也不在容器版的 E2B 兼容范围内。
 
@@ -89,3 +89,23 @@ abx provider install alibaba-agent-sandbox/awesome-providers//alicloud-container
 Declared: `sandbox.lifecycle`, `sandbox.timeout`, `sandbox.pause`, `exec.run`, `exec.stream`, `process.manage`, `files.rw`, `code.interpret`, `ports.url`. `run_code` is Jupyter `POST /execute` on port 49999. `pty` is not declared; sandbox-manager has no `/terminal`.
 
 Unit tests use a local fake API. A live create needs both the domain and the API key. This environment has no ACS/ACK cluster, so that create did not run. The example template id is `code-interpreter`, not Express `base`.
+
+## 自动准备项目（Beta） / Automatic project preparation (Beta)
+
+使用包含 `template launch` 和 `kit.project` 的 CLI 源码版，安装或更新本插件后运行：
+
+```sh
+abx --provider alicloud-container template launch alibaba-agent-sandbox/awesome-templates//python-hello --yes
+```
+
+提供方现在声明 `templates.build`，用于 node/1 管理器的 `prepareProject`。旧模板管理/API 方法和独立的 `templates.deploy` 不会因此自动启用。CLI 自动把适配器返回的 ID、名称或镜像传给创建，启动服务并验证就绪；缺少模板声明的运行时能力时，在构建前拒绝。正常沙箱行为不变。
+
+Use a CLI source build containing `template launch` and `kit.project`. The node/1 `prepareProject` manager is guarded by `templates.build`; legacy template management APIs and the standalone `templates.deploy` factory are not implied. The exact returned native reference is handed to sandbox creation. Missing runtime capabilities fail before build. Normal sandbox operations remain unchanged.
+
+先配置 Docker 登录、可写 `ABX_ALICLOUD_CONTAINER_IMAGE_REPOSITORY`、kubectl 与 `ABX_ALICLOUD_CONTAINER_KUBE_NAMESPACE`；命名空间须与 API Key 一致。`build_template` 默认 `code-interpreter`，多容器时设置 `build_container`，可显式设置 `kube_context`。适配器读取基础 SandboxSet 镜像并克隆运行时注入、卷及探针，只更换主容器镜像和资源；不修改基础对象。生成的零副本池通过 create-on-no-stock 创建，引用由适配器自动返回。需要集群权限，普通 sandbox-manager API Key 本身不提供创建 SandboxSet 的权限。
+
+Configure Docker login, a writable `ABX_ALICLOUD_CONTAINER_IMAGE_REPOSITORY`, kubectl access and `ABX_ALICLOUD_CONTAINER_KUBE_NAMESPACE` matching the API key. `build_template` defaults to `code-interpreter`; select `build_container` when ambiguous and optionally `kube_context`. The adapter clones the base SandboxSet's runtime injection, volumes and probes, replacing only the main image/resources. It never edits the base. It returns an owned zero-pool name and uses create-on-no-stock. Kubernetes access is required; a normal sandbox-manager key does not itself grant SandboxSet creation.
+
+所有新路径保持 Beta；原生 E2B、Cube、集群验收仍按维护者要求暂缓。单元/回环/实际 SDK 测试不能当成云验收。临时目录会清理；成功沙箱、镜像和已登记模板不会自动删除，可能继续计费。准备超时可能遗留已提交产物，启动/就绪失败会尝试删除本次新建沙箱并报告清理状态。源码安装、引用契约及完整限制见[指南](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/zh/guide/template-launch.md)。
+
+All new paths remain Beta. Native E2B/Cube/cluster acceptance is explicitly deferred by the maintainer; unit/loopback/official SDK protocol tests are not cloud acceptance. Temporary staging is cleaned. Successful sandboxes, images and registered templates are retained and may incur cost. Preparation timeout may leave submitted artifacts; startup/readiness failure attempts cleanup of this invocation's new sandbox. See the [host guide](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/en/guide/template-launch.md) for installation, reference contracts and limits.

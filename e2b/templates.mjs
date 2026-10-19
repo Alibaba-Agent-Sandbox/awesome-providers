@@ -4,7 +4,7 @@
 const object = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const present = (value) => value !== undefined && value !== null;
 
-export function createTemplates({ Template, options = {}, errors }) {
+export function createTemplates({ Template, options = {}, errors, fromProject }) {
   const invalid = (message) => new errors.ProviderConfigError(`Provider 'e2b': ${message}`);
   const key = typeof options.api_key === "string" ? options.api_key.trim() : "";
   if (!key) throw new errors.InvalidAPIKeyError("Provider 'e2b' has no API key.", { suggestion: "Set ABX_E2B_API_KEY." });
@@ -58,7 +58,7 @@ export function createTemplates({ Template, options = {}, errors }) {
       const combined = signal ? AbortSignal.any([signal, deadline.signal]) : deadline.signal;
       try {
         combined.throwIfAborted();
-        let template = Template().fromImage(source.image, hasRegistry ? { username: registry.username, password: registry.password } : undefined);
+        let template = fromProject ? fromProject() : Template().fromImage(source.image, hasRegistry ? { username: registry.username, password: registry.password } : undefined);
         if (present(spec.start_cmd)) template = template.setStartCmd(spec.start_cmd, spec.ready_cmd);
         else if (present(spec.ready_cmd)) template = template.setReadyCmd(spec.ready_cmd);
         const buildOptions = {

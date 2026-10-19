@@ -40,3 +40,9 @@ Python catalog 更新依据版本和摘要；本地/link 安装使用审阅的�
 版本 2 恰好包含 `schema_version`、`maturity`、`template_input`、`template_example` 四个字段。`maturity` 只能是 `stable` 或 `beta`。消费端继续兼容恰好三个字段的版本 1，并将它或缺失元数据的提供方视为 Beta。`official` 和 `builtin` 不表示正式验收。此状态由提供方维护，Registry 只读取，不根据厂商 ID 推断。
 
 当前四个目录提供方都为 Beta，正式验收暂缓；只有已验收的内置极速版为正式版。推广为正式版需要该提供方的真实后端 CLI、SDK 和声明能力验收、清理证明、文档限制审查及维护者批准，不能只靠 T0 或健康检查。
+
+## Project preparation metadata (version 3)
+
+Version 3 adds exactly `project_preparation` to version 2. Its value is `sdk-build`, `image-build`, `image-reference` or `cluster-template`. The provider owns this display hint; consumers additionally require `templates.build`, sandbox lifecycle and every template-required runtime capability. Metadata alone enables nothing. It is data, never an executable command or native acceptance receipt. All catalog providers retain `maturity: beta`. Older version 1/2 metadata remains accepted and has no project preparation hint.
+
+版本 3 仅在版本 2 上增加 `project_preparation`，取值为 `sdk-build`、`image-build`、`image-reference`、`cluster-template`。提供方拥有此展示提示；消费者还须检查 `templates.build`、沙箱生命周期和模板要求的每项运行时能力。元数据不执行代码，不单独启用能力，也不是原生验收证据。目录提供方继续为 Beta，旧版本 1/2 仍兼容且无此提示。
