@@ -16,7 +16,7 @@ abx provider install alibaba-agent-sandbox/awesome-providers//e2b --allow-unpinn
 abx provider install alibaba-agent-sandbox/awesome-providers//alicloud-container --allow-unpinned --yes
 ```
 
-The CLI installs from the git tree; add `--ref <40-hex-commit>` to pin instead of `--allow-unpinned`. `registry:<id>` exists only in the Python installer (`python -m agent_sandbox.providers install registry:<id> --yes`) and needs the index below, which is not live yet; `abx` has no `registry:` form.
+The CLI installs from the git tree; add `--ref <40-hex-commit>` to pin instead of `--allow-unpinned`. `registry:<id>` exists only in the Python installer (`python -m agent_sandbox.providers install registry:<id> --yes`) and uses the published index below; `abx` has no `registry:` form.
 
 Index: `https://registry.agent-sandbox.cn/providers/index.json`. Override with `ABX_PROVIDER_REGISTRY` (URL or a local `index.json` path). A background check writes `~/.abx/providers/updates.json`. It does not install. `ABX_PROVIDER_UPDATE_CHECK=0` skips it. The registry website is https://registry.agent-sandbox.com. The official site is https://www.agent-sandbox.com.
 
@@ -43,3 +43,17 @@ abx provider test my-cloud
 Without a real backend, say which variable is missing. Do not borrow another provider's key.
 
 Each provider directory has `docs/README.md`. Update that file when you change paths, features, or what has actually been run.
+
+## Prepare project sources
+
+Use a CLI build containing `template launch` (the original npm 0.4.0 release predates it):
+
+```sh
+abx --provider <id> template launch owner/repository//template-path --yes
+```
+
+Configure backend credentials and build prerequisites once; read that provider’s `docs/README.md`. The manager owns `prepareProject(directory, options)` under `templates.build` and returns `{reference,status:"ready"}` with optional service/readiness commands and creation metadata. Pass its exact native reference to the same provider. Use generic `kit.project.stage`, `buildImage` and `runTool` primitives; keep SDK/API mapping, authentication, polling and cluster policy in the adapter. Do not add vendor-ID switches to the host or Registry. This does not enable standalone `templates.deploy` or unsupported EPP template RPCs.
+
+E2B uses its independent key and official SDK parser; Cube builds/pushes then registers natively; OpenSandbox uses the built image directly; container edition clones a configured base SandboxSet in the API-key namespace. Missing required PTY/code capability blocks preparation. Successful build artifacts remain for reuse; do not silently delete existing resources. All catalog providers remain Beta; scoped Docker or loopback checks do not establish full native acceptance.
+
+Use `abx provider update <id> --check` to inspect a recorded Git source, then the documented consent/pin options to update. Pinned installs stay pinned. `abx provider update alicloud-express --check` reports the bundled upgrade path; built-in code is updated with the CLI, not a separately installed plugin.
