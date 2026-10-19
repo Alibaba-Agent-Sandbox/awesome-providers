@@ -6,14 +6,15 @@ Each provider directory may include `catalog.json` for registry display:
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
+  "maturity": "beta",
   "template_input": "template-id",
   "template_example": "<existing template ID>"
 }
 ```
 
 `template_input` is `template-id` or `image-uri`; `template_example` is a nonempty
-string of at most 512 characters. Version 1 allows exactly these three fields and
+string of at most 512 characters. Version 1 allows exactly the original three fields and
 limits the file to 16 KiB. With no metadata, consumers show an explicit placeholder.
 This is display data, not executable instructions, an install source, an endpoint,
 a command factory or evidence of a native cloud test. The registry must never
@@ -42,3 +43,9 @@ plugin catalog. `provider update alicloud-express --check` in the coordinating h
 change reports the bundled lifecycle and upgrade instructions, not a separate
 plugin or an automatic host installation. See the
 [host design](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/c5a6a3c75921cfb4359f1c23041ec847ce63c932/docs/en/design/provider-portability-and-updates.md).
+
+## Acceptance status
+
+Version 2 requires exactly four fields: `schema_version`, `maturity`, `template_input`, and `template_example`. `maturity` is `stable` or `beta`. Consumers continue accepting strict three-field version 1 metadata and treat it, or absent metadata, as Beta. `official` and `builtin` do not establish acceptance. The provider owns its stage; the registry reads it without vendor-ID switches.
+
+All four catalog providers remain Beta, with formal acceptance deferred; only the accepted bundled Express provider is Stable. Promotion requires native-backend CLI/SDK and declared-capability acceptance, cleanup evidence, documentation/limitations review, and maintainer approval. T0 or server health alone is insufficient.

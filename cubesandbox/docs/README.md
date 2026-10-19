@@ -1,5 +1,7 @@
 # CubeSandbox
 
+**状态：Beta。** 本提供方暂未完成正式版验收。已声明的能力不等于已通过真实后端端到端测试；当前仅阿里云极速版为正式版。局部测试结果不会自动升级此状态。
+
 目录提供方，id 是 `cubesandbox`，类型 `node`（`provider.mjs`，由宿主进程加载）。CLI 和所有 SDK 都能用：CLI 直接运行，SDK 经由本机引擎（`abx provider engine serve`）。
 
 总说明：[工作原理](../../docs/zh/principle.md) · [安装](../../docs/zh/install.md) · [审查里还没跑到的项](../../docs/zh/catalog.md)

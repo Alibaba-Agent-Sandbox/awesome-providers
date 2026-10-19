@@ -26,3 +26,7 @@ Every provider in this catalog is tested in the same tiers. A tier that cannot r
 T0 passes. The README says what works, what is partial, and what returns E8004. T1 installs the new directory. T4 is required only when the plugin calls a backend you can start in the pull request.
 
 The copy of this table that the CLI and SDK repositories keep is `cli/e2e/providers/PLAN.md`.
+
+## Automated OpenSandbox native checks
+
+The `OpenSandbox live integration` workflow runs T4 on a disposable Ubuntu Docker runner using reviewed CLI/SDK commits, server 1.1.1 and a digest-pinned execd image. It runs direct EPP, installed SDK contracts, configuration precedence and the CLI round trip, then removes all test containers from that isolated runner. No cloud credentials are used. This scoped Docker result does not promote OpenSandbox from Beta or prove Kubernetes/network-policy/code-interpreter coverage.

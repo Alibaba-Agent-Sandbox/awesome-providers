@@ -1,5 +1,7 @@
 # opensandbox provider plugin
 
+**Status: Beta.** Formal acceptance is pending. Declared capabilities do not imply live-backend end-to-end verification. Only Alibaba Cloud Express is currently Stable; scoped test results do not automatically promote this provider.
+
 [简体中文](README.zh-CN.md)
 
 An [EPP/1](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/docs/en/design/providers-and-credentials.md) **exec provider** that runs Agent
