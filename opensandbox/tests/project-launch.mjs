@@ -22,10 +22,10 @@ try {
   const result = JSON.parse(await invoke(["--provider", "opensandbox", "--json", "template", "launch", work, "--timeout", "180", "--sandbox-timeout", "180", "--yes"]));
   id = result.sandbox_id;
   assert.match(id, /^[a-zA-Z0-9-]+$/); assert.match(result.template_reference, /^localhost:5000\/abx-project:native-project-/);
-  const probe = await invoke(["--provider", "opensandbox", "exec", id, "python3", "-c", "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:9000').read().decode())"]);
+  const probe = await invoke(["--provider", "opensandbox", "exec", id, "python3 -c \"import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:9000').read().decode())\""]);
   assert.ok(probe.includes("project-ready"));
   console.log("PASS native Docker build/push -> provider image reference -> real OpenSandbox create -> service startup/readiness -> exec probe");
 } finally {
-  if (id) await invoke(["--provider", "opensandbox", "kill", id]);
+  if (id) await invoke(["--provider", "opensandbox", "kill", id, "--yes"]);
   await fs.rm(work, { recursive: true, force: true });
 }

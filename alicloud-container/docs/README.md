@@ -86,7 +86,7 @@ abx provider install alibaba-agent-sandbox/awesome-providers//alicloud-container
 
 `native` uses `https://api.{domain}` and `https://{port}-{id}.{domain}`. `private` uses `https://{domain}/kruise/api` and `https://{domain}/kruise/{id}/49983`. It does not read `ABX_SANDBOX_API_KEY`.
 
-Declared: `sandbox.lifecycle`, `sandbox.timeout`, `sandbox.pause`, `exec.run`, `exec.stream`, `process.manage`, `files.rw`, `code.interpret`, `ports.url`. `run_code` is Jupyter `POST /execute` on port 49999. `pty` is not declared; sandbox-manager has no `/terminal`.
+Declared: `templates.build` (node/1 project preparation), `sandbox.lifecycle`, `sandbox.timeout`, `sandbox.pause`, `exec.run`, `exec.stream`, `process.manage`, `files.rw`, `code.interpret`, `ports.url`. `run_code` is Jupyter `POST /execute` on port 49999. `pty` is not declared; sandbox-manager has no `/terminal`.
 
 Unit tests use a local fake API. A live create needs both the domain and the API key. This environment has no ACS/ACK cluster, so that create did not run. The example template id is `code-interpreter`, not Express `base`.
 
