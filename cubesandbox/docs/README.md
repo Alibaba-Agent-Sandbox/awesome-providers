@@ -14,7 +14,7 @@ abx --provider cubesandbox --opt base_url=http://127.0.0.1:3000 create --templat
 ```
 
 ```python
-from agent_sandbox import Sandbox
+from agent_sandbox.api.sandbox import Sandbox
 
 sb = await Sandbox.create(
     provider="cubesandbox",
