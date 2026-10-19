@@ -52,6 +52,8 @@ jobs:
           printf '#!/bin/sh\nexec node /tmp/abx-cli/dist/bin/abx.js "$@"\n' > /tmp/abx-cli/bin/abx
           chmod +x /tmp/abx-cli/bin/abx
           echo "ABX_OPENSANDBOX_PLUGIN=$GITHUB_WORKSPACE/opensandbox" >> "$GITHUB_ENV"
+      - name: Verify SDK fixture and CLI share an isolated home
+        run: python -m pytest -q opensandbox/tests/harness --confcutdir=opensandbox/tests/harness
       - name: Start real Docker-backed OpenSandbox
         run: |
           docker info >/dev/null

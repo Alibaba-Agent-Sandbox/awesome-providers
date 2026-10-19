@@ -48,11 +48,15 @@ def installed_plugin(tmp_path_factory):
     from agent_sandbox.providers import installer, registry
 
     home = tmp_path_factory.mktemp("abx-home")
-    saved = config_module._CONFIG_FILE
-    config_module._CONFIG_FILE = home / "config.toml"
-    try:
-        receipt = installer.install(str(PLUGIN_DIR), yes=True)
-        yield receipt
-    finally:
-        registry.reset_registry()
-        config_module._CONFIG_FILE = saved
+    # The SDK store and the spawned Node engine must resolve the same HOME.
+    # Patching only the Python config path leaves the CLI looking in a different
+    # store and writing engine.json where SDK discovery cannot see it.
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setenv("HOME", str(home))
+        patch.setenv("USERPROFILE", str(home))
+        patch.setattr(config_module, "_CONFIG_FILE", home / ".abx" / "config.toml")
+        try:
+            receipt = installer.install(str(PLUGIN_DIR), yes=True)
+            yield receipt
+        finally:
+            registry.reset_registry()
