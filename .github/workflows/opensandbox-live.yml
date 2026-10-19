@@ -56,8 +56,15 @@ jobs:
         run: |
           docker info >/dev/null
           bash /tmp/abx-python/e2e/opensandbox/local-up.sh up
-      - name: Run direct plugin, installed SDK contract and environment tests
-        run: python /tmp/abx-python/e2e/opensandbox/provider_e2e.py --stages node-unit,node-live,install,kit,sdk,env
+      - name: Run direct plugin, installed contract kit and environment tests
+        run: python /tmp/abx-python/e2e/opensandbox/provider_e2e.py --stages node-unit,node-live,install,kit,env
+      - name: Run Python SDK scenarios with streamed diagnostics
+        timeout-minutes: 8
+        run: |
+          task_home=$(mktemp -d)
+          export HOME="$task_home"
+          cd "$task_home"
+          python -m pytest -vv -s -o faulthandler_timeout=60 -p no:cacheprovider --rootdir "$task_home" --confcutdir "$GITHUB_WORKSPACE/opensandbox" "$GITHUB_WORKSPACE/opensandbox/tests/contract"
       - name: Run CLI lifecycle, commands and files
         run: bash /tmp/abx-cli/e2e/providers/run.sh opensandbox
       - name: Cleanup and verify no sandbox containers remain
