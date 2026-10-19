@@ -1,3 +1,4 @@
+import { projectManager } from "./project.mjs";
 // Tencent CubeSandbox (CubeAPI). A `node/1` plugin.
 import { createTemplates } from "./templates.mjs";
 const ENVD_PORT = 49983;
@@ -34,6 +35,10 @@ export default function create(kit) {
     async buildTemplates(ctx) {
       if (!ctx.features?.has("templates.deploy")) throw new kit.errors.ProviderFeatureNotSupportedError("cubesandbox", "templates.deploy");
       return createTemplates({ options: ctx.options, errors: kit.errors });
+    },
+    async buildTemplateManager(ctx) {
+      if (!ctx.features?.has("templates.build")) throw new kit.errors.ProviderFeatureNotSupportedError(ctx.id, "templates.build");
+      return projectManager(kit, ctx);
     },
     async buildInfra(ctx) {
       const key = String(ctx.options.api_key ?? "");

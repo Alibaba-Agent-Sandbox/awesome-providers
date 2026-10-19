@@ -6,6 +6,15 @@ on:
   pull_request:
 
 jobs:
+  projects:
+    name: Provider project preparation (T0)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/project.test.mjs
   cubesandbox:
     name: CubeSandbox image adapter (T0, native API loopback)
     runs-on: ubuntu-latest

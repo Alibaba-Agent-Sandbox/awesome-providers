@@ -4,7 +4,7 @@ manifest_version = 1
 id          = "opensandbox"
 name        = "OpenSandbox"
 name_zh     = "OpenSandbox 开源沙箱"
-version     = "0.3.2"
+version     = "0.4.0"
 description = "Runs sandboxes on an OpenSandbox server (Docker or Kubernetes runtime) through its lifecycle API and per-sandbox execd daemon."
 license     = "Apache-2.0"
 homepage    = "https://github.com/alibaba-agent-sandbox/awesome-providers/tree/main/opensandbox"
@@ -22,7 +22,7 @@ platforms = ["linux", "darwin", "win32"]
 
 [features]
 supported = [
-  "sandbox.lifecycle", "sandbox.timeout", "sandbox.pause",
+  "templates.build", "sandbox.lifecycle", "sandbox.timeout", "sandbox.pause",
   "exec.run", "exec.stream", "process.manage", "pty",
   "files.rw", "ports.url", "sessions",
 ]
@@ -31,7 +31,7 @@ supported = [
 network          = ["*"]                 # the OpenSandbox server and sandbox endpoints you configure
 filesystem       = ["data_dir"]
 env_passthrough  = []
-spawns_processes = false
+spawns_processes = true
 
 [core]
 inherit = []                             # does not receive sandbox_api_key, sandbox_base_url, or sandbox_domain
@@ -121,3 +121,13 @@ type           = "bool"
 default        = false
 description    = "Request secure access (Kubernetes gateway deployments only)"
 description_zh = "请求安全访问（仅 Kubernetes 网关部署）"
+
+[config.fields.build_base_image]
+type = "string"
+description = "Native runtime base image used to replace the project's first FROM. Configure once for unresolved template placeholders. Must provide this backend's envd/code runtime when required."
+description_zh = "替换项目首个 FROM 的原生运行时基础镜像。模板含占位符时配置一次；需包含该后端要求的 envd/代码运行时。"
+
+[config.fields.image_repository]
+type = "string"
+description = "Writable OCI registry/repository without a tag. Project launch builds/pushes immutable tags with the existing Docker login."
+description_zh = "可写 OCI 仓库/镜像路径，不带标签。项目启动使用已有 Docker 登录构建并推送不可变标签。"

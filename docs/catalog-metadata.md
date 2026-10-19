@@ -49,3 +49,9 @@ plugin or an automatic host installation. See the
 Version 2 requires exactly four fields: `schema_version`, `maturity`, `template_input`, and `template_example`. `maturity` is `stable` or `beta`. Consumers continue accepting strict three-field version 1 metadata and treat it, or absent metadata, as Beta. `official` and `builtin` do not establish acceptance. The provider owns its stage; the registry reads it without vendor-ID switches.
 
 All four catalog providers remain Beta, with formal acceptance deferred; only the accepted bundled Express provider is Stable. Promotion requires native-backend CLI/SDK and declared-capability acceptance, cleanup evidence, documentation/limitations review, and maintainer approval. T0 or server health alone is insufficient.
+
+## Project preparation metadata (version 3)
+
+Version 3 adds exactly `project_preparation` to version 2. Its value is `sdk-build`, `image-build`, `image-reference` or `cluster-template`. The provider owns this display hint; consumers additionally require `templates.build`, sandbox lifecycle and every template-required runtime capability. Metadata alone enables nothing. It is data, never an executable command or native acceptance receipt. All catalog providers retain `maturity: beta`. Older version 1/2 metadata remains accepted and has no project preparation hint.
+
+版本 3 仅在版本 2 上增加 `project_preparation`，取值为 `sdk-build`、`image-build`、`image-reference`、`cluster-template`。提供方拥有此展示提示；消费者还须检查 `templates.build`、沙箱生命周期和模板要求的每项运行时能力。元数据不执行代码，不单独启用能力，也不是原生验收证据。目录提供方继续为 Beta，旧版本 1/2 仍兼容且无此提示。

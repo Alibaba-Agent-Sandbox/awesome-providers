@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { projectManager } from "./src/project.mjs";
 // OpenSandbox provider for Agent Sandbox, in dependency-free Node ESM (Node >= 20).
 // As a `node` provider the host imports this module and calls the exported `create(kit)`; run as a script it serves
 // EPP/1 (newline-delimited JSON-RPC 2.0 on stdin/stdout, free-form logs on stderr) for any other host.
@@ -103,6 +104,10 @@ export function createPlugin({ log = () => {}, fetchImpl } = {}) {
 /** The `node/1` entry: the host runs this module's EPP methods in its own process. */
 export default function create(kit) {
   return {
+    async buildTemplateManager(ctx) {
+      if (!ctx.features?.has("templates.build")) throw new kit.errors.ProviderFeatureNotSupportedError(ctx.id, "templates.build");
+      return projectManager(kit, ctx);
+    },
     buildInfra: (ctx) => kit.epp.infra(ctx, ({ log }) => createPlugin({ log })),
   };
 }

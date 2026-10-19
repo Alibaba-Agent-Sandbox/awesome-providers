@@ -126,3 +126,9 @@ tests/              unit/、mock/（进程内模拟服务）、live/、contract/
 * 旧版 execd v1.1.0 不支持 `argv` 且会吞掉换行符；插件会自动检测并降级（要获得精确输出请使用较新的 execd 镜像）。
 
 许可证：Apache-2.0。
+
+## Project source preparation / 项目源码准备
+
+The Node template manager supports `templates.build` for `abx template launch`: Docker builds and pushes the source and OpenSandbox consumes the returned image reference. The EPP template RPCs in the table remain unsupported. See [prerequisites and Beta limits](docs/README.md).
+
+Node 模板管理器通过 `templates.build` 支持 `abx template launch`：Docker 构建并推送源码，OpenSandbox 使用返回的镜像引用。上表中的 EPP 模板 RPC 仍不支持。参见[前置条件与 Beta 范围](docs/README.md)。

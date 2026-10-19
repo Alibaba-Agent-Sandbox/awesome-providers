@@ -1,6 +1,7 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "template_input": "template-id",
-  "template_example": "<template id in the cluster>",
-  "maturity": "beta"
+  "template_example": "code-interpreter",
+  "maturity": "beta",
+  "project_preparation": "cluster-template"
 }

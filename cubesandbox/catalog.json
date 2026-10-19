@@ -1,6 +1,7 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "template_input": "template-id",
   "template_example": "<template id on the cluster>",
-  "maturity": "beta"
+  "maturity": "beta",
+  "project_preparation": "image-build"
 }
