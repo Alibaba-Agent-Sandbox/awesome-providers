@@ -19,3 +19,7 @@ Express historical acceptance and limitations: [CLI](https://github.com/Alibaba-
 Promotion requires real backend CLI/SDK tests covering the declared scope, cleanup evidence, reviewed limitations and maintainer approval. A mock, lifecycle health response, successful package installation, or a local subset never promotes a provider automatically. See [test tiers](e2e.md) and [catalog metadata](catalog-metadata.md).
 
 升级为正式版需真实后端 CLI/SDK 声明范围测试、清理证据、限制审查和维护者批准。模拟测试、服务健康响应、安装成功或局部本机测试均不会自动升级。
+
+OpenSandbox has a [verified Docker/CLI/Python SDK subset](../.agents/evidence/verify/2026-10-19-opensandbox-native-docker.md) with pinned versions and cleanup evidence. It remains Beta; this does not establish Kubernetes or other deployment acceptance.
+
+OpenSandbox 已完成[固定版本的 Docker、CLI 与 Python SDK 局部真实验证](../.agents/evidence/verify/2026-10-19-opensandbox-native-docker.md)，含清理证明；仍为 Beta，不代表 Kubernetes 等其他部署方式已验收。

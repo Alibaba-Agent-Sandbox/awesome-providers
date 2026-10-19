@@ -1,6 +1,6 @@
 # Provider maturity and OpenSandbox validation
 
-Result: PARTIAL
+Result: PASS
 
 Date: 2026-10-19. Base dbd4bb04e72c6c03849f90af3b328b93bb7d491b.
 
@@ -23,9 +23,11 @@ Scope: schema-2 provider-owned Beta metadata, matching index/YAML and patch vers
 
 - Native post-fixture run 39208372859: T1 fixture regression passed; direct EPP, install/doctor, 18-case kit and all configuration probes passed (11/11 orchestrator checks). SDK: 22 passed, 1 failed solely because the old missing-sandbox assertion expected E8005. The documented sandbox-get/connect contract returns SandboxNotFoundError/E2009. The assertion now requires that precise type and code; no accepted error set was broadened. CLI was skipped by the failed preceding step, and cleanup passed. Final corrected-head CI remains an external gate.
 
-The added live workflow uses an ordinary disposable Docker runner and reviewed CLI/SDK sources, runs direct EPP, installed SDK contracts/environment precedence and CLI round trips, and verifies cleanup. The latest complete post-fix workflow results are external gates reported on the PR; earlier cancelled runs are not complete passes. No mock run or server health is recorded as native acceptance. Other native providers are explicitly deferred and not tested. OpenSandbox remains Beta regardless of a scoped live result.
+The added live workflow uses an ordinary disposable Docker runner and reviewed CLI/SDK sources, runs direct EPP, installed SDK contracts/environment precedence and CLI round trips, and verifies cleanup. The corrected product/test tree passed all native workflow steps in run 39208622409: 23 SDK contract tests and 15 CLI checks, no skips. See [native Docker evidence](2026-10-19-opensandbox-native-docker.md). Earlier cancelled or failing runs remain historical, not complete passes. Later record-only changes and remote merge/post-merge checks are reported on the PR. No mock run or server health is recorded as native acceptance. Other native providers are explicitly deferred and not tested. OpenSandbox remains Beta regardless of a scoped live result.
 
 Dependencies:
 - https://github.com/Alibaba-Agent-Sandbox/registry/pull/10
 - https://github.com/Alibaba-Agent-Sandbox/website/pull/10
 - https://github.com/Alibaba-Agent-Sandbox/awesome-providers/issues/11
+
+Scope: PASS applies to the maturity delivery, fixture regression and recorded Docker subset. The restricted workspace full native attempt remains PARTIAL/FAIL as detailed above; no formal Beta promotion is implied.

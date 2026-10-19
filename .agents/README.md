@@ -31,3 +31,5 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [Integrated adapter CI](notes/proposed/process/2026-10-18-integrated-provider-ci.md) · [verification](evidence/verify/2026-10-18-integrated-provider-ci.md)
 
 - [Provider acceptance stage](notes/proposed/feature/2026-10-19-provider-maturity.md) · [verification](evidence/verify/2026-10-19-provider-maturity.md)
+
+- [OpenSandbox native Docker subset](evidence/verify/2026-10-19-opensandbox-native-docker.md).
