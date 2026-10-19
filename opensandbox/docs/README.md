@@ -1,5 +1,7 @@
 # OpenSandbox
 
+**状态：Beta。** 本提供方暂未完成正式版验收。已声明的能力不等于已通过真实后端端到端测试；当前仅阿里云极速版为正式版。局部测试结果不会自动升级此状态。
+
 目录提供方，id 是 `opensandbox`。不是随 SDK 编译进去的。类型 `node`：一个 ES 模块（`provider.mjs`，无 npm 依赖），导出 `create(kit)`，宿主在进程内调用它的 EPP/1 方法（`kit.epp.infra`）。CLI 直接使用它，Python 以及之后的 Node、Go、Java SDK 通过本机引擎（`abx provider engine serve`）使用它。`node provider.mjs` 仍可在 stdio 上提供 EPP/1，供其他宿主使用。需要 `node` 在 `PATH` 里。
 
 总说明：[工作原理](../../docs/zh/principle.md) · [安装](../../docs/zh/install.md)

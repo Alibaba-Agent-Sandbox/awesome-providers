@@ -4,7 +4,7 @@ manifest_version = 1
 id          = "e2b"
 name        = "E2B"
 name_zh     = "E2B"
-version     = "0.2.1"
+version     = "0.2.2"
 description = "E2B cloud sandboxes. Set ABX_E2B_API_KEY. Does not read the Express key."
 license     = "Apache-2.0"
 

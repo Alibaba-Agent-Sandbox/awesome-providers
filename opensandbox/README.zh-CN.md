@@ -1,5 +1,7 @@
 # opensandbox 提供方插件
 
+**状态：Beta。** 本提供方暂未完成正式版验收。已声明的能力不等于已通过真实后端端到端测试；当前仅阿里云极速版为正式版。局部测试结果不会自动升级此状态。
+
 [English](README.md)
 
 一个 [EPP/1](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/docs/zh/design/providers-and-credentials.md) **exec 提供方**插件，让 Agent Sandbox 在

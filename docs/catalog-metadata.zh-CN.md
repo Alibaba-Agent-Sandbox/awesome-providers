@@ -6,7 +6,8 @@
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
+  "maturity": "beta",
   "template_input": "template-id",
   "template_example": "<existing template ID>"
 }
@@ -33,3 +34,9 @@ Python catalog 更新依据版本和摘要；本地/link 安装使用审阅的�
 `provider update alicloud-express --check` 报告内置生命周期及升级指引，不是一个独立
 插件，也不自动安装宿主。见
 [宿主设计](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/c5a6a3c75921cfb4359f1c23041ec847ce63c932/docs/zh/design/provider-portability-and-updates.md)。
+
+## 验收状态
+
+版本 2 恰好包含 `schema_version`、`maturity`、`template_input`、`template_example` 四个字段。`maturity` 只能是 `stable` 或 `beta`。消费端继续兼容恰好三个字段的版本 1，并将它或缺失元数据的提供方视为 Beta。`official` 和 `builtin` 不表示正式验收。此状态由提供方维护，Registry 只读取，不根据厂商 ID 推断。
+
+当前四个目录提供方都为 Beta，正式验收暂缓；只有已验收的内置极速版为正式版。推广为正式版需要该提供方的真实后端 CLI、SDK 和声明能力验收、清理证明、文档限制审查及维护者批准，不能只靠 T0 或健康检查。

@@ -16,7 +16,8 @@
 #       author:       author name or GitHub handle
 #       kind:         node | exec | rest
 #       license:      SPDX identifier
-#       status:       official | community | experimental
+#       status:       official | community | experimental (maintainer origin)
+#       maturity:     stable | beta (acceptance; absent means beta)
 #
 # Add a provider by creating a directory and a matching entry, then opening a PR.
 
@@ -31,6 +32,7 @@ providers:
     kind: node
     license: Apache-2.0
     status: official
+    maturity: beta
 
   - name: cubesandbox
     description: "Tencent CubeSandbox CubeAPI. Default http://127.0.0.1:3000."
@@ -41,6 +43,7 @@ providers:
     kind: node
     license: Apache-2.0
     status: official
+    maturity: beta
   - name: e2b
     description: "E2B public API. Set ABX_E2B_API_KEY. Does not read the Express key."
     repo: https://github.com/alibaba-agent-sandbox/awesome-providers
@@ -50,6 +53,7 @@ providers:
     kind: node
     license: Apache-2.0
     status: official
+    maturity: beta
   - name: alicloud-container
     description: "ACS/ACK sandbox-manager. Set ABX_ALICLOUD_CONTAINER_DOMAIN and ABX_ALICLOUD_CONTAINER_API_KEY."
     repo: https://github.com/alibaba-agent-sandbox/awesome-providers
@@ -59,3 +63,4 @@ providers:
     kind: node
     license: Apache-2.0
     status: official
+    maturity: beta

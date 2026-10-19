@@ -3,6 +3,15 @@
 Installable sandbox providers for Agent Sandbox. The SDK and the CLI ship only
 `alicloud-express`. Everything else is installed from this catalog.
 
+Only the accepted Alibaba Cloud Express provider is **Stable**. OpenSandbox, E2B,
+CubeSandbox and Alibaba Cloud Container are **Beta**, with formal native-backend
+acceptance deferred. `official` describes maintenance, not acceptance. A scoped
+OpenSandbox check does not automatically promote it. See [acceptance status](docs/acceptance.md).
+
+目前仅已验收的阿里云极速版为**正式版**。OpenSandbox、E2B、CubeSandbox、
+阿里云容器版暂为 **Beta**，其正式版真实后端验收暂缓。`official` 只表示维护来源。
+局部验证不会自动升级为正式版。见[验收状态](docs/acceptance.md)。
+
 The docs cover how a provider works, how to create one, how to develop it,
 and how to install it:
 

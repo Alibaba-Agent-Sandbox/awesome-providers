@@ -1,0 +1,78 @@
+name: OpenSandbox live integration
+
+on:
+  pull_request:
+    paths:
+      - 'opensandbox/**'
+      - '.github/workflows/opensandbox-live.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'opensandbox/**'
+      - '.github/workflows/opensandbox-live.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live:
+    name: OpenSandbox Docker + CLI + Python SDK (T4)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      OSB_WORKDIR: /tmp/abx-opensandbox-ci
+      OSB_WITH_EGRESS: '0'
+      OSB_EXECD_IMAGE: opensandbox/execd@sha256:cda2bc35409bbf57561599b316cafb899598f7dce671332e7ceda14eb1cfeded
+      ABX_OPENSANDBOX_BASE_URL: http://127.0.0.1:8080
+      ABX_OPENSANDBOX_API_KEY: local-dev-key
+      OPENSANDBOX_API_KEY: local-dev-key
+      OPENSANDBOX_LIVE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch reviewed host sources
+        run: |
+          git clone https://github.com/Alibaba-Agent-Sandbox/agent-sandbox.git /tmp/abx-cli
+          git -C /tmp/abx-cli checkout b2af4949aa8ed9dc496a4849a58450b7ccc1639b
+          git clone https://github.com/Alibaba-Agent-Sandbox/python-sdk.git /tmp/abx-python
+          git -C /tmp/abx-python checkout 81cca585e5ac59be14f47cb53ade976f35d6446b
+      - name: Install locked CLI and matching SDK packages
+        run: |
+          npm ci --prefix /tmp/abx-cli
+          npm run build --prefix /tmp/abx-cli
+          python -m pip install -e /tmp/abx-python/server-sdk -e /tmp/abx-python/client-sdk pytest pytest-asyncio
+          echo "ABX_BIN=/tmp/abx-cli/bin/abx" >> "$GITHUB_ENV"
+          mkdir -p /tmp/abx-cli/bin
+          printf '#!/bin/sh\nexec node /tmp/abx-cli/dist/bin/abx.js "$@"\n' > /tmp/abx-cli/bin/abx
+          chmod +x /tmp/abx-cli/bin/abx
+          echo "ABX_OPENSANDBOX_PLUGIN=$GITHUB_WORKSPACE/opensandbox" >> "$GITHUB_ENV"
+      - name: Verify SDK fixture and CLI share an isolated home
+        run: python -m pytest -q opensandbox/tests/harness --confcutdir=opensandbox/tests/harness
+      - name: Start real Docker-backed OpenSandbox
+        run: |
+          docker info >/dev/null
+          bash /tmp/abx-python/e2e/opensandbox/local-up.sh up
+      - name: Run direct plugin, installed contract kit and environment tests
+        run: python /tmp/abx-python/e2e/opensandbox/provider_e2e.py --stages node-unit,node-live,install,kit,env
+      - name: Run Python SDK scenarios with streamed diagnostics
+        timeout-minutes: 8
+        run: |
+          task_home=$(mktemp -d)
+          export HOME="$task_home"
+          cd "$task_home"
+          python -m pytest -vv -s -o faulthandler_timeout=60 -p no:cacheprovider --rootdir "$task_home" --confcutdir "$GITHUB_WORKSPACE/opensandbox" "$GITHUB_WORKSPACE/opensandbox/tests/contract"
+      - name: Run CLI lifecycle, commands and files
+        run: bash /tmp/abx-cli/e2e/providers/run.sh opensandbox
+      - name: Cleanup and verify no sandbox containers remain
+        if: always()
+        run: |
+          if [ -f /tmp/abx-python/e2e/opensandbox/local-up.sh ]; then
+            bash /tmp/abx-python/e2e/opensandbox/local-up.sh down
+          fi
+          test -z "$(docker ps -aq --filter name=sandbox-)"

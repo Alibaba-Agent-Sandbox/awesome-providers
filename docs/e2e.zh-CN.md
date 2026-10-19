@@ -26,3 +26,9 @@
 T0 通过。README 写明能用、部分可用、以及返回 E8004 的能力。T1 安装这个新目录。只有当你能在这个 pull request 里把后端拉起来时，才要求 T4。
 
 CLI 和 SDK 仓库里的同一张表在 `cli/e2e/providers/PLAN.md`。
+
+## OpenSandbox 真实后端自动验证
+
+`OpenSandbox live integration` 在一次性 Ubuntu Docker runner 上执行 T4，使用固定的 CLI/SDK 提交、server 1.1.1 和摘要固定的配套 release-1.1.1 execd 镜像，覆盖 EPP、安装后的 SDK 契约、配置优先级及 CLI 往返，并清理该隔离 runner 上所有测试容器。不使用云凭证。局部 Docker 结果不会把 OpenSandbox 从 Beta 自动升级，也不证明 Kubernetes、网络策略或代码解释器已通过。
+
+不要把已发布服务端与持续变化的 nightly `latest` execd 随意组合。新版 execd 可能需要更新的控制面初始化协议。升级测试组合时应明确版本并重跑 T4，不能把上游标签变化视为验证。

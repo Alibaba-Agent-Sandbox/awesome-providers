@@ -11,7 +11,7 @@ from agent_sandbox.api.sandbox import Sandbox
 from agent_sandbox.models.errors import (
     FileNotFoundError_,
     ProviderFeatureNotSupportedError,
-    ProviderResourceNotFoundError,
+    SandboxNotFoundError,
 )
 from agent_sandbox.models.process import ProcessChunkType
 
@@ -121,7 +121,8 @@ def test_unsupported_features_raise_e8004():
 
 def test_unknown_sandbox_is_not_found():
     async def scenario():
-        with pytest.raises(ProviderResourceNotFoundError):
+        with pytest.raises(SandboxNotFoundError) as err:
             await Sandbox.connect("00000000-0000-0000-0000-000000000000", provider=PID)
+        assert err.value.code == "E2009"
 
     run(scenario())

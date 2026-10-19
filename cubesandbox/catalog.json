@@ -1,5 +1,6 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "template_input": "template-id",
-  "template_example": "<template id on the cluster>"
+  "template_example": "<template id on the cluster>",
+  "maturity": "beta"
 }
