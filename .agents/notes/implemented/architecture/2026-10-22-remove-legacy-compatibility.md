@@ -1,6 +1,6 @@
 # Decision: Remove retired project compatibility
 
-Status: proposed
+Status: implemented
 
 ## Problem
 The maintainer states that the project has not formally released and requests removing old template management/API behavior and other project compatibility layers. Keeping aliases, alternate factories and fallback branches expands an API that is not meant to be supported.
@@ -31,3 +31,9 @@ Run the repository's required local checks and regressions for current observabl
 - [Verification](../../../evidence/verify/2026-10-22-remove-legacy-compatibility.md)
 
 Issue: https://github.com/Alibaba-Agent-Sandbox/awesome-providers/issues/18
+
+## Acceptance
+
+Verified merged implementation: https://github.com/Alibaba-Agent-Sandbox/awesome-providers/pull/19. The source merge commit is `9ae3f8c686d9d453569da22ae422c9d7df004bf6`.
+
+- [Remote acceptance](../../../evidence/verify/2026-10-22-remove-legacy-acceptance.md)
