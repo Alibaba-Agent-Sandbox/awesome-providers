@@ -201,15 +201,6 @@ test("exec.run: output, exit codes, env, cwd, stdin, timeout", async () => {
   });
 });
 
-test("legacy execd (no argv, line-stripped events) gives the same bytes", async () => {
-  await withPlugin({ legacyExecd: true }, {}, async (host) => {
-    const id = await newSandbox(host);
-    const r = await host.call("exec.run", { sandbox_id: id, cmd: "sh", args: ["-c", "echo one; echo 'two words'; echo err >&2; exit 2"], timeout: 20 });
-    assert.deepEqual(r, { exit_code: 2, stdout: "one\ntwo words\n", stderr: "err\n" });
-    const quoted = await host.call("exec.run", { sandbox_id: id, cmd: "echo", args: ["it's", "a;b"], timeout: 20 });
-    assert.equal(quoted.stdout, "it's a;b\n");
-  });
-});
 
 test("gateway mode: Endpoint.headers are replayed on every data-plane call", async () => {
   await withPlugin({ gateway: true }, {}, async (host) => {

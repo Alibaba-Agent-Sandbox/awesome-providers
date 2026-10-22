@@ -123,7 +123,6 @@ tests/              unit/、mock/（进程内模拟服务）、live/、contract/
 * 传给 `Sandbox.create` 的 `secure=True` 会请求网关“安全访问”（仅 Kubernetes 网关部署；Docker 服务会拒绝）。`secure=False` 或不传 `secure` 则保持关闭；也可用 `secure_access` 配置字段设置全局默认值。
 * 按次创建的设置：传给 `Sandbox.create` 的 `provider_options={"network_policy": ..., "platform": ..., "default_image": ...}` 只对该沙箱覆盖已配置的值（白名单：`default_image`、`image_aliases`、`entrypoint`、`ready_timeout`、`registry_username`、`registry_password`、`network_policy`、`platform`、`secure_access`；绝不包括服务地址或 API key）。
 * 对所有提供方，`commands.start()` 都是惰性的（迭代流之前什么都不会发送）；要启动后台进程，请通过 `commands.run(..., shell=True)` 运行 `nohup ... &`。
-* 旧版 execd v1.1.0 不支持 `argv` 且会吞掉换行符；插件会自动检测并降级（要获得精确输出请使用较新的 execd 镜像）。
 
 许可证：Apache-2.0。
 
@@ -132,3 +131,5 @@ tests/              unit/、mock/（进程内模拟服务）、live/、contract/
 The Node template manager supports `templates.build` for `abx template launch`: Docker builds and pushes the source and OpenSandbox consumes the returned image reference. The EPP template RPCs in the table remain unsupported. See [prerequisites and Beta limits](docs/README.md).
 
 Node 模板管理器通过 `templates.build` 支持 `abx template launch`：Docker 构建并推送源码，OpenSandbox 使用返回的镜像引用。上表中的 EPP 模板 RPC 仍不支持。参见[前置条件与 Beta 范围](docs/README.md)。
+
+execd 必须支持原生 `argv` 请求并保留输出字节；旧接口不受支持，命令失败不会切换协议重试。

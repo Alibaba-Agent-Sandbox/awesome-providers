@@ -2,7 +2,7 @@
 
 import { randomBytes, randomUUID } from "node:crypto";
 import { CODES, RpcError, badParams, failure, notFound, unsupported } from "./errors.mjs";
-import { exitFromErrorEvent, restoreLineEnding, shellJoin } from "./convert.mjs";
+import { exitFromErrorEvent } from "./convert.mjs";
 import { buildUpload } from "./multipart.mjs";
 import { readEvents } from "./sse.mjs";
 import { sleep } from "./http.mjs";
@@ -44,7 +44,7 @@ async function resolveUser(ctx, id, user, signal) {
   return resolved;
 }
 
-/** Everything about a command except the argv/command field (which depends on the execd generation). */
+/** Prepare argv and execution options for the current execd protocol. */
 async function prepare(ctx, id, params, signal) {
   let argv = [String(params.cmd ?? ""), ...(params.args ?? []).map(String)];
   if (!argv[0]) throw badParams("Missing parameter 'cmd'.");
@@ -72,34 +72,16 @@ const quick = (argv, timeoutSec) => ({
   timeoutSec,
 });
 
-function commandBody(prepared, legacy, background) {
-  const body = { ...prepared.extras };
-  if (legacy) body.command = shellJoin(prepared.argv);
-  else body.argv = prepared.argv;
-  if (background) body.background = true;
-  return body;
-}
-
-/** POST /command, falling back to the string form on execd builds that predate `argv`. */
+/** Submit exactly one argv request; unsupported execd generations fail without replay. */
 async function openStream(ctx, id, prepared, { signal, background = false }) {
-  for (let pass = 0; pass < 2; pass += 1) {
-    try {
-      return await ctx.osb.execd(id, "POST", "/command", {
-        body: commandBody(prepared, ctx.state.legacyExecd, background),
-        signal,
-        timeoutMs: prepared.hasTimeout ? prepared.timeoutSec * 1000 + WATCHDOG_MS : 0,
-        idempotent: false,
-        streaming: true,
-        operation: "run command",
-      });
-    } catch (err) {
-      const legacyRejection = !ctx.state.legacyExecd && err.httpStatus === 400 && /'Command'|argv/i.test(err.rawMessage ?? "");
-      if (!legacyRejection) throw err;
-      ctx.state.legacyExecd = true;
-      ctx.log("execd predates 'argv': falling back to string commands and per-line output events");
-    }
-  }
-  throw failure("execd rejected the command in both argv and string form.");
+  return ctx.osb.execd(id, "POST", "/command", {
+    body: { ...prepared.extras, argv: prepared.argv, ...(background ? { background: true } : {}) },
+    signal,
+    timeoutMs: prepared.hasTimeout ? prepared.timeoutSec * 1000 + WATCHDOG_MS : 0,
+    idempotent: false,
+    streaming: true,
+    operation: "run command",
+  });
 }
 
 function streamFailure(stream, signal) {
@@ -107,8 +89,6 @@ function streamFailure(stream, signal) {
   if (stream.timedOut()) return new RpcError(CODES.TIMEOUT, "The command stream did not finish in time.", { sdk_code: "E3001" });
   return failure("The connection to execd closed before the command finished.", { retryable: false });
 }
-
-const fixLine = (ctx, text) => (ctx.state.legacyExecd ? restoreLineEnding(text) : text);
 
 /** Run to completion; returns the EPP `exec.run` result. */
 async function runCollect(ctx, id, spec, signal) {
@@ -121,8 +101,8 @@ async function runCollect(ctx, id, spec, signal) {
   try {
     for await (const ev of readEvents(stream.response)) {
       if (ev.type === "init") commandId = ev.text;
-      else if (ev.type === "stdout") stdout.push(fixLine(ctx, String(ev.text ?? "")));
-      else if (ev.type === "stderr") stderr.push(fixLine(ctx, String(ev.text ?? "")));
+      else if (ev.type === "stdout") stdout.push(String(ev.text ?? ""));
+      else if (ev.type === "stderr") stderr.push(String(ev.text ?? ""));
       else if (ev.type === "error") {
         const parsed = exitFromErrorEvent(ev.error);
         if (parsed.killed && prepared.hasTimeout) {
@@ -213,7 +193,7 @@ export const methods = {
         let exit;
         try {
           const handle = (ev) => {
-            if (ev.type === "stdout" || ev.type === "stderr") out(ev.type, fixLine(ctx, String(ev.text ?? "")));
+            if (ev.type === "stdout" || ev.type === "stderr") out(ev.type, String(ev.text ?? ""));
             else if (ev.type === "error") {
               const parsed = exitFromErrorEvent(ev.error);
               if (parsed.killed && prepared.hasTimeout) {

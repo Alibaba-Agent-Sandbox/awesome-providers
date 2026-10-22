@@ -93,9 +93,9 @@ On 2026-10-14 a local OpenSandbox 1.1.1 returned real results for create, list, 
 abx --provider opensandbox template launch alibaba-agent-sandbox/awesome-templates//python-hello --yes
 ```
 
-提供方现在声明 `templates.build`，用于 node/1 管理器的 `prepareProject`。旧模板管理/API 方法和独立的 `templates.deploy` 不会因此自动启用。CLI 自动把适配器返回的 ID、名称或镜像传给创建，启动服务并验证就绪；缺少模板声明的运行时能力时，在构建前拒绝。正常沙箱行为不变。
+提供方现在声明 `templates.build`，用于 node/1 管理器的 `prepareProject`。CLI 自动把适配器返回的 ID、名称或镜像传给创建，启动服务并验证就绪；缺少模板声明的运行时能力时，在构建前拒绝。正常沙箱行为不变。
 
-Use a CLI source build containing `template launch` and `kit.project`. The node/1 `prepareProject` manager is guarded by `templates.build`; legacy template management APIs and the standalone `templates.deploy` factory are not implied. The exact returned native reference is handed to sandbox creation. Missing runtime capabilities fail before build. Normal sandbox operations remain unchanged.
+Use a CLI source build containing `template launch` and `kit.project`. The node/1 `prepareProject` manager is guarded by `templates.build`. The exact returned native reference is handed to sandbox creation. Missing runtime capabilities fail before build. Normal sandbox operations remain unchanged.
 
 先配置 Docker 登录、可写 `ABX_OPENSANDBOX_IMAGE_REPOSITORY` 及服务连接；有占位符时设置 `ABX_OPENSANDBOX_BUILD_BASE_IMAGE`。此路径直接返回已推送的镜像，不创建或伪造模板 ID。当前 `code.interpret` 未声明，要求该能力的模板仍被拒绝；自建仅需 shell/files/ports 的目录可走新入口。EPP 的模板 RPC 仍不支持；项目准备是 node/1 管理器能力。
 

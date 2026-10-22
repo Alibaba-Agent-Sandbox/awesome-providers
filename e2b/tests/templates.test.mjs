@@ -130,25 +130,16 @@ test("timeout cancels SDK work and cannot produce ready", async () => {
   await assert.rejects(adapter.deploy({ ...request(), timeout: 0.01 }), /submitted remote build may still exist/);
 });
 
-test("provider factory enforces deploy feature and does not alias coarse build support", async () => {
-  const { Template } = setup();
-  const plugin = create({ e2b: { Template }, errors });
-  await assert.rejects(plugin.buildTemplates({ options: { api_key: "key" }, features: new Set(["templates.build"]) }), ProviderFeatureNotSupportedError);
-  const adapter = await plugin.buildTemplates({ options: { api_key: "key" }, features: new Set(["templates.deploy"]) });
-  assert.equal(typeof adapter.deploy, "function");
-  assert.equal(adapter.delete, undefined);
-  assert.equal(adapter.list, undefined);
-});
 
 
-test("template SDK helper is requested explicitly only after feature opt-in", async () => {
-  const { Template } = setup();
-  let loaded = 0;
-  const plugin = create({ e2b: { async loadTemplate() { loaded++; return Template; } }, errors });
-  assert.equal(loaded, 0);
-  await assert.rejects(plugin.buildTemplates({ options: { api_key: "key" }, features: new Set(["templates.build"]) }), ProviderFeatureNotSupportedError);
-  assert.equal(loaded, 0);
-  const adapter = await plugin.buildTemplates({ options: { api_key: "key" }, features: new Set(["templates.deploy"]) });
-  assert.equal(loaded, 1);
-  assert.equal(typeof adapter.deploy, "function");
+
+
+
+
+test("project manager requires templates.build before any build work", async () => {
+  const plugin = create({ FilesystemProtocol: class {}, errors });
+  assert.equal(plugin.buildTemplates, undefined);
+  await assert.rejects(plugin.buildTemplateManager({ id: "e2b", features: new Set(), options: {} }), errors.ProviderFeatureNotSupportedError);
+  const manager = await plugin.buildTemplateManager({ id: "e2b", features: new Set(["templates.build"]), options: {} });
+  assert.equal(typeof manager.prepareProject, "function");
 });

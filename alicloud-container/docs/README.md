@@ -98,9 +98,9 @@ Unit tests use a local fake API. A live create needs both the domain and the API
 abx --provider alicloud-container template launch alibaba-agent-sandbox/awesome-templates//python-hello --yes
 ```
 
-提供方现在声明 `templates.build`，用于 node/1 管理器的 `prepareProject`。旧模板管理/API 方法和独立的 `templates.deploy` 不会因此自动启用。CLI 自动把适配器返回的 ID、名称或镜像传给创建，启动服务并验证就绪；缺少模板声明的运行时能力时，在构建前拒绝。正常沙箱行为不变。
+提供方现在声明 `templates.build`，用于 node/1 管理器的 `prepareProject`。CLI 自动把适配器返回的 ID、名称或镜像传给创建，启动服务并验证就绪；缺少模板声明的运行时能力时，在构建前拒绝。正常沙箱行为不变。
 
-Use a CLI source build containing `template launch` and `kit.project`. The node/1 `prepareProject` manager is guarded by `templates.build`; legacy template management APIs and the standalone `templates.deploy` factory are not implied. The exact returned native reference is handed to sandbox creation. Missing runtime capabilities fail before build. Normal sandbox operations remain unchanged.
+Use a CLI source build containing `template launch` and `kit.project`. The node/1 `prepareProject` manager is guarded by `templates.build`. The exact returned native reference is handed to sandbox creation. Missing runtime capabilities fail before build. Normal sandbox operations remain unchanged.
 
 先配置 Docker 登录、可写 `ABX_ALICLOUD_CONTAINER_IMAGE_REPOSITORY`、kubectl 与 `ABX_ALICLOUD_CONTAINER_KUBE_NAMESPACE`；命名空间须与 API Key 一致。`build_template` 默认 `code-interpreter`，多容器时设置 `build_container`，可显式设置 `kube_context`。适配器读取基础 SandboxSet 镜像并克隆运行时注入、卷及探针，只更换主容器镜像和资源；不修改基础对象。生成的零副本池通过 create-on-no-stock 创建，引用由适配器自动返回。需要集群权限，普通 sandbox-manager API Key 本身不提供创建 SandboxSet 的权限。
 

@@ -125,10 +125,13 @@ test("deadline aborts the request; caller abort also stops polling", async () =>
   assert.equal(count, 2);
 });
 
-test("factory requires the dedicated feature and preserves unsupported sandbox methods", async () => {
-  const kit = { FilesystemProtocol: class {}, errors };
-  const plugin = create(kit);
-  await assert.rejects(plugin.buildTemplates({ features: new Set(["templates.build"]), options: {} }), errors.ProviderFeatureNotSupportedError);
-  assert.equal(typeof (await plugin.buildTemplates({ features: new Set(["templates.deploy"]), options: {} })).deploy, "function");
-  assert.equal(typeof plugin.buildInfra, "function");
+
+
+
+test("project manager requires templates.build before any build work", async () => {
+  const plugin = create({ FilesystemProtocol: class {}, errors });
+  assert.equal(plugin.buildTemplates, undefined);
+  await assert.rejects(plugin.buildTemplateManager({ id: "cubesandbox", features: new Set(), options: {} }), errors.ProviderFeatureNotSupportedError);
+  const manager = await plugin.buildTemplateManager({ id: "cubesandbox", features: new Set(["templates.build"]), options: {} });
+  assert.equal(typeof manager.prepareProject, "function");
 });
