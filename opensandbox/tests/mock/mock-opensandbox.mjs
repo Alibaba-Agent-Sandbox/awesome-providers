@@ -2,8 +2,7 @@
 // (see docs/en/design/provider-opensandbox-mapping.md). Lifecycle API and per-sandbox "execd" live
 // on one HTTP server; each sandbox's files are a real temp directory and commands run as local processes.
 //
-// Options: { apiKey, legacyExecd, gateway, onRequest }
-//   legacyExecd  execd < the line-preserving build: no `argv`, one stdout event per line without terminator
+// Options: { apiKey, gateway, onRequest }
 //   gateway      resolve endpoints with required headers (the data plane rejects requests without them)
 
 import { createServer } from "node:http";
@@ -48,7 +47,7 @@ function parseMultipart(buf, contentType) {
 }
 
 export async function startMock(options = {}) {
-  const { apiKey = "mock-key", legacyExecd = false, gateway = false, onRequest } = options;
+  const { apiKey = "mock-key", gateway = false, onRequest } = options;
   const sandboxes = new Map();
   const commands = new Map();
   const pty = { resizes: [], stdin: [], deleted: [], sockets: 0 };
@@ -111,10 +110,10 @@ export async function startMock(options = {}) {
     }
     if (path === "/command" && method === "POST") {
       const body = JSON.parse((await readBody(req)).toString());
-      if (legacyExecd && body.argv) {
-        return send(res, 400, { code: "INVALID_REQUEST_BODY", message: "Key: 'RunCommandRequest.Command' Error:Field validation for 'Command' failed on the 'required' tag" });
+      if (!Array.isArray(body.argv)) {
+        return send(res, 400, { code: "INVALID_REQUEST_BODY", message: "argv is required" });
       }
-      const argv = body.argv ?? ["sh", "-c", body.command];
+      const argv = body.argv;
       const id = randomBytes(16).toString("hex");
       res.writeHead(200, { "Content-Type": "text/event-stream" });
       const emit = (ev) => res.write(`${JSON.stringify(ev)}\n\n`);
@@ -138,16 +137,10 @@ export async function startMock(options = {}) {
         res.end();
       });
       const pump = (stream, type) => {
-        let carry = "";
         stream.on("data", (chunk) => {
           record.log += chunk;
-          const text = carry + chunk.toString();
-          if (!legacyExecd) return emit({ type, text, timestamp: Date.now() });
-          const lines = text.split("\n");
-          carry = lines.pop();
-          for (const line of lines) emit({ type, text: line.replace(/\r$/, ""), timestamp: Date.now() });
+          emit({ type, text: chunk.toString(), timestamp: Date.now() });
         });
-        stream.on("end", () => { if (legacyExecd && carry) emit({ type, text: carry }); });
       };
       pump(child.stdout, "stdout");
       pump(child.stderr, "stderr");

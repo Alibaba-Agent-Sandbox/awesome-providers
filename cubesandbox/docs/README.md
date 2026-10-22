@@ -87,10 +87,6 @@ Unit tests hit a local fake API. This environment has no Cube cluster, so a live
 
 ## 镜像转模板适配器（能力尚未启用）
 
-`templates.mjs` 提供异步 `buildTemplates(ctx).deploy(input)`，使用原生 CubeAPI，
-不使用 E2B 的 v3 Template SDK。独立的 `templates.deploy` 仍未在清单声明：安装此目录
-不会使现有 CLI 模板命令可用。跟踪 [Issue #9](https://github.com/Alibaba-Agent-Sandbox/awesome-providers/issues/9)。
-
 ```js
 await adapter.deploy({
   source: { kind: "image", image: "registry.example.com/runtime:v1" },
@@ -128,19 +124,7 @@ API origin 和可选密钥只取本 provider 的已解析配置，私有镜像�
 对外状态转换见 [CubeMaster status handler](https://github.com/TencentCloud/CubeSandbox/blob/e0c1820ac2132df08bd4912e614486717275b956/CubeMaster/pkg/service/httpservice/cube/template_commit.go)。
 这些是固定 revision 的接口依据，不是实集群验收。
 
-运行 `node tests/run.mjs`（在 `cubesandbox/` 内）。2026-10-18：10 个 T0 测试通过，
-包括真实 loopback HTTP 提交/轮询及 307 重定向不转发凭证回归；未启动官方 CubeAPI 或
-KVM 集群，未实测 build/create/exec/kill。`tests/installed-host.mjs` 已对本机未发布新版
-宿主执行临时 HOME 的安装/同意/派发验收（临时副本声明未来能力），并验证原生 loopback
-请求、私仓凭证和返回值。可通过 `ABX_CLI_ENTRY=<已审查宿主的绝对入口> node tests/installed-host.mjs`
-重跑。宿主/schema 的兼容交付和实际集群验收仍是启用能力前的门槛，不声明已发布版本支持。
-
 ## Image-to-template adapter (capability not enabled)
-
-`templates.mjs` implements asynchronous `buildTemplates(ctx).deploy(input)` against
-native CubeAPI. It does not use the E2B v3 Template SDK. `templates.deploy` remains
-undeclared, so installing this directory does not enable existing CLI template
-commands. See [Issue #9](https://github.com/Alibaba-Agent-Sandbox/awesome-providers/issues/9).
 
 Input is `{source: {kind: "image", image}, name, spec?: {cpu, memory}, registry?:
 {username, password}, timeout?, signal?}`; output is
@@ -165,17 +149,6 @@ only in the submission body, disables redirects and submission retries, and
 discards raw backend error bodies. Timeout/cancellation bounds waiting; a submitted
 remote build may remain, and templates are never automatically deleted.
 
-The pinned official models/handlers/services linked above define the reviewed
-contract. Run `node tests/run.mjs` in `cubesandbox/`: on 2026-10-18 all ten T0 checks
-passed, including actual loopback HTTP submission/polling and credential redirect
-prevention. These are source-derived contract fixtures, not the official CubeAPI
-server or a KVM cluster. Optional `tests/installed-host.mjs` passed install/consent/
-dispatch with an unreleased local built host and an isolated HOME, opting in only
-in a temporary plugin copy. Re-run with `ABX_CLI_ENTRY=<absolute reviewed CLI entry>
-node tests/installed-host.mjs`. Compatible host/schema delivery and live template
-build/create/exec/kill remain gates before capability enablement; no released host
-compatibility is claimed.
-
 ## 自动准备项目（Beta） / Automatic project preparation (Beta)
 
 使用包含 `template launch` 和 `kit.project` 的 CLI 源码版，安装或更新本插件后运行：
@@ -184,9 +157,9 @@ compatibility is claimed.
 abx --provider cubesandbox template launch alibaba-agent-sandbox/awesome-templates//python-hello --yes
 ```
 
-提供方现在声明 `templates.build`，用于 node/1 管理器的 `prepareProject`。旧模板管理/API 方法和独立的 `templates.deploy` 不会因此自动启用。CLI 自动把适配器返回的 ID、名称或镜像传给创建，启动服务并验证就绪；缺少模板声明的运行时能力时，在构建前拒绝。正常沙箱行为不变。
+提供方现在声明 `templates.build`，用于 node/1 管理器的 `prepareProject`。CLI 自动把适配器返回的 ID、名称或镜像传给创建，启动服务并验证就绪；缺少模板声明的运行时能力时，在构建前拒绝。正常沙箱行为不变。
 
-Use a CLI source build containing `template launch` and `kit.project`. The node/1 `prepareProject` manager is guarded by `templates.build`; legacy template management APIs and the standalone `templates.deploy` factory are not implied. The exact returned native reference is handed to sandbox creation. Missing runtime capabilities fail before build. Normal sandbox operations remain unchanged.
+Use a CLI source build containing `template launch` and `kit.project`. The node/1 `prepareProject` manager is guarded by `templates.build`. The exact returned native reference is handed to sandbox creation. Missing runtime capabilities fail before build. Normal sandbox operations remain unchanged.
 
 先配置 Docker 登录、可写 `ABX_CUBESANDBOX_IMAGE_REPOSITORY` 及原生运行时 `ABX_CUBESANDBOX_BUILD_BASE_IMAGE`。镜像需包含 Cube 启动、envd/Jupyter 等要求。API、私有镜像拉取认证分别使用此插件自己的字段。适配器构建/推送不可变镜像，用原生 CubeAPI 登记并轮询，再返回 ID；PTY 仍未声明。
 

@@ -210,11 +210,6 @@ export function exitFromErrorEvent(error) {
   return { exitCode: notFound ? 127 : 126, killed: false, message: evalue || trace, startFailure: true };
 }
 
-/** execd < the line-preserving build emits one event per line without the terminator. */
-export function restoreLineEnding(text) {
-  return /[\r\n]$/.test(text) ? text : `${text}\n`;
-}
-
 export function parseHttpDate(value) {
   if (!value) return undefined;
   const ms = Date.parse(value);

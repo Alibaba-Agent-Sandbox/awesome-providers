@@ -52,7 +52,7 @@ const PTY_METHODS = new Set(Object.keys(ptyMethods));
 
 export function createPlugin({ log = () => {}, fetchImpl } = {}) {
   const session = { cfg: undefined, osb: undefined, tasks: new Set() };
-  const state = { legacyExecd: false, users: new Map(), ptys: new Map() };
+  const state = { users: new Map(), ptys: new Map() };
 
   const dispatch = async (method, params, call) => {
     if (method === "initialize") {

@@ -55,3 +55,8 @@ work from `abx --provider <id>` and from `Sandbox.create(provider="<id>")`.
 | `alicloud-container/` | [docs/README.md](alicloud-container/docs/README.md) |
 
 Provider create examples are owned by each plugin in `catalog.json`; see [catalog metadata](docs/catalog-metadata.md) ([中文](docs/catalog-metadata.zh-CN.md)). These patch versions do not activate pending image factories.
+
+## Current API / 当前接口
+
+Development changes remove retired project compatibility paths. Provider project preparation uses `templates.build`; the shared feature list no longer advertises the standalone image factory.
+开发变更直接删除旧项目兼容路径。提供方项目准备使用 `templates.build`，共享能力表移除独立镜像工厂。

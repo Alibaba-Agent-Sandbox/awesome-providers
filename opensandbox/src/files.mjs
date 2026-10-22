@@ -117,8 +117,8 @@ export const methods = {
 
   async "files.move"(params, ctx) {
     const id = sandboxId(params);
-    const source = pathOf(params, params.source !== undefined ? "source" : "src");
-    const destination = pathOf(params, params.destination !== undefined ? "destination" : "dest");
+    const source = pathOf(params, "source");
+    const destination = pathOf(params, "destination");
     await statOf(ctx, id, source);
     let existing;
     try {

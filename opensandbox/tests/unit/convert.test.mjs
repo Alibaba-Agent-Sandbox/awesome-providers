@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   validateMetadata, mapState, statusToStates, cpuLimit, memoryLimit, gpuLimit, ttlSeconds, parseAliasMap,
   shellSplit, shellQuote, shellJoin, resolveImage, isCodeInterpreterImage, endpointUrl, modeDigits, fileEntry,
-  exitFromErrorEvent, restoreLineEnding, parseHttpDate, basename,
+  exitFromErrorEvent, parseHttpDate, basename,
 } from "../../src/convert.mjs";
 
 test("metadata follows Kubernetes label rules", () => {
@@ -102,10 +102,7 @@ test("exit status from execd error events", () => {
   assert.equal(exitFromErrorEvent({ evalue: "permission denied" }).exitCode, 126);
 });
 
-test("legacy line endings and dates", () => {
-  assert.equal(restoreLineEnding("abc"), "abc\n");
-  assert.equal(restoreLineEnding("abc\n"), "abc\n");
-  assert.equal(restoreLineEnding("abc\r"), "abc\r");
+test("HTTP dates", () => {
   assert.equal(parseHttpDate("Mon, 12 Oct 2026 10:00:00 GMT"), Date.UTC(2026, 9, 12, 10));
   assert.equal(parseHttpDate("garbage"), undefined);
   assert.equal(parseHttpDate(null), undefined);

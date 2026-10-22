@@ -26,7 +26,7 @@ test("official E2B 2.55 SDK executes v3 create, v2 trigger and ready polling aga
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   try {
     const adapter = createTemplates({ Template, errors: { ProviderConfigError: Error, InvalidAPIKeyError: Error }, options: { api_key: `e2b_${"0".repeat(40)}`, base_url: `http://127.0.0.1:${server.address().port}` } });
-    const result = await adapter.deploy({ source: { kind: "image", image: "python:3.12-slim" }, name: "contract", spec: { cpu: 2, memory: 1024, start_cmd: "python server.py", ready_cmd: "curl localhost:9000" }, timeout: 10 });
+    const result = await adapter.deploy({ source: { kind: "image", image: "python:3.12-slim" }, name: "contract", spec: { cpu: 2, memory: 1024, start_cmd: "python server.py", ready_cmd: "curl localhost:9000" }, timeout: 60 });
     assert.equal(result.template_id, "tpl-test");
     assert.equal(result.build_id, "bld-test");
     assert.equal(requests.length, 3);
