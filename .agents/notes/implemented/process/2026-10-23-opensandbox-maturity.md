@@ -10,7 +10,7 @@ Provider metadata and active documentation still mark OpenSandbox Beta despite r
 
 Set provider-owned OpenSandbox catalog/index maturity to stable. Accept only the documented server 1.1.1 and pinned execd Docker scope; keep Kubernetes, network policies, secure access, code interpreter and per-template coverage independent. Refresh native workflow pins to reviewed CLI 0.4.9 and current SDK source. Align the handshake/package identity with manifest 0.4.1. Remove obsolete only-Express statements from other plugin documentation and bump their changed package patch versions without promoting them. Historical Beta decisions and test captures remain immutable.
 
-Implementation is prepared locally. Required current-head CI and public delivery are pending at this capture; this note does not establish publication or a passed native run.
+The implementation merged in PR22 after current-host native T4 and all provider CI passed. The [native acceptance receipt](../../../evidence/verify/2026-10-23-opensandbox-native-promotion.md) records exact revisions, counts and cleanup. Public site delivery remains independently verified.
 
 ## API Design
 

@@ -45,3 +45,5 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [Compatibility cleanup remote acceptance](evidence/verify/2026-10-22-remove-legacy-acceptance.md)
 
 - [OpenSandbox maturity](notes/implemented/process/2026-10-23-opensandbox-maturity.md) · [verification](evidence/verify/2026-10-23-opensandbox-maturity.md)
+
+- [Current-host OpenSandbox native promotion receipt](evidence/verify/2026-10-23-opensandbox-native-promotion.md).
