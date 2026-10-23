@@ -32,3 +32,10 @@ The copy of this table that the CLI and SDK repositories keep is `cli/e2e/provid
 The `OpenSandbox live integration` workflow runs T4 on a disposable Ubuntu Docker runner using reviewed CLI/SDK commits, server 1.1.1 and the digest-pinned matching release-1.1.1 execd image. It runs direct EPP, installed SDK contracts, configuration precedence and the CLI round trip, then removes all test containers from that isolated runner. No cloud credentials are used. The maintainer has accepted this Docker scope; Kubernetes/network-policy/secure-access/code-interpreter coverage remains separate. See [acceptance](acceptance.md).
 
 Do not pair a released server with a moving nightly `latest` execd. Newer execd generations may require a newer control-plane initialization protocol. Upgrade the tested pair deliberately and rerun T4; a changed upstream tag is not verification.
+
+After a host workflow correction, update the immutable reviewed CLI revision and
+rerun this complete T4 scope. The source path must select its declared portable
+profile explicitly. Application protocol discovery and the selected identity's
+endpoint permission must succeed before invocation. Keep the independent Python
+prepared-image path and owned cleanup checks; an older host pass cannot certify
+the corrected consumer.

@@ -65,3 +65,5 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [Native process startup acknowledgment](evidence/verify/2026-10-23-native-process-startup-ack.md).
 
 - [OpenSandbox explicit workflow native acceptance](evidence/verify/2026-10-23-opensandbox-workflow-native-acceptance.md).
+
+- [Workflow review host verification](notes/proposed/process/2026-10-23-workflow-review-host-verification.md) · [local verification](evidence/verify/2026-10-23-workflow-review-host-local.md).
