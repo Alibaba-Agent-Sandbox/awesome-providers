@@ -13,6 +13,7 @@ const source = process.env.ABX_WORKFLOW_TEMPLATE_SOURCE;
 assert.ok(cli, "ABX_BIN must be the reviewed built CLI wrapper");
 assert.ok(source, "ABX_WORKFLOW_TEMPLATE_SOURCE must be the exact reviewed python-hello directory");
 let id;
+let primaryFailure;
 const env = { ...process.env, HOME: path.join(work, "home"), ABX_NO_KEYCHAIN: "1", NO_COLOR: "1",
   ABX_SERVER_TOKEN: randomBytes(24).toString("hex"),
   ABX_OPENSANDBOX_IMAGE_REPOSITORY: process.env.ABX_OPENSANDBOX_IMAGE_REPOSITORY || "localhost:5000/abx-project" };
@@ -27,8 +28,10 @@ try {
   assert.equal(result.workflow_id, "application"); assert.equal(result.build_profile, "portable");
   assert.match(result.source_digest, /^(?:sha256:)?[a-f0-9]{64}$/);
   assert.match(result.template_reference, /^localhost:5000\/abx-project@sha256:[a-f0-9]{64}$/);
+  console.log("PASS exact source/profile -> prepared image -> owned sandbox -> application readiness");
   const response = JSON.parse(await invoke(["--provider", "opensandbox", "--json", "run", id, "hello", "--arg", "name=OpenSandbox"]));
   assert.ok(JSON.stringify(response).includes("Hello, OpenSandbox!"));
+  console.log("PASS CLI application HTTP named command");
   // Both Python consumers use the exact prepared artifact, not Python source preparation.
   await run(process.env.PYTHON || "python", ["-c", `
 import asyncio, os
@@ -51,11 +54,21 @@ async def main():
 asyncio.run(main())
 `], { env: { ...env, WORKFLOW_SANDBOX_ID: id, WORKFLOW_MANIFEST: path.join(source, "template.yaml"), WORKFLOW_IMAGE: result.template_reference }, cwd: work, timeout: 240000, maxBuffer: 1024 * 1024 });
   console.log("PASS exact python-hello source/profile build -> OpenSandbox create/start/protocol -> CLI and Python application HTTP -> Python prepared-image workflow + owned cleanup");
+} catch (error) {
+  primaryFailure = error;
+  throw error;
 } finally {
-  if (id) {
-    await invoke(["--provider", "opensandbox", "kill", id, "--yes"]);
-    const listed = JSON.parse(await invoke(["--provider", "opensandbox", "--json", "list"]));
-    assert.ok(!JSON.stringify(listed).includes(id), "owned sandbox remains after cleanup");
+  try {
+    if (id) {
+      await invoke(["--provider", "opensandbox", "kill", id, "--yes"]);
+      const listed = JSON.parse(await invoke(["--provider", "opensandbox", "--json", "list"]));
+      assert.ok(!JSON.stringify(listed).includes(id), "owned sandbox remains after cleanup");
+    }
+  } catch (error) {
+    if (!primaryFailure) throw error;
+    // Never replace the application failure with a secondary cleanup assertion.
+    console.error("Secondary owned cleanup verification failed; the primary workflow error follows.");
+  } finally {
+    await fs.rm(work, { recursive: true, force: true });
   }
-  await fs.rm(work, { recursive: true, force: true });
 }
