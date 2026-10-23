@@ -28,6 +28,7 @@ jobs:
       ABX_OPENSANDBOX_API_KEY: local-dev-key
       OPENSANDBOX_API_KEY: local-dev-key
       OPENSANDBOX_LIVE: '1'
+      ABX_WORKFLOW_TEMPLATE_SOURCE: /tmp/abx-templates/python-hello
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -40,6 +41,8 @@ jobs:
         run: |
           git clone https://github.com/Alibaba-Agent-Sandbox/agent-sandbox.git /tmp/abx-cli
           git -C /tmp/abx-cli checkout 5a9f544c07554c7f1fd6345b67156f61e0eb1477
+          git clone https://github.com/Alibaba-Agent-Sandbox/awesome-templates.git /tmp/abx-templates
+          git -C /tmp/abx-templates checkout 27f08af24a44732d9ffb0c97c33185eaf4dd3fad
           git clone https://github.com/Alibaba-Agent-Sandbox/python-sdk.git /tmp/abx-python
           git -C /tmp/abx-python checkout 81cca585e5ac59be14f47cb53ade976f35d6446b
       - name: Install locked CLI and matching SDK packages
