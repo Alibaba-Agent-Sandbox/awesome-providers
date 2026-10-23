@@ -3,7 +3,7 @@
 | Provider | Stage / 状态 | Scope / 范围 |
 | --- | --- | --- |
 | Alibaba Cloud Express / 阿里云极速版 | Stable / 正式版 | Accepted host/cloud scope; see linked evidence and known limits. / 已验收范围及已知限制见下方证据。 |
-| OpenSandbox | Beta | Local live checks are separate evidence; formal acceptance remains deferred. / 局部真实验证单独记录，正式验收暂缓。 |
+| OpenSandbox | Accepted Docker scope / Docker 范围已验收 | Server 1.1.1 + pinned release-1.1.1 execd; CLI, Python SDK, project build/launch and cleanup. / CLI、Python SDK、项目构建启动与清理。 |
 | E2B | Beta | Native cloud acceptance deferred. / 原生云端验收暂缓。 |
 | CubeSandbox | Beta | Native backend acceptance deferred; PTY remains unsupported. / 原生后端验收暂缓，不支持 PTY。 |
 | Alibaba Cloud Container / 阿里云容器版 | Beta | Native cluster acceptance deferred. / 原生集群验收暂缓。 |
@@ -20,6 +20,10 @@ Promotion requires real backend CLI/SDK tests covering the declared scope, clean
 
 升级为正式版需真实后端 CLI/SDK 声明范围测试、清理证据、限制审查和维护者批准。模拟测试、服务健康响应、安装成功或局部本机测试均不会自动升级。
 
-OpenSandbox has a [verified Docker/CLI/Python SDK subset](../.agents/evidence/verify/2026-10-19-opensandbox-native-docker.md) with pinned versions and cleanup evidence. It remains Beta; this does not establish Kubernetes or other deployment acceptance.
+OpenSandbox has a [verified Docker/CLI/Python SDK subset](../.agents/evidence/verify/2026-10-19-opensandbox-native-docker.md) with pinned versions and cleanup evidence. The maintainer accepted this scope on 2026-10-23; fresh native T4 with the reviewed current CLI/SDK pins is required for this delivery. Kubernetes, network-policy, secure-access and code-interpreter acceptance remain separate.
 
-OpenSandbox 已完成[固定版本的 Docker、CLI 与 Python SDK 局部真实验证](../.agents/evidence/verify/2026-10-19-opensandbox-native-docker.md)，含清理证明；仍为 Beta，不代表 Kubernetes 等其他部署方式已验收。
+OpenSandbox 已完成[固定版本的 Docker、CLI 与 Python SDK 局部真实验证](../.agents/evidence/verify/2026-10-19-opensandbox-native-docker.md)，含清理证明；维护者于 2026-10-23 接受该范围。本次交付要求以已审查的当前 CLI/SDK 固定版本重新通过原生 T4。Kubernetes、网络策略、安全访问和代码解释器仍需独立验收。
+
+The sites omit the maturity badge for accepted providers and mark only Beta. Machine-readable metadata retains `stable` / `beta`; per-template test coverage remains independent.
+
+站点对已验收提供方不展示状态标签，仅标注 Beta。机器元数据仍使用 `stable` / `beta`，每个模板的测试覆盖单独判断。

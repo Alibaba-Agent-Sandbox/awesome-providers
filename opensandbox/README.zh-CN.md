@@ -1,6 +1,6 @@
 # opensandbox 提供方插件
 
-**状态：Beta。** 本提供方暂未完成正式版验收。已声明的能力不等于已通过真实后端端到端测试；当前仅阿里云极速版为正式版。局部测试结果不会自动升级此状态。
+已验收范围：Docker 后端，OpenSandbox server 1.1.1 与固定摘要的 release-1.1.1 execd，涵盖 CLI、Python SDK 和项目构建启动及清理。Kubernetes、网络策略、安全访问和代码解释器不在本次验收范围。详见[提供方验收](../docs/acceptance.md)。
 
 [English](README.md)
 
@@ -128,8 +128,8 @@ tests/              unit/、mock/（进程内模拟服务）、live/、contract/
 
 ## Project source preparation / 项目源码准备
 
-The Node template manager supports `templates.build` for `abx template launch`: Docker builds and pushes the source and OpenSandbox consumes the returned image reference. The EPP template RPCs in the table remain unsupported. See [prerequisites and Beta limits](docs/README.md).
+The Node template manager supports `templates.build` for `abx template launch`: Docker builds and pushes the source and OpenSandbox consumes the returned image reference. The EPP template RPCs in the table remain unsupported. See [prerequisites and acceptance scope](docs/README.md).
 
-Node 模板管理器通过 `templates.build` 支持 `abx template launch`：Docker 构建并推送源码，OpenSandbox 使用返回的镜像引用。上表中的 EPP 模板 RPC 仍不支持。参见[前置条件与 Beta 范围](docs/README.md)。
+Node 模板管理器通过 `templates.build` 支持 `abx template launch`：Docker 构建并推送源码，OpenSandbox 使用返回的镜像引用。上表中的 EPP 模板 RPC 仍不支持。参见[前置条件与验收范围](docs/README.md)。
 
 execd 必须支持原生 `argv` 请求并保留输出字节；旧接口不受支持，命令失败不会切换协议重试。

@@ -32,7 +32,7 @@ providers:
     kind: node
     license: Apache-2.0
     status: official
-    maturity: beta
+    maturity: stable
 
   - name: cubesandbox
     description: "Tencent CubeSandbox CubeAPI. Default http://127.0.0.1:3000."

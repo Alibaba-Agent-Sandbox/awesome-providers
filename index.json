@@ -2,25 +2,25 @@
   "providers": [
     {
       "id": "opensandbox",
-      "version": "0.4.0",
+      "version": "0.4.1",
       "url": "opensandbox",
-      "maturity": "beta"
+      "maturity": "stable"
     },
     {
       "id": "alicloud-container",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "url": "alicloud-container",
       "maturity": "beta"
     },
     {
       "id": "cubesandbox",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "url": "cubesandbox",
       "maturity": "beta"
     },
     {
       "id": "e2b",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "url": "e2b",
       "maturity": "beta"
     }
