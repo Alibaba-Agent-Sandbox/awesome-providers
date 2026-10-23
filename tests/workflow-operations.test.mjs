@@ -62,3 +62,29 @@ test("E2B does not expose guessed Connect interpreter RPCs", async () => {
   await assert.rejects(infra.code_interpreter_protocol.runCode("id", "https://envd.invalid", null, { code: "raise Exception()" }), Unsupported);
   assert.equal(calls.length, 0);
 });
+
+for (const [name, create, options, expected] of [
+  ["cubesandbox", createCube, {}, "http://9000-owned.reported.invalid"],
+  ["alicloud-container", createContainer, {}, "https://9000-owned.configured.invalid"],
+  ["alicloud-container", createContainer, { protocol: "private", base_url: "https://gateway.invalid/kruise/api" }, "https://gateway.invalid/kruise/owned/9000"],
+  ["e2b", (await import("../e2b/provider.mjs")).default, {}, "https://9000-owned.reported.invalid"],
+]) {
+  test(`${name} owns complete application endpoint identity for ${expected}`, async () => {
+    class SandboxProtocol {
+      async getInfo(id) { return { sandbox_id: id, reported_domain: "reported.invalid", envd_access_token: "gateway-only" }; }
+    }
+    const fixtureKit = kit([]);
+    fixtureKit.SandboxProtocol = SandboxProtocol;
+    fixtureKit.e2b.overlay = (target, extra) => new Proxy(target, { get(object, key) {
+      if (Object.hasOwn(extra, key)) return extra[key];
+      const value = object[key]; return typeof value === "function" ? value.bind(object) : value;
+    } });
+    const infra = await create(fixtureKit).buildInfra({ options: { domain: "configured.invalid", api_key: "control-plane-only", ...options }, headerKeyAuth: () => ({}), noAuth: () => ({}), http: () => ({}) });
+    if (name === "cubesandbox") await infra.sandbox_protocol.getInfo("owned");
+    const endpoint = await infra.sandbox_protocol.portEndpoint("owned", 9000);
+    assert.deepEqual(endpoint, { provider_id: name, sandbox_id: "owned", port: 9000,
+      url: expected, headers: { "X-Access-Token": "gateway-only" },
+      authentication_audience: "gateway", path_mode: "prefix" });
+    assert.ok(!JSON.stringify(endpoint).includes("control-plane-only"));
+  });
+}

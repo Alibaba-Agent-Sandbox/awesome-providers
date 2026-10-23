@@ -71,6 +71,11 @@ export default function create(kit) {
           if (token) headers["X-Access-Token"] = token;
           return [`http://${port}-${id}.${domains.get(id) || domain}`, headers];
         },
+        portEndpoint: async (id, port) => {
+          const [url, headers] = await sandbox.portUrl(id, port);
+          return { provider_id: "cubesandbox", sandbox_id: id, port, url, headers,
+            authentication_audience: "gateway", path_mode: "prefix" };
+        },
       });
 
       const notContext = (operation) => async () => {

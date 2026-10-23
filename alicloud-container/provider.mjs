@@ -139,6 +139,11 @@ export default function create(kit) {
           if (tokens.get(id)) headers["X-Access-Token"] = tokens.get(id);
           return [origin !== null ? `${origin}/kruise/${id}/${port}` : `https://${port}-${id}.${domain}`, headers];
         },
+        portEndpoint: async (id, port) => {
+          const [url, headers] = await overrides.portUrl(id, port);
+          return { provider_id: "alicloud-container", sandbox_id: id, port, url, headers,
+            authentication_audience: "gateway", path_mode: "prefix" };
+        },
       };
 
       const notContext = (op) => async () => {

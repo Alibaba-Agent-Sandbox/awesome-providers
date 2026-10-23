@@ -24,6 +24,25 @@ export default function create(kit) {
       ].map(([method, operation]) => [method, async () => {
         throw new kit.errors.ProviderFeatureNotSupportedError("e2b", operation);
       }]));
+      const inner = kit.e2b.resumeConnect(new kit.SandboxProtocol(http, { unknownIfAbsent: true }), [
+        "/v2/sandboxes/{id}/connect",
+        "/sandboxes/{id}/connect",
+      ]);
+      const sandbox = kit.e2b.overlay(inner, {
+        hasPortUrl: true,
+        portEndpoint: async (id, port) => {
+          const info = await inner.getInfo(id);
+          const headers = {};
+          if (info.envd_access_token) headers["X-Access-Token"] = info.envd_access_token;
+          return { provider_id: "e2b", sandbox_id: id, port,
+            url: `https://${port}-${id}.${info.reported_domain || domain}`, headers,
+            authentication_audience: "gateway", path_mode: "prefix" };
+        },
+        portUrl: async (id, port) => {
+          const endpoint = await sandbox.portEndpoint(id, port);
+          return [endpoint.url, endpoint.headers];
+        },
+      });
       return {
         operation_contract_version: OPERATION_CONTRACT_VERSION,
         operations: OPERATIONS,
@@ -32,10 +51,7 @@ export default function create(kit) {
         auth,
         http_client: http,
         endpoint: { base_url, domain },
-        sandbox_protocol: kit.e2b.resumeConnect(new kit.SandboxProtocol(http, { unknownIfAbsent: true }), [
-          "/v2/sandboxes/{id}/connect",
-          "/sandboxes/{id}/connect",
-        ]),
+        sandbox_protocol: sandbox,
         process_protocol: new kit.ProcessProtocol(http),
         filesystem_protocol: new kit.FilesystemProtocol(http),
         code_interpreter_protocol: unsupportedCode,
