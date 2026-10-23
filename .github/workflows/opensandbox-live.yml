@@ -44,7 +44,7 @@ jobs:
           git clone https://github.com/Alibaba-Agent-Sandbox/awesome-templates.git /tmp/abx-templates
           git -C /tmp/abx-templates checkout bf410ec1b82febe0f668327d119683ebfdf69f9c
           git clone https://github.com/Alibaba-Agent-Sandbox/python-sdk.git /tmp/abx-python
-          git -C /tmp/abx-python checkout 2c7c4dd554d0623143b7e6277faf0019ca3138ee
+          git -C /tmp/abx-python checkout c8882c29fd6a84fe10f9e6791aeacd1f5c0a5131
       - name: Install locked CLI and matching SDK packages
         run: |
           npm ci --prefix /tmp/abx-cli

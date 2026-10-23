@@ -59,3 +59,5 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [OpenSandbox YAML profile rerun](evidence/verify/2026-10-23-opensandbox-yaml-profile-rerun.md).
 
 - [Preserve primary live workflow failure](evidence/verify/2026-10-23-opensandbox-primary-failure-preservation.md).
+
+- [Base SDK YAML dependency rerun](evidence/verify/2026-10-23-opensandbox-base-sdk-yaml-rerun.md).

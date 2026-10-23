@@ -1,0 +1,9 @@
+# OpenSandbox prepared-image rerun with base SDK YAML dependency
+
+Result: PARTIAL; final prepared-image native run remains required.
+
+Actual source run: https://github.com/Alibaba-Agent-Sandbox/awesome-providers/actions/runs/39940863279 on 91d0a27e11b9e0936da3e81fd6d7fb9054dd3931. Steps through plugin/installed contracts, Python SDK scenarios and CLI lifecycle/files passed. The source application step explicitly logged PASS for exact source/profile build, immutable prepared image, owned sandbox/readiness and CLI application HTTP named command. Its Python process passed connect/application_client/hello assertions and then failed at `launch_workflow(path)` importing `yaml`. The core-only SDK installation lacked PyYAML, which was then available only through an optional extra. Final Docker cleanup verified zero sandbox containers. GitHub artifacts API returned an empty list; these observations are from actual jobs/step logs, not an uploaded acceptance receipt.
+
+The SDK owner moved PyYAML to the core dependency set and removed its obsolete extra at https://github.com/Alibaba-Agent-Sandbox/python-sdk/commit/c8882c29fd6a84fe10f9e6791aeacd1f5c0a5131. Owner verification includes seven packaging tests and a fresh base-only wheel installation importing both YAML and workflow. T4 now pins this exact SDK and deliberately retains base-only installation to exercise the real public installation contract. CLI remains pinned to 0ae68e8b6e2721d04f715d73618899004097264a; source template remains bf410ec1b82febe0f668327d119683ebfdf69f9c.
+
+Local checks: workflow YAML parsing and `git diff --check` PASS. Additional actual harness failure injection (fixture CLI exits during application invocation and emits invalid cleanup JSON): PASS, the primary application failure survives and the secondary cleanup failure is reported. Temporary fixture files were removed. No complete prepared-image/native acceptance is claimed until the new remote T4 run passes.
