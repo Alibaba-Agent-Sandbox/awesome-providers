@@ -2,7 +2,7 @@
 
 **状态：Beta。** 本提供方暂未完成正式版验收。已声明的能力不等于已通过真实后端端到端测试；其他提供方的验收范围见[验收说明](../../docs/acceptance.md)。局部测试结果不会自动升级此状态。
 
-目录提供方，id 是 `alicloud-container`。这不是极速版 `alicloud-express`。它是 ACS 或 ACK 上的 OpenKruise Agents sandbox-manager，说的是 E2B 形状的 HTTP。类型 `node`（`provider.mjs`，由宿主进程加载）。CLI 和所有 SDK 都能用：CLI 直接运行，SDK 经由本机引擎（`abx provider engine serve`）。
+目录提供方，id 是 `alicloud-container`。这不是极速版 `alicloud-express`。它是 ACS 或 ACK 上的 OpenKruise Agents sandbox-manager，说的是 E2B 形状的 HTTP。类型 `node`（`provider.mjs`，由宿主进程加载）。CLI 和 Python ProviderSandbox 可用：CLI 直接运行，Python 经由本机引擎（`abx provider engine serve`）。
 
 总说明：[工作原理](../../docs/zh/principle.md) · [安装](../../docs/zh/install.md)
 
@@ -11,7 +11,7 @@
 ```bash
 export ABX_ALICLOUD_CONTAINER_DOMAIN=sbx.example.com
 export ABX_ALICLOUD_CONTAINER_API_KEY=REPLACE_ME
-abx provider install alibaba-agent-sandbox/awesome-providers//alicloud-container --allow-unpinned --yes   # 或 Python：python -m agent_sandbox.providers install registry:alicloud-container --yes（索引上线后）
+abx provider install alibaba-agent-sandbox/awesome-providers//alicloud-container --allow-unpinned --yes   # 或 Python：python -m agent_sandbox.providers install registry:alicloud-container --yes
 abx --provider alicloud-container create --template code-interpreter
 ```
 
@@ -69,7 +69,7 @@ sandbox-manager 没有 `/terminal`。PTY 要走带 `pty` 字段的进程启动�
 
 ## English
 
-Catalog provider, id `alicloud-container`. This is the ACS/ACK OpenKruise Agents sandbox-manager, not Express (`alicloud-express`). Kind `node` (`provider.mjs`, loaded by the host). It runs from the CLI and from every SDK (through the local engine, `abx provider engine serve`).
+Catalog provider, id `alicloud-container`. This is the ACS/ACK OpenKruise Agents sandbox-manager, not Express (`alicloud-express`). Kind `node` (`provider.mjs`, loaded by the host). It runs from the CLI and from Python ProviderSandbox (through the local engine, `abx provider engine serve`).
 
 ```bash
 export ABX_ALICLOUD_CONTAINER_DOMAIN=sbx.example.com

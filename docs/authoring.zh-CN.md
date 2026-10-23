@@ -45,7 +45,7 @@ Sandbox.create({ template, timeout, envs, metadata, ... })
       都用这个 id。没声明的能力返回 E8004，对应方法不会发出。
 ```
 
-Python 的 `Sandbox.create(template="base", provider="my-cloud")` 从第 2 步开始，用的是同一个已安装目录。
+Python 的 `ProviderSandbox.create(template="base", provider="my-cloud")`（`from agent_sandbox import ProviderSandbox`） 从第 2 步开始，用的是同一个已安装目录。
 
 下面两条不会进入你的插件：
 
@@ -104,6 +104,6 @@ abx exec my-cloud:<id> "echo hello"
 
 ## 给 AI
 
-改插件之前，把 [`SKILL.md`](../SKILL.md)（`name: agent-sandbox-provider`）装进编码工具。它和本页是同一套规则，只是写成 agent 会加载的形式：代码放哪、create 的调用链、方法名、以及要跑的检查。
+改插件之前，把 [`SKILL.md`](../SKILL.md)（`name: awesome-providers`）装进编码工具。它和本页是同一套规则，只是写成 agent 会加载的形式：代码放哪、create 的调用链、方法名、以及要跑的检查。
 
 See [exact workflow operations](workflows.md) ([中文](workflows.zh-CN.md)).

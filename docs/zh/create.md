@@ -1,6 +1,6 @@
 # 创建一个提供方
 
-一个提供方是一个目录：`abx-provider.toml`，再加上这种运行时需要的程序。不要把它放进 SDK 或 CLI 仓库。新的后端放在本目录的一个新子目录里，并在 `index.json` 加一条。
+一个提供方是一个目录：`abx-provider.toml`，再加上这种运行时需要的程序。不要把它放进 SDK 或 CLI 仓库。新的后端放在本目录的一个新子目录里，并在 `awesome-providers.yaml` 加一条。
 
 先选运行时。三种都安装到 `~/.abx/providers/<id>`。CLI 与 Python ProviderSandbox 通过提供方引擎调用它们；其他客户端需要明确桥接，Node.js 服务 HTTP 客户端不管理提供方。
 
@@ -179,7 +179,7 @@ export default function create(kit) {
 
 ## 放进目录索引
 
-`index.json` 的 `providers` 加一条：
+按源目录 `awesome-providers.yaml` 的 schema 添加提供方；Registry 读取该目录并生成公开下载索引。同时维护本地 Python 安装器示例 `index.json`：
 
 ```json
 { "id": "my-cloud", "version": "0.1.0", "url": "my-cloud" }

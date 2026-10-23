@@ -2,14 +2,14 @@
 
 已验收范围：Docker 后端，OpenSandbox server 1.1.1 与固定摘要的 release-1.1.1 execd，涵盖 CLI、Python SDK 和项目构建启动及清理。Kubernetes、网络策略、安全访问和代码解释器不在本次验收范围。详见[提供方验收](../../docs/acceptance.md)。
 
-目录提供方，id 是 `opensandbox`。不是随 SDK 编译进去的。类型 `node`：一个 ES 模块（`provider.mjs`，无 npm 依赖），导出 `create(kit)`，宿主在进程内调用它的 EPP/1 方法（`kit.epp.infra`）。CLI 直接使用它，Python 以及之后的 Node、Go、Java SDK 通过本机引擎（`abx provider engine serve`）使用它。`node provider.mjs` 仍可在 stdio 上提供 EPP/1，供其他宿主使用。需要 `node` 在 `PATH` 里。
+目录提供方，id 是 `opensandbox`。不是随 SDK 编译进去的。类型 `node`：一个 ES 模块（`provider.mjs`，无 npm 依赖），导出 `create(kit)`，宿主在进程内调用它的 EPP/1 方法（`kit.epp.infra`）。CLI 直接使用它，Python ProviderSandbox 通过本机引擎（`abx provider engine serve`）使用它。`node provider.mjs` 仍可在 stdio 上提供 EPP/1，供其他宿主使用。需要 `node` 在 `PATH` 里。
 
 总说明：[工作原理](../../docs/zh/principle.md) · [安装](../../docs/zh/install.md)
 
 ## 安装和调用
 
 ```bash
-abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox --allow-unpinned --yes   # 或 Python：python -m agent_sandbox.providers install registry:opensandbox --yes（索引上线后）
+abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox --allow-unpinned --yes   # 或 Python：python -m agent_sandbox.providers install registry:opensandbox --yes
 abx --provider opensandbox create
 ```
 
@@ -62,7 +62,7 @@ await sb.kill()
 
 ## English
 
-Catalog provider, id `opensandbox`, kind `node`: an ES module (`provider.mjs`, no npm dependencies) that exports `create(kit)`; the host calls its EPP/1 methods in process (`kit.epp.infra`). The CLI uses it directly; the Python SDK and the Node, Go and Java SDKs use it through the local engine (`abx provider engine serve`). `node provider.mjs` still serves EPP/1 on stdio for other hosts. `node` must be on `PATH`.
+Catalog provider, id `opensandbox`, kind `node`: an ES module (`provider.mjs`, no npm dependencies) that exports `create(kit)`; the host calls its EPP/1 methods in process (`kit.epp.infra`). The CLI uses it directly; Python ProviderSandbox uses it through the local engine (`abx provider engine serve`). `node provider.mjs` still serves EPP/1 on stdio for other hosts. `node` must be on `PATH`.
 
 ```bash
 abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox --allow-unpinned --yes   # or, Python only once the index is live: python -m agent_sandbox.providers install registry:opensandbox --yes
@@ -87,15 +87,19 @@ On 2026-10-14 a local OpenSandbox 1.1.1 returned real results for create, list, 
 
 ## 自动准备项目 / Automatic project preparation
 
-使用包含 `template launch` 和 `kit.project` 的 CLI 源码版，安装或更新本插件后运行：
+使用包含 workflow v1 与 `--build-profile` 的 CLI 源码版（旧版 CLI 0.4.10 不支持当前 manifest），安装或更新本插件后运行：
+
+先设置独立应用令牌 `ABX_SERVER_TOKEN`；它不是 OpenSandbox 平台 API key。先前的镜像验收不等于此新工作流已验收。
+
+Set a separate application token through `ABX_SERVER_TOKEN` before launching; it is not the OpenSandbox API key. Prior image acceptance does not certify this new workflow.
 
 ```sh
-abx --provider opensandbox template launch alibaba-agent-sandbox/awesome-templates//python-hello --yes
+abx --provider opensandbox template launch alibaba-agent-sandbox/awesome-templates//python-hello --workflow application --build-profile portable --yes
 ```
 
 提供方现在声明 `templates.build`，用于 node/1 管理器的 `prepareProject`。CLI 自动把适配器返回的 ID、名称或镜像传给创建，启动服务并验证就绪；缺少模板声明的运行时能力时，在构建前拒绝。正常沙箱行为不变。
 
-Use a CLI source build containing `template launch` and `kit.project`. The node/1 `prepareProject` manager is guarded by `templates.build`. The exact returned native reference is handed to sandbox creation. Missing runtime capabilities fail before build. Normal sandbox operations remain unchanged.
+Use a CLI source build with workflow v1 and `--build-profile`; CLI 0.4.10 predates this manifest contract. The node/1 `prepareProject` manager is guarded by `templates.build`. The exact returned native reference is handed to sandbox creation. Missing runtime capabilities fail before build. Normal sandbox operations remain unchanged.
 
 先配置 Docker 登录、可写 `ABX_OPENSANDBOX_IMAGE_REPOSITORY` 及服务连接；选择源码内显式提供的构建方案（如 python-hello 的 `--build-profile portable`），不会改写 FROM 占位符。此路径直接返回已推送的镜像，不创建或伪造模板 ID。当前未接入解释器的工作流会被拒绝；HTTP 命令服务工作流只要求其实际使用的 exec、ports 与应用协议。EPP 的模板 RPC 仍不支持；项目准备是 node/1 管理器能力。
 

@@ -110,11 +110,18 @@ async function waitExecd(ctx, id, signal) {
   }
 }
 
-async function killQuietly(ctx, id) {
+async function cleanupCreate(ctx, id, original) {
   try {
     await ctx.osb.lifecycle("DELETE", `/sandboxes/${encodeURIComponent(id)}`, { idempotent: false });
-  } catch {
-    /* best effort */
+  } catch (cleanupError) {
+    if (cleanupError.code === CODES.NOT_FOUND) return;
+    // Preserve the original error/code. Do not expose backend errors or credentials.
+    if (original instanceof RpcError) {
+      original.data = { ...original.data, cleanup: { sandbox_id: id, status: "failed" } };
+    }
+    try { ctx.log?.(`Create cleanup failed for sandbox ${JSON.stringify(id)}; inspect and delete this owned sandbox.`); } catch { /* logging must not hide the original error */ }
+  } finally {
+    ctx.osb.forget(id);
   }
 }
 
@@ -134,12 +141,13 @@ export const methods = {
     try {
       await waitRunning(ctx, id, ctx.signal);
       await waitExecd(ctx, id, ctx.signal);
+      const { json: full } = await ctx.osb.lifecycle("GET", `/sandboxes/${encodeURIComponent(id)}`, { signal: ctx.signal });
+      return toRecord(full ?? json, image);
     } catch (err) {
-      await killQuietly(ctx, id);
+      // Cleanup must run even when the caller's signal has already been aborted.
+      await cleanupCreate(ctx, id, err);
       throw err;
     }
-    const { json: full } = await ctx.osb.lifecycle("GET", `/sandboxes/${encodeURIComponent(id)}`, { signal: ctx.signal });
-    return toRecord(full ?? json, image);
   },
 
   async "sandbox.get"(params, ctx) {

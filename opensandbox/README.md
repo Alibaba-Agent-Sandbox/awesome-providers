@@ -138,3 +138,7 @@ Licensed under Apache-2.0.
 The Node template manager supports `templates.build` for `abx template launch`: Docker builds and pushes the source and OpenSandbox consumes the returned image reference. The EPP template RPCs in the table remain unsupported. See [prerequisites and acceptance scope](docs/README.md).
 
 Node 模板管理器通过 `templates.build` 支持 `abx template launch`：Docker 构建并推送源码，OpenSandbox 使用返回的镜像引用。上表中的 EPP 模板 RPC 仍不支持。参见[前置条件与验收范围](docs/README.md)。
+
+### Create failure cleanup
+
+A create failure after an ID is known attempts deletion even when the caller cancelled, including a failed final detail read. The original error remains primary. If cleanup fails, EPP error data includes `cleanup: {sandbox_id, status: "failed"}` and a recovery warning; inspect and delete that owned sandbox. A successful DELETE is not an independent proof of backend absence.
