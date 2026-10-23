@@ -2,6 +2,6 @@
   "schema_version": 3,
   "template_input": "image-uri",
   "template_example": "base",
-  "maturity": "beta",
+  "maturity": "stable",
   "project_preparation": "image-reference"
 }
