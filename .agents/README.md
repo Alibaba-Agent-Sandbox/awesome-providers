@@ -55,3 +55,5 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [Upstream maturity merge verification](evidence/verify/2026-10-23-upstream-maturity-merge.md).
 
 - [Actual project SDK fixture and final T4 pins](evidence/verify/2026-10-23-project-sdk-fixture-and-t4-pins.md).
+
+- [OpenSandbox YAML profile rerun](evidence/verify/2026-10-23-opensandbox-yaml-profile-rerun.md).
