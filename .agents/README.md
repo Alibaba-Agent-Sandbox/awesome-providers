@@ -63,3 +63,5 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [Base SDK YAML dependency rerun](evidence/verify/2026-10-23-opensandbox-base-sdk-yaml-rerun.md).
 
 - [Native process startup acknowledgment](evidence/verify/2026-10-23-native-process-startup-ack.md).
+
+- [OpenSandbox explicit workflow native acceptance](evidence/verify/2026-10-23-opensandbox-workflow-native-acceptance.md).
