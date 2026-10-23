@@ -20,9 +20,9 @@ Promotion requires real backend CLI/SDK tests covering the declared scope, clean
 
 升级为正式版需真实后端 CLI/SDK 声明范围测试、清理证据、限制审查和维护者批准。模拟测试、服务健康响应、安装成功或局部本机测试均不会自动升级。
 
-OpenSandbox has a [verified Docker/CLI/Python SDK subset](../.agents/evidence/verify/2026-10-19-opensandbox-native-docker.md) with pinned versions and cleanup evidence. The maintainer accepted this scope on 2026-10-23; fresh native T4 with the reviewed current CLI/SDK pins is required for this delivery. Kubernetes, network-policy, secure-access and code-interpreter acceptance remain separate.
+OpenSandbox has a [verified Docker/CLI/Python SDK subset](../.agents/evidence/verify/2026-10-19-opensandbox-native-docker.md) with pinned versions and cleanup evidence. The maintainer accepted this scope on 2026-10-23; fresh native T4 with CLI 0.4.9 and the reviewed current SDK pins [passed](../.agents/evidence/verify/2026-10-23-opensandbox-native-promotion.md). Kubernetes, network-policy, secure-access and code-interpreter acceptance remain separate.
 
-OpenSandbox 已完成[固定版本的 Docker、CLI 与 Python SDK 局部真实验证](../.agents/evidence/verify/2026-10-19-opensandbox-native-docker.md)，含清理证明；维护者于 2026-10-23 接受该范围。本次交付要求以已审查的当前 CLI/SDK 固定版本重新通过原生 T4。Kubernetes、网络策略、安全访问和代码解释器仍需独立验收。
+OpenSandbox 已完成[固定版本的 Docker、CLI 与 Python SDK 局部真实验证](../.agents/evidence/verify/2026-10-19-opensandbox-native-docker.md)，含清理证明；维护者于 2026-10-23 接受该范围。CLI 0.4.9 与当前 SDK 固定版本已重新[通过原生 T4](../.agents/evidence/verify/2026-10-23-opensandbox-native-promotion.md)。Kubernetes、网络策略、安全访问和代码解释器仍需独立验收。
 
 The sites omit the maturity badge for accepted providers and mark only Beta. Machine-readable metadata retains `stable` / `beta`; per-template test coverage remains independent.
 
