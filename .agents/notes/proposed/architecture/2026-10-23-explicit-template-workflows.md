@@ -30,3 +30,5 @@ Validate strict manifests and operation boundaries, unchanged source build recip
 ## Acceptance criteria
 
 Current manifests and consumers agree on the new contract; relevant regression and current-head CI gates pass; native acceptance remains explicitly incomplete until exercised. Merge only after required review and checks.
+
+Native exec startup requires the provider's actual acknowledgment identifier. Missing native init is a non-replayed failure; no synthetic process ID may make startup appear acknowledged. See [producer regression evidence](../../../evidence/verify/2026-10-23-native-process-startup-ack.md).

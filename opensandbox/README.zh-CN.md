@@ -132,4 +132,6 @@ The Node template manager supports `templates.build` for `abx template launch`: 
 
 Node 模板管理器通过 `templates.build` 支持 `abx template launch`：Docker 构建并推送源码，OpenSandbox 使用返回的镜像引用。上表中的 EPP 模板 RPC 仍不支持。参见[前置条件与验收范围](docs/README.md)。
 
+流式启动必须收到 execd 原生 `init` 事件及其进程标识；缺少确认时直接失败，不会伪造标识或重放结果不确定的命令。
+
 execd 必须支持原生 `argv` 请求并保留输出字节；旧接口不受支持，命令失败不会切换协议重试。

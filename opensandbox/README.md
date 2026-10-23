@@ -128,6 +128,7 @@ tests/              unit/, mock/ (in-process fake server), live/, contract/ (pyt
 * `secure=True` passed to `Sandbox.create` requests gateway "secure access" (Kubernetes gateway deployments only; a Docker server refuses it). `secure=False` and an omitted `secure` leave it off, or use the `secure_access` config field for a global default.
 * Per-create settings: `provider_options={"network_policy": ..., "platform": ..., "default_image": ...}` given to `Sandbox.create` override the configured values for that sandbox only (whitelist: `default_image`, `image_aliases`, `entrypoint`, `ready_timeout`, `registry_username`, `registry_password`, `network_policy`, `platform`, `secure_access`; never the server address or API key).
 * `commands.start()` is lazy for every provider (nothing is sent until the stream is iterated); run `nohup ... &` through `commands.run(..., shell=True)` to start a background process.
+* Streaming startup requires the native execd `init` event and its process identifier. Missing acknowledgment fails without fabricating an ID or replaying an uncertain command.
 * The execd backend must support native `argv` requests and preserve output bytes. Older execd interfaces are unsupported; command failures are returned without retrying another protocol.
 
 Licensed under Apache-2.0.
