@@ -1,10 +1,11 @@
 manifest_version = 1
+operation_contract_version = 1
 
 [provider]
 id          = "cubesandbox"
 name        = "CubeSandbox"
 name_zh     = "CubeSandbox"
-version     = "0.3.0"
+version     = "0.4.0"
 description = "Tencent CubeSandbox CubeAPI. Default http://127.0.0.1:3000."
 license     = "Apache-2.0"
 
@@ -19,8 +20,16 @@ entry = "provider.mjs"
 [features]
 supported = [
   "templates.build", "sandbox.lifecycle", "sandbox.timeout", "sandbox.pause",
-  "exec.run", "exec.stream", "files.rw", "files.watch", "code.interpret", "ports.url",
+  "exec.run", "exec.stream", "files.rw", "files.watch", "ports.url",
 ]
+
+[operations]
+cli = ["sandbox.create", "sandbox.get", "sandbox.list", "sandbox.delete", "sandbox.timeout", "sandbox.pause", "sandbox.resume", "template.prepare", "exec.run", "exec.stream", "files.read", "files.write", "files.list", "files.stat", "files.remove", "files.move", "ports.resolve", "code.default-context.execute"]
+python = ["sandbox.create", "sandbox.get", "sandbox.list", "sandbox.delete", "sandbox.timeout", "sandbox.pause", "sandbox.resume", "exec.run", "exec.stream", "files.read", "files.write", "files.list", "files.stat", "files.remove", "files.move", "ports.resolve", "code.default-context.execute"]
+
+[workflow]
+inputs = ["source", "managed"]
+startups = ["exec", "entrypoint", "none"]
 
 [security]
 spawns_processes = true
@@ -52,10 +61,6 @@ type           = "string"
 description    = "CubeProxy host:port. TCP goes there; Host stays the virtual name."
 description_zh = "CubeProxy 的 host:port。TCP 打到这里，Host 仍是虚拟主机名。"
 
-[config.fields.build_base_image]
-type = "string"
-description = "Native runtime base image used to replace the project's first FROM. Configure once for unresolved template placeholders. Must provide this backend's envd/code runtime when required."
-description_zh = "替换项目首个 FROM 的原生运行时基础镜像。模板含占位符时配置一次；需包含该后端要求的 envd/代码运行时。"
 
 [config.fields.image_repository]
 type = "string"

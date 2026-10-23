@@ -14,7 +14,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --test tests/project.test.mjs
+      - run: node --test tests/project.test.mjs tests/workflow-operations.test.mjs
   cubesandbox:
     name: CubeSandbox image adapter (T0, native API loopback)
     runs-on: ubuntu-latest

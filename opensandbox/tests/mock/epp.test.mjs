@@ -46,7 +46,7 @@ test("handshake: protocol, features, config validation", async () => {
 
 test("undeclared features answer -32003 with the feature name", async () => {
   await withPlugin({}, {}, async (host) => {
-    for (const [method, feature] of [["code.run", "code.interpret"], ["templates.list", "templates.read"], ["templates.build", "templates.build"], ["files.watch", "files.watch"], ["files.upload_url", "files.transfer"], ["process.stdin", "process.stdin"]]) {
+    for (const [method, feature] of [["code.run", "code.execute"], ["templates.list", "templates.read"], ["templates.build", "templates.build"], ["files.watch", "files.watch"], ["files.upload_url", "files.transfer"], ["process.stdin", "process.stdin"]]) {
       const err = await rpcError(host.call(method, { sandbox_id: "x" }));
       assert.equal(err.code, -32003, method);
       assert.equal(err.data.details.feature, feature, method);
@@ -337,7 +337,12 @@ test("ports.url: direct, server-proxied", async () => {
     const id = await newSandbox(host);
     const direct = await host.call("ports.url", { sandbox_id: id, port: 8000 });
     assert.equal(direct.url, `${mock.origin}/execd/${id}/proxy/8000`);
-    assert.equal(direct.headers, undefined);
+    assert.deepEqual(direct.headers, {});
+    assert.equal(direct.provider_id, "opensandbox");
+    assert.equal(direct.sandbox_id, id);
+    assert.equal(direct.port, 8000);
+    assert.equal(direct.authentication_audience, "gateway");
+    assert.equal(direct.path_mode, "prefix");
     assert.equal((await rpcError(host.call("ports.url", { sandbox_id: id, port: 0 }))).code, -32006);
     assert.equal((await rpcError(host.call("ports.url", { sandbox_id: "ghost", port: 80 }))).code, -32002);
   });

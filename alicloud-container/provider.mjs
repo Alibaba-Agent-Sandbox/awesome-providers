@@ -1,3 +1,4 @@
+import { OPERATION_CONTRACT_VERSION, OPERATIONS, WORKFLOW_INPUTS, STARTUP_MODES } from "./operations.mjs";
 import { projectManager } from "./project.mjs";
 // Alibaba Cloud Agent Sandbox container edition (OpenKruise sandbox-manager, E2B-shaped). A `node/1` plugin.
 const ENVD_PORT = 49983;
@@ -112,8 +113,10 @@ export default function create(kit) {
         "/v2/sandboxes/{id}/connect",
         "/sandboxes/{id}/connect",
       ]);
+      const tokens = new Map();
       const fill = (info) => {
         if (origin && info.sandbox_id && !info.envd_url) info.envd_url = `${origin}/kruise/${info.sandbox_id}/${ENVD_PORT}`;
+        if (info.sandbox_id && info.envd_access_token) tokens.set(info.sandbox_id, info.envd_access_token);
         return info;
       };
       const overrides = {
@@ -129,17 +132,24 @@ export default function create(kit) {
           const items = Array.isArray(data) ? data : (data.sandboxes ?? data.data ?? []);
           return items.map((item) => fill(inner._info(item)));
         },
-        hasPortUrl: origin !== null,
+        hasPortUrl: true,
+        portUrl: async (id, port) => {
+          const info = fill(await inner.getInfo(id));
+          const headers = {};
+          if (tokens.get(id)) headers["X-Access-Token"] = tokens.get(id);
+          return [origin !== null ? `${origin}/kruise/${id}/${port}` : `https://${port}-${id}.${domain}`, headers];
+        },
       };
-      if (origin !== null) overrides.portUrl = async (id, port) => [`${origin}/kruise/${id}/${port}`, {}];
 
       const notContext = (op) => async () => {
         throw new kit.errors.ProviderFeatureNotSupportedError("alicloud-container", op, {
-          suggestion: "code.interpret on alicloud-container is Jupyter POST /execute only; context RPCs are not available.",
+          suggestion: "Only code.default-context.execute is implemented through Jupyter POST /execute; context RPCs and realtime streams are unavailable.",
         });
       };
       const code = {
         async runCode(_id, envdUrl, token, opts) {
+          if (opts.context_id != null) throw new kit.errors.ProviderFeatureNotSupportedError("alicloud-container", "code.context.execute");
+          if (opts.on_stdout || opts.on_stderr || opts.on_result) throw new kit.errors.ProviderFeatureNotSupportedError("alicloud-container", "code.stream");
           const [target, path] = executeTarget(envdUrl);
           const body = { code: opts.code ?? "", language: opts.language || "python" };
           if (opts.envs && Object.keys(opts.envs).length) body.env_vars = opts.envs;
@@ -150,13 +160,17 @@ export default function create(kit) {
           });
           return kit.e2b.parseExecution(response.text);
         },
-        createContext: notContext("createContext"),
-        listContexts: notContext("listContexts"),
-        restartContext: notContext("restartContext"),
-        removeContext: notContext("removeContext"),
+        createContext: notContext("code.context.create"),
+        listContexts: notContext("code.context.list"),
+        restartContext: notContext("code.context.restart"),
+        removeContext: notContext("code.context.delete"),
       };
 
       return {
+        operation_contract_version: OPERATION_CONTRACT_VERSION,
+        operations: OPERATIONS,
+        workflow_inputs: WORKFLOW_INPUTS,
+        startup_modes: STARTUP_MODES,
         auth,
         http_client: http,
         endpoint: { base_url: base, domain },

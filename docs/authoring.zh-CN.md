@@ -105,3 +105,5 @@ abx exec my-cloud:<id> "echo hello"
 ## 给 AI
 
 改插件之前，把 [`SKILL.md`](../SKILL.md)（`name: agent-sandbox-provider`）装进编码工具。它和本页是同一套规则，只是写成 agent 会加载的形式：代码放哪、create 的调用链、方法名、以及要跑的检查。
+
+See [exact workflow operations](workflows.md) ([中文](workflows.zh-CN.md)).

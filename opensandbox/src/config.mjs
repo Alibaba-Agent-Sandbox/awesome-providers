@@ -12,7 +12,6 @@ export const DEFAULT_ALIASES = { code: "opensandbox/code-interpreter:v1.1.0" };
  * Generated images that serve port 9000 set `entrypoint` to `python3 commands.py`.
  */
 export const DEFAULT_ENTRYPOINT = ["tail", "-f", "/dev/null"];
-export const CODE_INTERPRETER_ENTRYPOINT = ["/opt/code-interpreter/code-interpreter.sh"];
 
 const blank = (v) => v === undefined || v === null || (typeof v === "string" && v.trim() === "");
 

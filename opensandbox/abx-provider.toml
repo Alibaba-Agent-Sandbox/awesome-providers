@@ -1,10 +1,11 @@
 manifest_version = 1
+operation_contract_version = 1
 
 [provider]
 id          = "opensandbox"
 name        = "OpenSandbox"
 name_zh     = "OpenSandbox 开源沙箱"
-version     = "0.4.0"
+version     = "0.5.0"
 description = "Runs sandboxes on an OpenSandbox server (Docker or Kubernetes runtime) through its lifecycle API and per-sandbox execd daemon."
 license     = "Apache-2.0"
 homepage    = "https://github.com/alibaba-agent-sandbox/awesome-providers/tree/main/opensandbox"
@@ -26,6 +27,14 @@ supported = [
   "exec.run", "exec.stream", "process.manage", "pty",
   "files.rw", "ports.url", "sessions",
 ]
+
+[operations]
+cli = ["sandbox.create", "sandbox.get", "sandbox.list", "sandbox.delete", "sandbox.timeout", "sandbox.pause", "sandbox.resume", "template.prepare", "exec.run", "exec.stream", "files.read", "files.write", "files.list", "files.stat", "files.remove", "files.move", "ports.resolve"]
+python = ["sandbox.create", "sandbox.get", "sandbox.list", "sandbox.delete", "sandbox.timeout", "sandbox.pause", "sandbox.resume", "exec.run", "exec.stream", "files.read", "files.write", "files.list", "files.stat", "files.remove", "files.move", "ports.resolve"]
+
+[workflow]
+inputs = ["source", "image", "managed"]
+startups = ["exec", "none"]
 
 [security]
 network          = ["*"]                 # the OpenSandbox server and sandbox endpoints you configure
@@ -86,8 +95,8 @@ description_zh = "模板短名称，以逗号分隔的 name=image 键值对"
 [config.fields.entrypoint]
 type           = "string"
 default        = "tail -f /dev/null"
-description    = "Command used when the caller does not set an entrypoint. The default keeps a stock image alive so execd can serve exec and files. Set \"python3 commands.py\" for a generated image that serves port 9000. A code-interpreter image keeps its runtime script unless this is set to something else."
-description_zh = "调用方未设置入口时使用的命令。默认值让通用镜像保持运行，以便 execd 提供执行和文件服务。为在 9000 端口提供服务的生成镜像设置为 \"python3 commands.py\"。除非改成其他命令，code-interpreter 镜像仍使用自己的运行时脚本。"
+description    = "Command used when the caller does not set an entrypoint. The default keeps a stock image alive so execd can serve exec and files. Set \"python3 commands.py\" for a generated image that serves port 9000. Image names never select a runtime script; configure the actual script explicitly."
+description_zh = "调用方未设置入口时使用的命令。默认值让通用镜像保持运行，以便 execd 提供执行和文件服务。为在 9000 端口提供服务的生成镜像设置为 \"python3 commands.py\"。不根据镜像名称推断运行时脚本，必须显式配置实际入口。"
 
 [config.fields.ready_timeout]
 type           = "int"
@@ -122,10 +131,6 @@ default        = false
 description    = "Request secure access (Kubernetes gateway deployments only)"
 description_zh = "请求安全访问（仅 Kubernetes 网关部署）"
 
-[config.fields.build_base_image]
-type = "string"
-description = "Native runtime base image used to replace the project's first FROM. Configure once for unresolved template placeholders. Must provide this backend's envd/code runtime when required."
-description_zh = "替换项目首个 FROM 的原生运行时基础镜像。模板含占位符时配置一次；需包含该后端要求的 envd/代码运行时。"
 
 [config.fields.image_repository]
 type = "string"

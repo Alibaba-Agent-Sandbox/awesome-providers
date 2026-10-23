@@ -1,3 +1,4 @@
+import { OPERATION_CONTRACT_VERSION, OPERATIONS, WORKFLOW_INPUTS, STARTUP_MODES } from "./operations.mjs";
 import { projectManager } from "./project.mjs";
 // E2B cloud sandboxes. A `node/1` plugin: the host passes the kit, this file only builds the protocol objects.
 
@@ -17,6 +18,10 @@ export default function create(kit) {
       const auth = ctx.headerKeyAuth(key, "X-API-Key");
       const http = ctx.http({ base_url, domain, auth });
       return {
+        operation_contract_version: OPERATION_CONTRACT_VERSION,
+        operations: OPERATIONS,
+        workflow_inputs: WORKFLOW_INPUTS,
+        startup_modes: STARTUP_MODES,
         auth,
         http_client: http,
         endpoint: { base_url, domain },

@@ -28,7 +28,7 @@ test("actual official SDK project parser -> three native protocol requests with 
       stage: async (...args) => { const stage = await project.stageProject(...args); stages.push(stage.directory); return stage; },
     } };
     const manager = projectManager(kit, { options: { api_key: key, base_url: `http://127.0.0.1:${server.address().port}`, domain: "fixture.test" } });
-    const result = await manager.prepareProject(work, { alias: "fixture", timeout: 10, template: { cpu: 2, memory: 1024 } });
+    const result = await manager.prepareProject(work, { journal: { intent: async () => "intent", created: async () => {} }, alias: "fixture", timeout: 10, template: { cpu: 2, memory: 1024 } });
     assert.equal(result.reference, "sdk-template"); assert.equal(seen.length, 3);
     assert.ok(seen.every(r => r.key === key)); // fixture key only
     assert.equal(seen[1].body.fromImage, "python:3.12-slim"); assert.ok(seen[1].body.steps.length > 0);

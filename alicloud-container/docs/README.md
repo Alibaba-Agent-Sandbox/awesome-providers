@@ -54,7 +54,7 @@ sb = await Sandbox.create(
 | `exec.run`、`exec.stream` | envd `POST /process.Process/Start`，`stdin: false` |
 | `process.manage` | envd 的进程列表、标准输入和信号 |
 | `files.rw` | envd 的读、写、列目录、移动和删除 |
-| `code.interpret` | Jupyter `POST /execute`，端口 49999，读 ndjson。不是 envd 的 CodeInterpreter RPC |
+| `code.default-context.execute` | Jupyter `POST /execute`，端口 49999，读 ndjson。不是 envd 的 CodeInterpreter RPC |
 | `ports.url` | 按上面的 native 或 private 规则在本地计算 |
 
 ## 会抛出 E8004 的调用
@@ -86,7 +86,7 @@ abx provider install alibaba-agent-sandbox/awesome-providers//alicloud-container
 
 `native` uses `https://api.{domain}` and `https://{port}-{id}.{domain}`. `private` uses `https://{domain}/kruise/api` and `https://{domain}/kruise/{id}/49983`. It does not read `ABX_SANDBOX_API_KEY`.
 
-Declared: `templates.build` (node/1 project preparation), `sandbox.lifecycle`, `sandbox.timeout`, `sandbox.pause`, `exec.run`, `exec.stream`, `process.manage`, `files.rw`, `code.interpret`, `ports.url`. `run_code` is Jupyter `POST /execute` on port 49999. `pty` is not declared; sandbox-manager has no `/terminal`.
+Declared: `templates.build` (node/1 project preparation), `sandbox.lifecycle`, `sandbox.timeout`, `sandbox.pause`, `exec.run`, `exec.stream`, `process.manage`, `files.rw`, `code.default-context.execute`, `ports.url`. `run_code` is Jupyter `POST /execute` on port 49999. `pty` is not declared; sandbox-manager has no `/terminal`.
 
 Unit tests use a local fake API. A live create needs both the domain and the API key. This environment has no ACS/ACK cluster, so that create did not run. The example template id is `code-interpreter`, not Express `base`.
 
@@ -109,3 +109,9 @@ Configure Docker login, a writable `ABX_ALICLOUD_CONTAINER_IMAGE_REPOSITORY`, ku
 所有新路径保持 Beta；原生 E2B、Cube、集群验收仍按维护者要求暂缓。单元/回环/实际 SDK 测试不能当成云验收。临时目录会清理；成功沙箱、镜像和已登记模板不会自动删除，可能继续计费。准备超时可能遗留已提交产物，启动/就绪失败会尝试删除本次新建沙箱并报告清理状态。源码安装、引用契约及完整限制见[指南](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/zh/guide/template-launch.md)。
 
 All new paths remain Beta. Native E2B/Cube/cluster acceptance is explicitly deferred by the maintainer; unit/loopback/official SDK protocol tests are not cloud acceptance. Temporary staging is cleaned. Successful sandboxes, images and registered templates are retained and may incur cost. Preparation timeout may leave submitted artifacts; startup/readiness failure attempts cleanup of this invocation's new sandbox. See the [host guide](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/en/guide/template-launch.md) for installation, reference contracts and limits.
+
+## Explicit workflow contract / 显式工作流契约
+
+See [operation declarations](../../docs/workflows.md) ([中文](../../docs/workflows.zh-CN.md)). CLI and Python declare separate operations; Python does not prepare source. Preparation preserves the Dockerfile and requires a persistent ownership journal. Retained artifacts requiring manual cleanup are reported as residuals. Historical backend checks do not certify the new workflow path.
+
+参见精确操作声明。CLI 与 Python 分开声明；Python 不准备源码。准备阶段保留 Dockerfile 并持久记录资源意图，需人工清理的产物明确列为残留；旧后端记录不认证新工作流。

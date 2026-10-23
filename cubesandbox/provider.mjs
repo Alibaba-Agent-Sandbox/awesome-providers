@@ -1,3 +1,4 @@
+import { OPERATION_CONTRACT_VERSION, OPERATIONS, WORKFLOW_INPUTS, STARTUP_MODES } from "./operations.mjs";
 import { projectManager } from "./project.mjs";
 // Tencent CubeSandbox (CubeAPI). A `node/1` plugin.
 const ENVD_PORT = 49983;
@@ -72,8 +73,13 @@ export default function create(kit) {
         },
       });
 
+      const notContext = (operation) => async () => {
+        throw new kit.errors.ProviderFeatureNotSupportedError("cubesandbox", operation);
+      };
       const code = {
         async runCode(_id, envdUrl, token, opts) {
+          if (opts.context_id != null) throw new kit.errors.ProviderFeatureNotSupportedError("cubesandbox", "code.context.execute");
+          if (opts.on_stdout || opts.on_stderr || opts.on_result) throw new kit.errors.ProviderFeatureNotSupportedError("cubesandbox", "code.stream");
           const body = { code: opts.code ?? "", language: opts.language || "python" };
           if (opts.envs && Object.keys(opts.envs).length) body.env_vars = opts.envs;
           const response = await http.envdHttpRequest(jupyterOrigin(envdUrl), "POST", "/execute", {
@@ -83,9 +89,17 @@ export default function create(kit) {
           });
           return kit.e2b.parseExecution(response.text);
         },
+        createContext: notContext("code.context.create"),
+        listContexts: notContext("code.context.list"),
+        restartContext: notContext("code.context.restart"),
+        removeContext: notContext("code.context.delete"),
       };
 
       return {
+        operation_contract_version: OPERATION_CONTRACT_VERSION,
+        operations: OPERATIONS,
+        workflow_inputs: WORKFLOW_INPUTS,
+        startup_modes: STARTUP_MODES,
         auth,
         http_client: http,
         endpoint: { base_url, domain },

@@ -22,7 +22,7 @@ The CLI and every SDK run all three, because the Node.js CLI hosts the provider 
 
 The id matches `^[a-z][a-z0-9]*(-[a-z0-9]+)*$`, length 2–40. Do not reuse `alicloud-express` or the catalog ids `opensandbox`, `cubesandbox`, `e2b`, `alicloud-container`. Do not start a new id with `abx-`, `alicloud-`, or `shortcuts`.
 
-`[features] supported` may contain only the 18 ids listed in [Create](en/create.md). Anything else is rejected at install. A call whose id is absent raises `E8004` before I/O.
+`[features] supported` may contain only the current non-interpreter feature ids listed in [Create](en/create.md). Anything else is rejected at install. A call whose id is absent raises `E8004` before I/O.
 
 Name the key `api_key`. The variable is `ABX_<ID>_API_KEY`. Leave `[core] inherit` empty unless the user asked to share `sandbox_api_key`, `sandbox_base_url`, or `sandbox_domain`. Never copy `ABX_SANDBOX_API_KEY` into the new provider.
 
@@ -61,3 +61,5 @@ python -m agent_sandbox.providers test my-cloud
 ```
 
 Pin a git install to a 40-hex commit. Write a README that matches the consent screen: command, features, security block, config fields. Put the provider's own notes under `<id>/docs/`.
+
+See [exact workflow operations](workflows.md) ([中文](workflows.zh-CN.md)).

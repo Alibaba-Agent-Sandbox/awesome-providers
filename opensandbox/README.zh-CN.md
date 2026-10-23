@@ -86,7 +86,7 @@ python -m agent_sandbox.providers install ./opensandbox --yes
 | `ports.url` | 支持 | `ports.url` 方法（直连端点，或配合 `use_server_proxy` 走服务代理） |
 | `sessions` | 支持 | 通过 `exec.start` 的 `detached` 扩展实现后台命令（目前尚无宿主适配器发送该参数） |
 | `pty` | 支持（Node 22+） | `pty.open` 创建 execd 终端（`POST /pty`）并桥接它的 WebSocket（`/pty/{id}/ws`）：输入是 `0x00` + 字节，`pty.output` 携带输出，`pty.exit` 结束。Node 20/21 没有全局 WebSocket，插件不会声明 `pty` |
-| `code.interpret`、`templates.*`、`files.watch`、传输 URL | 不支持 | `E8004`（`-32003`） |
+| `code.default-context.execute`、`templates.*`、`files.watch`、传输 URL | 不支持 | `E8004`（`-32003`） |
 
 ## 测试
 

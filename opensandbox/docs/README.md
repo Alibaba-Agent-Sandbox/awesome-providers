@@ -52,7 +52,7 @@ await sb.kill()
 
 ## 会抛出 E8004 的调用
 
-`files.watch`、`files.transfer`、`templates.read`、`ports.domain`、`storage.mount`、`network.vpc`、`code.interpret`。
+`files.watch`、`files.transfer`、`templates.read`、`ports.domain`、`storage.mount`、`network.vpc`、`code.default-context.execute`。
 
 `POST /code` 只有带 Jupyter 的 code-interpreter 镜像才有。默认的 `python:3.12-slim` 没有，所以代码解释器不声明。已声明的 `sessions` 指后台命令扩展；`POST /session` 那种有状态 shell 也没接。
 
@@ -81,7 +81,7 @@ The manifest has `[core] inherit = []`: Express `sandbox_api_key`, `sandbox_base
 
 The plugin module (in the host process) talks to the OpenSandbox lifecycle API and to each sandbox's execd (command SSE, files, the terminal WebSocket). The terminal needs the global `WebSocket` of Node 22+. `Sandbox.connect` in a second interpreter asks the lifecycle API for the execd address and can run a command; it does not need the session object kept by the process that created the sandbox.
 
-Declared: `templates.build` (node/1 project preparation), `sandbox.lifecycle`, `sandbox.timeout`, `sandbox.pause`, `exec.run`, `exec.stream`, `process.manage`, `pty`, `files.rw`, `ports.url`, `sessions`. `sessions` is the `detached` extension of `exec.start`, following background command output through a log cursor; no host adapter sends it yet. It does not implement a stateful shell through `POST /session`. `commands.send_input` is `E8004` because `/command` has no stdin. `code.interpret` is `E8004` because `POST /code` exists only on a Jupyter image.
+Declared: `templates.build` (node/1 project preparation), `sandbox.lifecycle`, `sandbox.timeout`, `sandbox.pause`, `exec.run`, `exec.stream`, `process.manage`, `pty`, `files.rw`, `ports.url`, `sessions`. `sessions` is the `detached` extension of `exec.start`, following background command output through a log cursor; no host adapter sends it yet. It does not implement a stateful shell through `POST /session`. `commands.send_input` is `E8004` because `/command` has no stdin. `code.default-context.execute` is `E8004` because `POST /code` exists only on a Jupyter image.
 
 On 2026-10-14 a local OpenSandbox 1.1.1 returned real results for create, list, kill, renew, pause/resume, exec, streaming, a `/proc` process list, a PTY `echo`, a file round-trip, and a port URL. `Sandbox.connect` in a second interpreter also ran `echo fresh-exec-ok`. The capability table is `python-sdk/docs/en/design/provider-opensandbox-mapping.md`.
 
@@ -97,10 +97,16 @@ abx --provider opensandbox template launch alibaba-agent-sandbox/awesome-templat
 
 Use a CLI source build containing `template launch` and `kit.project`. The node/1 `prepareProject` manager is guarded by `templates.build`. The exact returned native reference is handed to sandbox creation. Missing runtime capabilities fail before build. Normal sandbox operations remain unchanged.
 
-先配置 Docker 登录、可写 `ABX_OPENSANDBOX_IMAGE_REPOSITORY` 及服务连接；有占位符时设置 `ABX_OPENSANDBOX_BUILD_BASE_IMAGE`。此路径直接返回已推送的镜像，不创建或伪造模板 ID。当前 `code.interpret` 未声明，要求该能力的模板仍被拒绝；自建仅需 shell/files/ports 的目录可走新入口。EPP 的模板 RPC 仍不支持；项目准备是 node/1 管理器能力。
+先配置 Docker 登录、可写 `ABX_OPENSANDBOX_IMAGE_REPOSITORY` 及服务连接；有占位符时设置 `ABX_OPENSANDBOX_BUILD_BASE_IMAGE`。此路径直接返回已推送的镜像，不创建或伪造模板 ID。当前 `code.default-context.execute` 未声明，要求该能力的模板仍被拒绝；自建仅需 shell/files/ports 的目录可走新入口。EPP 的模板 RPC 仍不支持；项目准备是 node/1 管理器能力。
 
-Configure Docker login, a writable `ABX_OPENSANDBOX_IMAGE_REPOSITORY` and the server; set `ABX_OPENSANDBOX_BUILD_BASE_IMAGE` for unresolved placeholders. The adapter returns the pushed image directly, never a fabricated template ID. `code.interpret` remains undeclared, so templates requiring it are rejected. A project requiring only supported shell/files/ports can use the new flow. EPP template RPCs remain unsupported; preparation is a node/1 manager operation.
+Configure Docker login, a writable `ABX_OPENSANDBOX_IMAGE_REPOSITORY` and the server; set `ABX_OPENSANDBOX_BUILD_BASE_IMAGE` for unresolved placeholders. The adapter returns the pushed image directly, never a fabricated template ID. `code.default-context.execute` remains undeclared, so templates requiring it are rejected. A project requiring only supported shell/files/ports can use the new flow. EPP template RPCs remain unsupported; preparation is a node/1 manager operation.
 
 所有新路径保持 Beta；原生 E2B、Cube、集群验收仍按维护者要求暂缓。单元/回环/实际 SDK 测试不能当成云验收。临时目录会清理；成功沙箱、镜像和已登记模板不会自动删除，可能继续计费。准备超时可能遗留已提交产物，启动/就绪失败会尝试删除本次新建沙箱并报告清理状态。源码安装、引用契约及完整限制见[指南](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/zh/guide/template-launch.md)。
 
 All new paths remain Beta. Native E2B/Cube/cluster acceptance is explicitly deferred by the maintainer; unit/loopback/official SDK protocol tests are not cloud acceptance. Temporary staging is cleaned. Successful sandboxes, images and registered templates are retained and may incur cost. Preparation timeout may leave submitted artifacts; startup/readiness failure attempts cleanup of this invocation's new sandbox. See the [host guide](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/en/guide/template-launch.md) for installation, reference contracts and limits.
+
+## Explicit workflow contract / 显式工作流契约
+
+See [operation declarations](../../docs/workflows.md) ([中文](../../docs/workflows.zh-CN.md)). CLI and Python declare separate operations; Python does not prepare source. Preparation preserves the Dockerfile and requires a persistent ownership journal. Retained artifacts requiring manual cleanup are reported as residuals. Historical backend checks do not certify the new workflow path.
+
+参见精确操作声明。CLI 与 Python 分开声明；Python 不准备源码。准备阶段保留 Dockerfile 并持久记录资源意图，需人工清理的产物明确列为残留；旧后端记录不认证新工作流。

@@ -32,7 +32,7 @@ New id, new directory, one row in `index.json`. Do not reuse `alicloud-express`,
 | `exec` | manifest plus an EPP/1 process, protocol `epp/1` | SDK and CLI |
 | `node` | `provider.mjs` with `export default create(kit)`, protocol `node/1` | SDK and CLI |
 
-`[features] supported` is only the 18 ids in `docs/en/create.md`. Undeclared calls raise `E8004` before I/O. Leave `[core] inherit` empty. Do not read `ABX_SANDBOX_API_KEY`.
+`[features] supported` is only the current non-interpreter feature ids in `docs/en/create.md`. Undeclared calls raise `E8004` before I/O. Leave `[core] inherit` empty. Do not read `ABX_SANDBOX_API_KEY`.
 
 ```bash
 abx provider install ./my-cloud --link --yes
@@ -54,6 +54,8 @@ abx --provider <id> template launch owner/repository//template-path --yes
 
 Configure backend credentials and build prerequisites once; read that provider’s `docs/README.md`. The manager owns `prepareProject(directory, options)` under `templates.build` and returns `{reference,status:"ready"}` with optional service/readiness commands and creation metadata. Pass its exact native reference to the same provider. Use generic `kit.project.stage`, `buildImage` and `runTool` primitives; keep SDK/API mapping, authentication, polling and cluster policy in the adapter. Do not add vendor-ID switches to the host or Registry.
 
-E2B uses its independent key and official SDK parser; Cube builds/pushes then registers natively; OpenSandbox uses the built image directly; container edition clones a configured base SandboxSet in the API-key namespace. Missing required PTY/code capability blocks preparation. Successful build artifacts remain for reuse; do not silently delete existing resources. All catalog providers remain Beta; scoped Docker or loopback checks do not establish full native acceptance.
+E2B uses its independent key and official SDK parser; Cube builds/pushes then registers natively; OpenSandbox uses the built image directly; container edition clones a configured base SandboxSet in the API-key namespace. Only exact operations of the selected workflow block that path; an application does not inherit a unified interpreter requirement. Successful build artifacts remain for reuse; do not silently delete existing resources. All catalog providers remain Beta; scoped Docker or loopback checks do not establish full native acceptance.
 
 Use `abx provider update <id> --check` to inspect a recorded Git source, then the documented consent/pin options to update. Pinned installs stay pinned. `abx provider update alicloud-express --check` reports the bundled upgrade path; built-in code is updated with the CLI, not a separately installed plugin.
+
+See [exact workflow operations](docs/workflows.md) ([中文](docs/workflows.zh-CN.md)).

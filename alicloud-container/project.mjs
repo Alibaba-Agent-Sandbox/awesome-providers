@@ -1,3 +1,4 @@
+import { projectJournal } from "./project-journal.mjs";
 /** SandboxSet structure reviewed at openkruise/agents ee289a6b0410f64eb03a59ee20b18f8cc59ed3cd.
  * Preserve the user's base SandboxSet runtime injection, volumes, probes and native startup.
  */
@@ -5,6 +6,7 @@ import { createHash } from "node:crypto";
 export function projectManager(kit, ctx) {
   return {
     async prepareProject(directory, input) {
+      const { journal, resources } = projectJournal(input, kit.errors);
       const deadline = Date.now() + input.timeout * 1000;
       const remaining = () => {
         const seconds = (deadline - Date.now()) / 1000;
@@ -26,8 +28,8 @@ export function projectManager(kit, ctx) {
       const containers = pod?.containers;
       const selected = Array.isArray(containers) ? containers.filter(c => !options.build_container || c.name === options.build_container) : [];
       if (selected.length !== 1 || typeof selected[0].image !== "string") throw new kit.errors.ProviderConfigError("Set build_container to the main container in the base SandboxSet.");
-      const image = await kit.project.buildImage(directory, { image_repository: options.image_repository,
-        base_image: options.build_base_image || selected[0].image, ensure_user: "user", optional_copy: ["*.whl"], name: input.alias, timeout: remaining() });
+      const image = await kit.project.buildImage(directory, { journal, dockerfile: input.build_profile?.dockerfile, image_repository: options.image_repository,
+        name: input.alias, timeout: remaining() });
       selected[0].image = image;
       const fingerprint = createHash("sha256").update(JSON.stringify([image, base.metadata?.uid, { ...base.spec, replicas: 0 }, input.template.cpu, input.template.memory])).digest("hex").slice(0, 16);
       const name = `abx-${input.alias.slice(0, 41)}-${fingerprint}`;
@@ -40,12 +42,12 @@ export function projectManager(kit, ctx) {
       if (current) {
         if (current.metadata?.annotations?.["abx.agent-sandbox.com/project"] !== image || current.metadata?.labels?.["app.kubernetes.io/managed-by"] !== "abx") throw new kit.errors.ProviderConfigError("Prepared SandboxSet name is owned by another resource; no existing resource was changed.");
       } else {
-        try { await run(["create", "-f", "-"], { input: JSON.stringify(wanted) }); }
+        const intent = await journal.intent({ kind: "template", correlation_key: `${namespace}/${name}`, cleanup: "manual" });
+        try { await run(["create", "-f", "-"], { input: JSON.stringify(wanted) });
+          await journal.created(intent, `${namespace}/${name}`); }
         catch { throw new kit.errors.ProviderConfigError(`SandboxSet preparation did not confirm creation. Check the owned name ${name} before retrying.`); }
       }
-      return { reference: name, status: "ready", metadata: { "e2b.agents.kruise.io/create-on-no-stock": "true" },
-        ...(input.template.start_cmd ? { startup_command: input.template.start_cmd } : {}),
-        ...(input.template.ready_cmd ? { ready_command: input.template.ready_cmd } : {}) };
+      return { reference: name, status: "ready", owned_resources: resources, metadata: { "e2b.agents.kruise.io/create-on-no-stock": "true" } };
     },
   };
 }

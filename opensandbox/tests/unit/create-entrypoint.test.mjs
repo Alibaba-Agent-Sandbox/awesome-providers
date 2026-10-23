@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseConfig, CODE_INTERPRETER_ENTRYPOINT, DEFAULT_ENTRYPOINT } from "../../src/config.mjs";
+import { parseConfig, DEFAULT_ENTRYPOINT } from "../../src/config.mjs";
 import { buildCreateBody } from "../../src/sandbox.mjs";
 
 test("a stock image stays alive when the caller omits entrypoint", () => {
@@ -23,13 +23,10 @@ test("an explicit entrypoint from the caller wins", () => {
   assert.deepEqual(body.entrypoint, ["sleep", "30"]);
 });
 
-test("code interpreter image keeps its runtime entrypoint unless overridden", () => {
-  const delivered = parseConfig({ entrypoint: "tail -f /dev/null" });
-  assert.deepEqual(buildCreateBody({ template: "code" }, delivered).body.entrypoint, CODE_INTERPRETER_ENTRYPOINT);
-  assert.deepEqual(buildCreateBody({ template: "code" }, parseConfig({})).body.entrypoint, CODE_INTERPRETER_ENTRYPOINT);
-  assert.equal(buildCreateBody({ template: "code" }, parseConfig({})).body.image.uri, "opensandbox/code-interpreter:v1.1.0");
-  assert.deepEqual(
-    buildCreateBody({ template: "code" }, parseConfig({ entrypoint: "sleep infinity" })).body.entrypoint,
-    ["sleep", "infinity"],
-  );
+test("image names never override the configured platform keepalive", () => {
+  for (const config of [{}, { entrypoint: "tail -f /dev/null" }]) {
+    assert.deepEqual(buildCreateBody({ template: "code" }, parseConfig(config)).body.entrypoint, DEFAULT_ENTRYPOINT);
+  }
+  assert.deepEqual(buildCreateBody({ template: "code" }, parseConfig({ entrypoint: "/opt/code-interpreter/code-interpreter.sh" })).body.entrypoint,
+    ["/opt/code-interpreter/code-interpreter.sh"]);
 });
