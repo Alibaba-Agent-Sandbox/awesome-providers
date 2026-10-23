@@ -15,7 +15,7 @@ abx --provider e2b create --template base
 ```
 
 ```python
-from agent_sandbox.api.sandbox import Sandbox
+from agent_sandbox import ProviderSandbox as Sandbox
 
 sb = await Sandbox.create(provider="e2b", template="base", timeout=300)
 ```
@@ -46,7 +46,6 @@ sb = await Sandbox.create(provider="e2b", template="base", timeout=300)
 | `process.manage` | envd 的进程列表、标准输入和信号 |
 | `files.rw` | envd 的读、写、列目录、移动和删除 |
 | `files.watch` | envd `WatchDir`。事件形状 `{filesystem: {name, type}}` 会解析 |
-| `code.interpret` | envd `POST /code.CodeInterpreter/Execute` |
 | `ports.url` | 本地计算 `https://{port}-{sandboxID}.{domain}` |
 
 ## 会抛出 E8004 的调用
@@ -126,10 +125,20 @@ abx --provider e2b template launch alibaba-agent-sandbox/awesome-templates//pyth
 
 Use a CLI source build containing `template launch` and `kit.project`. The node/1 `prepareProject` manager is guarded by `templates.build`. The exact returned native reference is handed to sandbox creation. Missing runtime capabilities fail before build. Normal sandbox operations remain unchanged.
 
-配置独立的 `ABX_E2B_API_KEY`，Node 22+ 与可选官方 SDK。FROM 有占位符时设置 `ABX_E2B_BUILD_BASE_IMAGE` 为含所需原生运行时的基础镜像。无需本机 Docker/仓库：适配器在临时副本上解析 Dockerfile，调用固定版本官方 SDK 构建并等待就绪，返回真实模板 ID。
+配置独立的 `ABX_E2B_API_KEY`，Node 22+ 与可选官方 SDK。显式选择源码中经审查的构建方案，基础镜像须提供所需原生运行时；不会改写 FROM 占位符。无需本机 Docker/仓库：适配器在临时副本上解析 Dockerfile，调用固定版本官方 SDK 构建并等待就绪，返回真实模板 ID。
 
-Configure the independent E2B key, Node 22+ and optional official SDK. Set `ABX_E2B_BUILD_BASE_IMAGE` for unresolved FROM placeholders; the image must retain required native runtime support. No local Docker/registry is needed. Staged Dockerfile parsing and official SDK building return the actual ready template ID.
+Configure the independent E2B key, Node 22+ and optional official SDK. Explicitly select a reviewed source build profile with the required native runtime; unresolved FROM placeholders are never rewritten. No local Docker/registry is needed. Staged Dockerfile parsing and official SDK building return the actual ready template ID.
 
 所有新路径保持 Beta；原生 E2B、Cube、集群验收仍按维护者要求暂缓。单元/回环/实际 SDK 测试不能当成云验收。临时目录会清理；成功沙箱、镜像和已登记模板不会自动删除，可能继续计费。准备超时可能遗留已提交产物，启动/就绪失败会尝试删除本次新建沙箱并报告清理状态。源码安装、引用契约及完整限制见[指南](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/zh/guide/template-launch.md)。
 
 All new paths remain Beta. Native E2B/Cube/cluster acceptance is explicitly deferred by the maintainer; unit/loopback/official SDK protocol tests are not cloud acceptance. Temporary staging is cleaned. Successful sandboxes, images and registered templates are retained and may incur cost. Preparation timeout may leave submitted artifacts; startup/readiness failure attempts cleanup of this invocation's new sandbox. See the [host guide](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/en/guide/template-launch.md) for installation, reference contracts and limits.
+
+## Explicit workflow contract / 显式工作流契约
+
+See [operation declarations](../../docs/workflows.md) ([中文](../../docs/workflows.zh-CN.md)). CLI and Python declare separate operations; Python does not prepare source. Preparation preserves the Dockerfile and requires a persistent ownership journal. Retained artifacts requiring manual cleanup are reported as residuals. Historical backend checks do not certify the new workflow path.
+
+参见精确操作声明。CLI 与 Python 分开声明；Python 不准备源码。准备阶段保留 Dockerfile 并持久记录资源意图，需人工清理的产物明确列为残留；旧后端记录不认证新工作流。
+
+项目 CLI/Python Provider 目前未接入 E2B 原生解释器；所有 `code.*` 操作均不声明并在发送代码前返回 E8004。平台自己的标准 SDK 支持属于独立契约。
+
+The project CLI/Python Provider has no verified E2B interpreter adapter. It declares no `code.*` operations and rejects code before I/O. The platform's standard SDK remains a separate contract.

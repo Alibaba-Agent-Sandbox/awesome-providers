@@ -81,7 +81,7 @@ The four official providers are all `node`. After install, call them from the CL
 
 ```python
 import asyncio
-from agent_sandbox.api.sandbox import Sandbox
+from agent_sandbox import ProviderSandbox as Sandbox
 
 async def main() -> None:
     async with await Sandbox.create(

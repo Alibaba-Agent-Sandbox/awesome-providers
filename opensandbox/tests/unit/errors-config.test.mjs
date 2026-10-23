@@ -24,7 +24,11 @@ test("HTTP -> EPP error mapping", () => {
   assert.equal(m(422, { detail: [{ loc: ["body", "t"], msg: "bad" }] }).code, CODES.BAD_PARAMS);
   assert.equal(m(400, { code: "SANDBOX::INVALID_METADATA_LABEL", message: "x" }).code, CODES.BAD_PARAMS);
   assert.equal(m(501, { code: "FSB::API_NOT_SUPPORTED", message: "x" }).code, CODES.NO_FEATURE);
-  assert.equal(m(500, { code: "RUNTIME_ERROR", message: "language runtime server not configured" }).data.feature, "code.interpret");
+  const missingRuntime = m(500, { code: "RUNTIME_ERROR", message: "language runtime server not configured" });
+  assert.equal(missingRuntime.code, CODES.FAIL);
+  assert.equal(missingRuntime.data.reason, "runtime-missing");
+  assert.equal(missingRuntime.data.details.owner, "environment");
+  assert.equal(missingRuntime.data.feature, undefined);
   const pull = m(500, { code: "DOCKER::SANDBOX_IMAGE_PULL_FAILED", message: "pull access denied" });
   assert.equal(pull.code, CODES.NOT_FOUND);
   assert.equal(pull.data.sdk_code, "E2001");

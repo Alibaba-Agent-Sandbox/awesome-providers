@@ -1,14 +1,14 @@
+import { projectJournal } from "./project-journal.mjs";
 /** OpenSandbox needs an OCI image reference, not a cloud template ID. */
 export function projectManager(kit, ctx) {
   return {
     async prepareProject(directory, input) {
+      const { journal, resources } = projectJournal(input, kit.errors);
       if (!kit.project) throw new kit.errors.ProviderConfigError("Update the CLI to a build with template launch support.");
-      const image = await kit.project.buildImage(directory, { image_repository: ctx.options.image_repository,
-        base_image: ctx.options.build_base_image, ensure_user: "user", optional_copy: ["*.whl"], name: input.alias, timeout: input.timeout });
-      // Keep the image's normal runtime alive; the launcher starts the project service through execd.
-      return { reference: image, status: "ready",
-        ...(input.template.start_cmd ? { startup_command: input.template.start_cmd } : {}),
-        ...(input.template.ready_cmd ? { ready_command: input.template.ready_cmd } : {}) };
+      const image = await kit.project.buildImage(directory, { journal, dockerfile: input.build_profile?.dockerfile, image_repository: ctx.options.image_repository,
+        name: input.alias, timeout: input.timeout });
+      // The selected workflow owns startup; preparation never rewrites Dockerfile or entrypoint.
+      return { reference: image, status: "ready", owned_resources: resources };
     },
   };
 }

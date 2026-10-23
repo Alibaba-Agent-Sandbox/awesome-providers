@@ -2,7 +2,7 @@
 
 一个提供方是一个目录：`abx-provider.toml`，再加上这种运行时需要的程序。不要把它放进 SDK 或 CLI 仓库。新的后端放在本目录的一个新子目录里，并在 `index.json` 加一条。
 
-先选运行时。三种都安装到 `~/.abx/providers/<id>`。CLI 和所有 SDK 都能运行它们，因为加载提供方的宿主是 Node.js 的 CLI（SDK 通过本机引擎使用它）。
+先选运行时。三种都安装到 `~/.abx/providers/<id>`。CLI 与 Python ProviderSandbox 通过提供方引擎调用它们；其他客户端需要明确桥接，Node.js 服务 HTTP 客户端不管理提供方。
 
 | Kind | 你要写的 | 什么时候用 |
 |---|---|---|
@@ -41,6 +41,7 @@ my-cloud/
 
 ```toml
 manifest_version = 1
+operation_contract_version = 1
 
 [provider]
 id = "my-cloud"
@@ -64,6 +65,14 @@ supported = [
   "exec.run",
   "files.rw",
 ]
+
+[operations]
+cli = ["sandbox.create", "sandbox.get", "sandbox.list", "sandbox.delete", "exec.run", "files.read", "files.write", "files.list", "files.stat", "files.remove", "files.move"]
+python = ["sandbox.create", "sandbox.get", "sandbox.list", "sandbox.delete", "exec.run", "files.read", "files.write", "files.list", "files.stat", "files.remove", "files.move"]
+
+[workflow]
+inputs = ["managed"]
+startups = ["exec", "none"]
 
 [security]
 network = ["api.example.com"]
@@ -108,7 +117,7 @@ call_timeout_ms = 60000
 
 `[security]` 是同意界面上的说明，运行时不强制隔离。按真实会访问的网络和文件写。
 
-## 只能声明这 18 个能力
+## Feature 元信息
 
 未知 id 在安装时被拒绝。没声明的调用在发请求前抛 `E8004`。
 
@@ -123,7 +132,6 @@ pty                 get_terminal
 files.rw            读、写、列目录、移动、删除
 files.watch         files.watch
 files.transfer      upload_url / download_url
-code.interpret      run_code
 templates.read      模板列表
 templates.build     模板构建
 ports.url           network.resolve_url
@@ -135,7 +143,7 @@ sessions            沙箱内具名命令
 
 只声明后端真的实现了的。声明了却 404，比 `E8004` 更糟，因为调用方以为请求已经发出去了。
 
-18 个之外的接口不是能力 id。请在提供方自己的 README 里说明；清单里没有地方声明它。
+精确工作流操作需单独声明；参见[操作契约](../workflows.zh-CN.md)。Feature 元信息不能授予解释器实现。
 
 ## Node 入口
 
@@ -147,13 +155,18 @@ export default function create(kit) {
       const auth = ctx.headerKeyAuth(String(ctx.options.api_key), "X-API-Key");
       const http = ctx.http({ base_url, domain: "example.app", auth });
       return {
+        operation_contract_version: 1,
+        operations: { cli: ["sandbox.create", "sandbox.get", "sandbox.list", "sandbox.delete", "exec.run", "files.read", "files.write", "files.list", "files.stat", "files.remove", "files.move"], python: ["sandbox.create", "sandbox.get", "sandbox.list", "sandbox.delete", "exec.run", "files.read", "files.write", "files.list", "files.stat", "files.remove", "files.move"] },
+        workflow_inputs: ["managed"], startup_modes: ["exec", "none"],
         auth,
         http_client: http,
         endpoint: { base_url, domain: "example.app" },
         sandbox_protocol: new kit.SandboxProtocol(http),
         process_protocol: new kit.ProcessProtocol(http),
         filesystem_protocol: new kit.FilesystemProtocol(http),
-        code_interpreter_protocol: new kit.CodeInterpreterProtocol(http),
+        code_interpreter_protocol: {
+          async runCode() { throw new kit.errors.ProviderFeatureNotSupportedError("my-cloud", "code.execute"); },
+        },
       };
     },
   };

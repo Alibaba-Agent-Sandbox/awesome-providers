@@ -16,13 +16,13 @@ Three runtimes:
 | `exec` | `epp/1` | A process that speaks JSON-RPC on stdin/stdout, any language |
 | `node` | `node/1` | `provider.mjs`: an ES module the host loads, default export `create(kit)` |
 
-The CLI and every SDK run all three, because the Node.js CLI hosts the provider layer and SDKs reach it through the local engine. Manifest-installed Python plugins (`kind = "python"`) are gone. All four (`opensandbox`, `e2b`, `cubesandbox`, `alicloud-container`) are `node`. Install with `abx provider install registry:<id> --yes` or `python -m agent_sandbox.providers install registry:<id> --yes`.
+The CLI and Python ProviderSandbox consume these runtimes through the provider engine; other clients require their own explicit bridge. Manifest-installed Python plugins (`kind = "python"`) are gone. All four (`opensandbox`, `e2b`, `cubesandbox`, `alicloud-container`) are `node`. Install the Git tree with `abx provider install alibaba-agent-sandbox/awesome-providers//<id> --allow-unpinned --yes`, or use the Python registry installer: `python -m agent_sandbox.providers install registry:<id> --yes`.
 
 ## Id, features, secrets
 
 The id matches `^[a-z][a-z0-9]*(-[a-z0-9]+)*$`, length 2–40. Do not reuse `alicloud-express` or the catalog ids `opensandbox`, `cubesandbox`, `e2b`, `alicloud-container`. Do not start a new id with `abx-`, `alicloud-`, or `shortcuts`.
 
-`[features] supported` may contain only the 18 ids listed in [Create](en/create.md). Anything else is rejected at install. A call whose id is absent raises `E8004` before I/O.
+`[features] supported` may contain only the current non-interpreter feature ids listed in [Create](en/create.md). Anything else is rejected at install. A call whose id is absent raises `E8004` before I/O.
 
 Name the key `api_key`. The variable is `ABX_<ID>_API_KEY`. Leave `[core] inherit` empty unless the user asked to share `sandbox_api_key`, `sandbox_base_url`, or `sandbox_domain`. Never copy `ABX_SANDBOX_API_KEY` into the new provider.
 
@@ -61,3 +61,5 @@ python -m agent_sandbox.providers test my-cloud
 ```
 
 Pin a git install to a 40-hex commit. Write a README that matches the consent screen: command, features, security block, config fields. Put the provider's own notes under `<id>/docs/`.
+
+See [exact workflow operations](workflows.md) ([中文](workflows.zh-CN.md)).

@@ -48,7 +48,7 @@ python -m agent_sandbox.providers install ./opensandbox --yes
 | `use_server_proxy` | `OPEN_SANDBOX_USE_SERVER_PROXY` | `false` | 通过服务代理访问沙箱 |
 | `default_image` | | `python:3.12-slim` | 通用模板 `base` 使用的镜像 |
 | `image_aliases` | | `code=opensandbox/code-interpreter:v1.1.0` | `name=image,...` 形式的模板短名 |
-| `entrypoint` | | `tail -f /dev/null` | 调用方未设置入口时使用，让通用镜像保持运行。生成镜像若要在 9000 端口提供服务，设为 `python3 commands.py`。显式传入的值优先；除非覆盖，code-interpreter 镜像仍用自己的运行时脚本 |
+| `entrypoint` | | `tail -f /dev/null` | 显式的保活默认值。应用工作流通过 exec 启动声明的服务。不会根据镜像名选择运行时脚本；其他进程需要显式配置 |
 | `ready_timeout` | | `60` | 等待 Running 与 execd 就绪的秒数 |
 | `registry_username`、`registry_password`（机密） | | 无 | 私有镜像仓库认证 |
 | `network_policy` | | 无 | 应用于每个新沙箱的 JSON 网络策略 |
@@ -86,7 +86,7 @@ python -m agent_sandbox.providers install ./opensandbox --yes
 | `ports.url` | 支持 | `ports.url` 方法（直连端点，或配合 `use_server_proxy` 走服务代理） |
 | `sessions` | 支持 | 通过 `exec.start` 的 `detached` 扩展实现后台命令（目前尚无宿主适配器发送该参数） |
 | `pty` | 支持（Node 22+） | `pty.open` 创建 execd 终端（`POST /pty`）并桥接它的 WebSocket（`/pty/{id}/ws`）：输入是 `0x00` + 字节，`pty.output` 携带输出，`pty.exit` 结束。Node 20/21 没有全局 WebSocket，插件不会声明 `pty` |
-| `code.interpret`、`templates.*`、`files.watch`、传输 URL | 不支持 | `E8004`（`-32003`） |
+| `code.default-context.execute`、`templates.*`、`files.watch`、传输 URL | 不支持 | `E8004`（`-32003`） |
 
 ## 测试
 
@@ -131,5 +131,7 @@ tests/              unit/、mock/（进程内模拟服务）、live/、contract/
 The Node template manager supports `templates.build` for `abx template launch`: Docker builds and pushes the source and OpenSandbox consumes the returned image reference. The EPP template RPCs in the table remain unsupported. See [prerequisites and acceptance scope](docs/README.md).
 
 Node 模板管理器通过 `templates.build` 支持 `abx template launch`：Docker 构建并推送源码，OpenSandbox 使用返回的镜像引用。上表中的 EPP 模板 RPC 仍不支持。参见[前置条件与验收范围](docs/README.md)。
+
+流式启动必须收到 execd 原生 `init` 事件及其进程标识；缺少确认时直接失败，不会伪造标识或重放结果不确定的命令。
 
 execd 必须支持原生 `argv` 请求并保留输出字节；旧接口不受支持，命令失败不会切换协议重试。

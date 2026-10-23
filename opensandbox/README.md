@@ -51,7 +51,7 @@ under `[providers.opensandbox]`, or (where listed) with the OpenSandbox-native v
 | `use_server_proxy` | `OPEN_SANDBOX_USE_SERVER_PROXY` | `false` | Route sandbox traffic through the server proxy |
 | `default_image` | | `python:3.12-slim` | Image for the generic template `base` |
 | `image_aliases` | | `code=opensandbox/code-interpreter:v1.1.0` | `name=image,...` short template names |
-| `entrypoint` | | `tail -f /dev/null` | Used when the caller does not set one. Keeps a stock image alive. Set `python3 commands.py` for a generated image that serves port 9000. An explicit value wins; the code-interpreter image keeps its runtime script unless overridden |
+| `entrypoint` | | `tail -f /dev/null` | Explicit keepalive default. An application workflow starts its declared service through exec. Image names never select runtime scripts; a different process requires explicit configuration |
 | `ready_timeout` | | `60` | Seconds to wait for Running + execd |
 | `registry_username`, `registry_password` (secret) | | none | Private registry auth |
 | `network_policy` | | none | JSON NetworkPolicy for every new sandbox (overridable per create) |
@@ -90,7 +90,7 @@ Both hosts load this plugin. A method or command works only when its feature is 
 | `ports.url` | yes | `ports.url` method (direct endpoint, or the server proxy with `use_server_proxy`) |
 | `sessions` | yes | detached commands through the `detached` extension of `exec.start` (no host adapter sends it yet) |
 | `pty` | yes (Node 22+) | `pty.open` creates an execd terminal (`POST /pty`) and bridges its WebSocket (`/pty/{id}/ws`): input is `0x00` + bytes, `pty.output` carries the output, `pty.exit` ends it. On Node 20/21 there is no global WebSocket, so the plugin does not advertise `pty` |
-| `code.interpret`, EPP template RPCs, `files.watch`, transfer URLs | no | `E8004` (`-32003`) |
+| `code.default-context.execute`, EPP template RPCs, `files.watch`, transfer URLs | no | `E8004` (`-32003`) |
 
 ## Test
 
@@ -128,6 +128,7 @@ tests/              unit/, mock/ (in-process fake server), live/, contract/ (pyt
 * `secure=True` passed to `Sandbox.create` requests gateway "secure access" (Kubernetes gateway deployments only; a Docker server refuses it). `secure=False` and an omitted `secure` leave it off, or use the `secure_access` config field for a global default.
 * Per-create settings: `provider_options={"network_policy": ..., "platform": ..., "default_image": ...}` given to `Sandbox.create` override the configured values for that sandbox only (whitelist: `default_image`, `image_aliases`, `entrypoint`, `ready_timeout`, `registry_username`, `registry_password`, `network_policy`, `platform`, `secure_access`; never the server address or API key).
 * `commands.start()` is lazy for every provider (nothing is sent until the stream is iterated); run `nohup ... &` through `commands.run(..., shell=True)` to start a background process.
+* Streaming startup requires the native execd `init` event and its process identifier. Missing acknowledgment fails without fabricating an ID or replaying an uncertain command.
 * The execd backend must support native `argv` requests and preserve output bytes. Older execd interfaces are unsupported; command failures are returned without retrying another protocol.
 
 Licensed under Apache-2.0.

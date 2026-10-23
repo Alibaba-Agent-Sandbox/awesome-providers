@@ -2,7 +2,7 @@
 
 A provider is a directory: `abx-provider.toml`, plus the program that runtime needs. Do not put it in the SDK or CLI repository. A new backend is a new subdirectory here, plus one row in `index.json`.
 
-Pick a runtime first. All three install under `~/.abx/providers/<id>`. The CLI and every SDK run all of them, because the host that loads a provider is the Node.js CLI (SDKs reach it through the local engine).
+Pick a runtime first. All three install under `~/.abx/providers/<id>`. The CLI and Python ProviderSandbox consume them through the provider engine. Other clients need an explicit bridge; the Node.js server HTTP client does not manage providers.
 
 | Kind | What you write | When |
 |---|---|---|
@@ -41,6 +41,7 @@ Name the secret field `api_key`. The environment variable is derived from the id
 
 ```toml
 manifest_version = 1
+operation_contract_version = 1
 
 [provider]
 id = "my-cloud"
@@ -64,6 +65,14 @@ supported = [
   "exec.run",
   "files.rw",
 ]
+
+[operations]
+cli = ["sandbox.create", "sandbox.get", "sandbox.list", "sandbox.delete", "exec.run", "files.read", "files.write", "files.list", "files.stat", "files.remove", "files.move"]
+python = ["sandbox.create", "sandbox.get", "sandbox.list", "sandbox.delete", "exec.run", "files.read", "files.write", "files.list", "files.stat", "files.remove", "files.move"]
+
+[workflow]
+inputs = ["managed"]
+startups = ["exec", "none"]
 
 [security]
 network = ["api.example.com"]
@@ -108,7 +117,7 @@ call_timeout_ms = 60000
 
 `[security]` is text on the consent screen. The host does not sandbox the process from it. Write the network and files the plugin actually touches.
 
-## Only these 18 feature ids
+## Feature metadata
 
 An unknown id is rejected at install. A call whose id is absent raises `E8004` before any request.
 
@@ -123,7 +132,6 @@ pty                 get_terminal
 files.rw            read, write, list, move, remove
 files.watch         files.watch
 files.transfer      upload_url / download_url
-code.interpret      run_code
 templates.read      template list
 templates.build     template build
 ports.url           network.resolve_url
@@ -135,7 +143,7 @@ sessions            named commands on the in-sandbox server
 
 Declare a feature only when the backend implements that call. A declared feature that 404s is worse than `E8004`, because the caller thinks the request was sent.
 
-An API outside those 18 ids is not a feature id. Say so in the provider's README; the manifest has no place to declare it.
+Exact workflow operations are declared separately. See [the operation contract](../workflows.md); feature metadata cannot grant an interpreter implementation.
 
 ## Node entry
 
@@ -147,13 +155,18 @@ export default function create(kit) {
       const auth = ctx.headerKeyAuth(String(ctx.options.api_key), "X-API-Key");
       const http = ctx.http({ base_url, domain: "example.app", auth });
       return {
+        operation_contract_version: 1,
+        operations: { cli: ["sandbox.create", "sandbox.get", "sandbox.list", "sandbox.delete", "exec.run", "files.read", "files.write", "files.list", "files.stat", "files.remove", "files.move"], python: ["sandbox.create", "sandbox.get", "sandbox.list", "sandbox.delete", "exec.run", "files.read", "files.write", "files.list", "files.stat", "files.remove", "files.move"] },
+        workflow_inputs: ["managed"], startup_modes: ["exec", "none"],
         auth,
         http_client: http,
         endpoint: { base_url, domain: "example.app" },
         sandbox_protocol: new kit.SandboxProtocol(http),
         process_protocol: new kit.ProcessProtocol(http),
         filesystem_protocol: new kit.FilesystemProtocol(http),
-        code_interpreter_protocol: new kit.CodeInterpreterProtocol(http),
+        code_interpreter_protocol: {
+          async runCode() { throw new kit.errors.ProviderFeatureNotSupportedError("my-cloud", "code.execute"); },
+        },
       };
     },
   };

@@ -1,6 +1,6 @@
 // exec.* and process.* methods (execd `/command`).
 
-import { randomBytes, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { CODES, RpcError, badParams, failure, notFound, unsupported } from "./errors.mjs";
 import { exitFromErrorEvent } from "./convert.mjs";
 import { buildUpload } from "./multipart.mjs";
@@ -183,9 +183,12 @@ export const methods = {
       stream.release();
       throw err instanceof RpcError ? err : streamFailure(stream, signal);
     }
-    const processId = first.value?.type === "init" && first.value.text ? String(first.value.text) : randomBytes(16).toString("hex");
-    const head = first.value?.type === "init" ? [] : first.done ? [] : [first.value];
-    const done = first.done;
+    if (first.done || first.value?.type !== "init" || typeof first.value.text !== "string" || !first.value.text.trim()) {
+      try { await iterator.return?.(); } catch { /* Preserve the missing native acknowledgment. */ }
+      stream.release();
+      throw failure("execd did not acknowledge command startup with a native process identifier; do not replay an uncertain command.", { retryable: false });
+    }
+    const processId = first.value.text;
 
     ctx.afterResponse(() => {
       const task = (async () => {
@@ -205,8 +208,7 @@ export const methods = {
               }
             } else if (ev.type === "execution_complete" && exit === undefined) exit = 0;
           };
-          for (const ev of head) handle(ev);
-          if (!done) for (let n = await iterator.next(); !n.done; n = await iterator.next()) handle(n.value);
+          for (let n = await iterator.next(); !n.done; n = await iterator.next()) handle(n.value);
           if (detached) exit = await pumpDetached(ctx, id, processId, signal, ctx.notify);
         } catch (err) {
           const failed = err instanceof RpcError ? err : streamFailure(stream, signal);

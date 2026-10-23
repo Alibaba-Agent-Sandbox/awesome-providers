@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { OPERATION_CONTRACT_VERSION, OPERATIONS, WORKFLOW_INPUTS, STARTUP_MODES } from "./operations.mjs";
 import { projectManager } from "./src/project.mjs";
 // OpenSandbox provider for Agent Sandbox, in dependency-free Node ESM (Node >= 20).
 // As a `node` provider the host imports this module and calls the exported `create(kit)`; run as a script it serves
@@ -15,7 +16,7 @@ import { methods as fileMethods } from "./src/files.mjs";
 import { methods as ptyMethods, hasWebSocket } from "./src/pty.mjs";
 
 export const PROTOCOL = "epp/1";
-export const PLUGIN = { name: "opensandbox", version: "0.4.1" };
+export const PLUGIN = { name: "opensandbox", version: "0.5.0" };
 
 /** What this plugin implements; keep in sync with `[features] supported` in abx-provider.toml. */
 export const FEATURES = [
@@ -35,11 +36,11 @@ const advertised = () => (hasWebSocket() ? [...FEATURES, "pty"] : FEATURES);
 
 /** EPP methods of features OpenSandbox cannot provide: answered with -32003 (E8004 in the host). */
 const UNSUPPORTED = {
-  "code.run": "code.interpret",
-  "code.context.create": "code.interpret",
-  "code.context.list": "code.interpret",
-  "code.context.remove": "code.interpret",
-  "code.context.restart": "code.interpret",
+  "code.run": "code.execute",
+  "code.context.create": "code.context.create",
+  "code.context.list": "code.context.list",
+  "code.context.remove": "code.context.delete",
+  "code.context.restart": "code.context.restart",
   "templates.list": "templates.read",
   "templates.get": "templates.read",
   "templates.delete": "templates.build",
@@ -59,7 +60,7 @@ export function createPlugin({ log = () => {}, fetchImpl } = {}) {
       if (params.protocol !== PROTOCOL) throw badParams(`Unsupported protocol '${params.protocol}', this plugin speaks ${PROTOCOL}.`);
       session.cfg = parseConfig(params.config ?? {}, params.core ?? {});
       session.osb = new OsbClient(session.cfg, { fetchImpl, log });
-      return { protocol: PROTOCOL, plugin: PLUGIN, features: advertised() };
+      return { protocol: PROTOCOL, plugin: PLUGIN, features: advertised(), operation_contract_version: OPERATION_CONTRACT_VERSION, operations: OPERATIONS, workflow_inputs: WORKFLOW_INPUTS, startup_modes: STARTUP_MODES };
     }
     if (method === "shutdown") {
       for (const { ws } of state.ptys.values()) {

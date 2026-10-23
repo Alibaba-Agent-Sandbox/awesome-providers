@@ -2,7 +2,6 @@
 
 import { CODES, RpcError, badParams, failure } from "./errors.mjs";
 import {
-  CODE_INTERPRETER_ENTRYPOINT,
   DEFAULT_ENTRYPOINT,
   withCreateOptions,
 } from "./config.mjs";
@@ -10,7 +9,6 @@ import {
   EXECD_PORT,
   cpuLimit,
   gpuLimit,
-  isCodeInterpreterImage,
   mapState,
   memoryLimit,
   parseHttpDate,
@@ -21,23 +19,9 @@ import {
 } from "./convert.mjs";
 import { sleep } from "./http.mjs";
 
-function sameArgv(a, b) {
-  return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((part, i) => part === b[i]);
-}
-
-/**
- * Entrypoint for one create.
- *
- * An omitted entrypoint, and the manifest default the host delivers when the user did not
- * set one, are automatic: stock images stay up (`tail -f /dev/null`) so execd can serve
- * exec and files, and a code-interpreter image keeps its runtime script. Any other
- * command is used as given (`python3 commands.py` for a generated image).
- */
-export function selectEntrypoint(cfg, image) {
-  const configured = cfg.entrypoint;
-  const automatic = !configured || sameArgv(configured, DEFAULT_ENTRYPOINT);
-  if (automatic && isCodeInterpreterImage(image)) return [...CODE_INTERPRETER_ENTRYPOINT];
-  return configured?.length ? configured : [...DEFAULT_ENTRYPOINT];
+/** The lifecycle API requires an explicit process; never infer an image's runtime script. */
+export function selectEntrypoint(cfg, _image) {
+  return cfg.entrypoint?.length ? cfg.entrypoint : [...DEFAULT_ENTRYPOINT];
 }
 
 const need = (params, key) => {
@@ -228,7 +212,9 @@ export const methods = {
     const port = Number(params.port);
     if (!Number.isInteger(port) || port < 1 || port > 65535) throw badParams(`Invalid port '${params.port}'.`);
     const ep = await ctx.osb.endpoint(sandboxId(params), port, { force: true, signal: ctx.signal });
-    const result = { url: ep.url };
+    const result = { provider_id: "opensandbox", sandbox_id: sandboxId(params), port,
+      url: ep.url, headers: ep.headers, authentication_audience: "gateway", path_mode: ep.path_mode,
+      ...(ep.expires_at ? { expires_at: ep.expires_at } : {}) };
     if (Object.keys(ep.headers).length > 0) result.headers = ep.headers;
     return result;
   },

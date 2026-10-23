@@ -2,7 +2,7 @@
 
 提供方是一个沙箱后端。`Sandbox.create`（或 `abx create`）先选定提供方，再由它建立控制面和数据面。SDK 和 CLI 只把 `alicloud-express`（阿里云极速版）编译进去。其余提供方在本目录，安装之后才加载。
 
-提供方这一层只用 Node.js 写一次，由 TypeScript 的 CLI 承载。CLI 直接使用它；所有 SDK 通过本机引擎（`abx provider engine serve`，`127.0.0.1` 上的 HTTP + SSE + WebSocket）使用目录提供方。所以装一次，CLI、Python SDK，以及之后的 Node、Go、Java SDK 行为完全一致。宿主、四种类型和引擎的规格在 [Node 提供方架构](../../../cli/docs/zh/design/node-provider-architecture.md)。
+提供方这一层只用 Node.js 写一次，由 TypeScript 的 CLI 承载。CLI 直接使用它；Python ProviderSandbox 通过本机引擎（`abx provider engine serve`，`127.0.0.1` 上的 HTTP + SSE + WebSocket）调用目录提供方。每种语言桥接都须实现其声明的具体操作；Node.js 服务 HTTP 客户端属于独立接口，不管理云端提供方。宿主、四种类型和引擎的规格在 [Node 提供方架构](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/zh/design/node-provider-architecture.md)。
 
 ## 内置和目录
 

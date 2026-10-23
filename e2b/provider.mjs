@@ -1,3 +1,4 @@
+import { OPERATION_CONTRACT_VERSION, OPERATIONS, WORKFLOW_INPUTS, STARTUP_MODES } from "./operations.mjs";
 import { projectManager } from "./project.mjs";
 // E2B cloud sandboxes. A `node/1` plugin: the host passes the kit, this file only builds the protocol objects.
 
@@ -16,17 +17,44 @@ export default function create(kit) {
       const domain = String(ctx.options.domain || "e2b.app");
       const auth = ctx.headerKeyAuth(key, "X-API-Key");
       const http = ctx.http({ base_url, domain, auth });
+      const unsupportedCode = Object.fromEntries([
+        ["runCode", "code.execute"], ["createContext", "code.context.create"],
+        ["listContexts", "code.context.list"], ["restartContext", "code.context.restart"],
+        ["removeContext", "code.context.delete"],
+      ].map(([method, operation]) => [method, async () => {
+        throw new kit.errors.ProviderFeatureNotSupportedError("e2b", operation);
+      }]));
+      const inner = kit.e2b.resumeConnect(new kit.SandboxProtocol(http, { unknownIfAbsent: true }), [
+        "/v2/sandboxes/{id}/connect",
+        "/sandboxes/{id}/connect",
+      ]);
+      const sandbox = kit.e2b.overlay(inner, {
+        hasPortUrl: true,
+        portEndpoint: async (id, port) => {
+          const info = await inner.getInfo(id);
+          const headers = {};
+          if (info.envd_access_token) headers["X-Access-Token"] = info.envd_access_token;
+          return { provider_id: "e2b", sandbox_id: id, port,
+            url: `https://${port}-${id}.${info.reported_domain || domain}`, headers,
+            authentication_audience: "gateway", path_mode: "prefix" };
+        },
+        portUrl: async (id, port) => {
+          const endpoint = await sandbox.portEndpoint(id, port);
+          return [endpoint.url, endpoint.headers];
+        },
+      });
       return {
+        operation_contract_version: OPERATION_CONTRACT_VERSION,
+        operations: OPERATIONS,
+        workflow_inputs: WORKFLOW_INPUTS,
+        startup_modes: STARTUP_MODES,
         auth,
         http_client: http,
         endpoint: { base_url, domain },
-        sandbox_protocol: kit.e2b.resumeConnect(new kit.SandboxProtocol(http, { unknownIfAbsent: true }), [
-          "/v2/sandboxes/{id}/connect",
-          "/sandboxes/{id}/connect",
-        ]),
+        sandbox_protocol: sandbox,
         process_protocol: new kit.ProcessProtocol(http),
         filesystem_protocol: new kit.FilesystemProtocol(http),
-        code_interpreter_protocol: new kit.CodeInterpreterProtocol(http),
+        code_interpreter_protocol: unsupportedCode,
       };
     },
   };

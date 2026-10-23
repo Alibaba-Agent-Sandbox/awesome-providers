@@ -56,7 +56,7 @@ export class OsbClient {
       if (attempt > 0) await sleep(Math.min(200 * 2 ** (attempt - 1), 2000));
       const limit = deadline(signal, timeoutMs ?? this.cfg.httpTimeoutMs);
       try {
-        const response = await this.fetch(url, { ...init, signal: limit.signal });
+        const response = await this.fetch(url, { ...init, redirect: "error", signal: limit.signal });
         if (!response.ok) {
           const text = await response.text();
           const err = mapHttpError(response.status, text, { operation, what, feature });
@@ -127,7 +127,13 @@ export class OsbClient {
     if (!json || typeof json.endpoint !== "string") {
       throw new RpcError(CODES.FAIL, `OpenSandbox returned no endpoint for port ${port}.`);
     }
-    const resolved = { url: endpointUrl(json.endpoint, this.cfg.scheme).replace(/\/+$/, ""), headers: { ...(json.headers ?? {}) } };
+    const url = new URL(endpointUrl(json.endpoint, this.cfg.scheme));
+    if (url.username || url.password || !["http:", "https:"].includes(url.protocol)) {
+      throw new RpcError(CODES.FAIL, "OpenSandbox returned an invalid endpoint binding.");
+    }
+    const resolved = { url: url.toString(), headers: { ...(json.headers ?? {}) },
+      path_mode: json.path_mode === "operation-signed" ? "operation-signed" : "prefix",
+      ...(typeof json.expires_at === "string" ? { expires_at: json.expires_at } : {}) };
     if (cacheable) this.endpoints.set(sandboxId, resolved);
     return resolved;
   }
@@ -145,7 +151,10 @@ export class OsbClient {
     let refreshed = false;
     for (;;) {
       const ep = await this.endpoint(sandboxId, EXECD_PORT, { force: refreshed, signal });
-      const url = new URL(`${ep.url}${path}`);
+      if (ep.path_mode === "operation-signed") throw new RpcError(CODES.UNSUPPORTED ?? -32003, "Operation-signed endpoints need an operation-specific request adapter.");
+      if (!/^\/[A-Za-z0-9_/-]+$/.test(path) || path.includes("..") || path.includes("//")) throw new RpcError(CODES.FAIL, "Invalid execd operation path.");
+      const url = new URL(ep.url);
+      url.pathname = `${url.pathname.replace(/\/+$/, "")}${path}`;
       for (const [key, value] of query ?? []) url.searchParams.append(key, value);
       const init = { method, headers: { ...ep.headers, ...(extra ?? {}) } };
       if (body !== undefined) {
@@ -166,7 +175,7 @@ export class OsbClient {
         });
       } catch (err) {
         const connectionFailure = err instanceof RpcError && err.data?.retryable && err.httpStatus === undefined;
-        if (connectionFailure && !refreshed) {
+        if (connectionFailure && idempotent && !refreshed) {
           this.forget(sandboxId);
           refreshed = true;
           continue;

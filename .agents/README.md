@@ -44,6 +44,24 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 
 - [Compatibility cleanup remote acceptance](evidence/verify/2026-10-22-remove-legacy-acceptance.md)
 
+- [Explicit template workflows](notes/proposed/architecture/2026-10-23-explicit-template-workflows.md) · [verification](evidence/verify/2026-10-23-explicit-template-workflows.md)
+
+- [Project interpreter audit](evidence/verify/2026-10-23-provider-interpreter-audit.md).
+
 - [OpenSandbox maturity](notes/implemented/process/2026-10-23-opensandbox-maturity.md) · [verification](evidence/verify/2026-10-23-opensandbox-maturity.md)
 
 - [Current-host OpenSandbox native promotion receipt](evidence/verify/2026-10-23-opensandbox-native-promotion.md).
+
+- [Upstream maturity merge verification](evidence/verify/2026-10-23-upstream-maturity-merge.md).
+
+- [Actual project SDK fixture and final T4 pins](evidence/verify/2026-10-23-project-sdk-fixture-and-t4-pins.md).
+
+- [OpenSandbox YAML profile rerun](evidence/verify/2026-10-23-opensandbox-yaml-profile-rerun.md).
+
+- [Preserve primary live workflow failure](evidence/verify/2026-10-23-opensandbox-primary-failure-preservation.md).
+
+- [Base SDK YAML dependency rerun](evidence/verify/2026-10-23-opensandbox-base-sdk-yaml-rerun.md).
+
+- [Native process startup acknowledgment](evidence/verify/2026-10-23-native-process-startup-ack.md).
+
+- [OpenSandbox explicit workflow native acceptance](evidence/verify/2026-10-23-opensandbox-workflow-native-acceptance.md).

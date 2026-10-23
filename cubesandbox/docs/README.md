@@ -14,7 +14,7 @@ abx --provider cubesandbox --opt base_url=http://127.0.0.1:3000 create --templat
 ```
 
 ```python
-from agent_sandbox.api.sandbox import Sandbox
+from agent_sandbox import ProviderSandbox as Sandbox
 
 sb = await Sandbox.create(
     provider="cubesandbox",
@@ -49,7 +49,7 @@ sb = await Sandbox.create(
 | `exec.run`、`exec.stream` | envd `POST /process.Process/Start`，默认 `user=root`，带 5 字节 Connect 帧和 `Connect-Protocol-Version: 1`。`stdin` 为 false |
 | `files.rw` | envd 文件和目录方法，默认 `username=root` |
 | `files.watch` | envd `WatchDir` |
-| `code.interpret` | `http://49999-{id}.{domain}/execute`，正文 `code`、`language`、`env_vars`，响应按 ndjson 读 |
+| `code.default-context.execute` | `http://49999-{id}.{domain}/execute`，正文 `code`、`language`、`env_vars`，响应按 ndjson 读 |
 | `ports.url` | 本地算出 `{port}-{id}.{domain}` |
 
 没有 `envdAccessToken` 时不发 `X-Access-Token`，也不在发请求前抛 `TokenExpiredError`。
@@ -161,10 +161,16 @@ abx --provider cubesandbox template launch alibaba-agent-sandbox/awesome-templat
 
 Use a CLI source build containing `template launch` and `kit.project`. The node/1 `prepareProject` manager is guarded by `templates.build`. The exact returned native reference is handed to sandbox creation. Missing runtime capabilities fail before build. Normal sandbox operations remain unchanged.
 
-先配置 Docker 登录、可写 `ABX_CUBESANDBOX_IMAGE_REPOSITORY` 及原生运行时 `ABX_CUBESANDBOX_BUILD_BASE_IMAGE`。镜像需包含 Cube 启动、envd/Jupyter 等要求。API、私有镜像拉取认证分别使用此插件自己的字段。适配器构建/推送不可变镜像，用原生 CubeAPI 登记并轮询，再返回 ID；PTY 仍未声明。
+先配置 Docker 登录、可写 `ABX_CUBESANDBOX_IMAGE_REPOSITORY` 及显式提供原生运行时的构建文件或构建方案。镜像需包含 Cube 启动、envd/Jupyter 等要求。API、私有镜像拉取认证分别使用此插件自己的字段。适配器构建/推送不可变镜像，用原生 CubeAPI 登记并轮询，再返回 ID；PTY 仍未声明。
 
-Configure Docker login, a writable `ABX_CUBESANDBOX_IMAGE_REPOSITORY` and a compatible native `ABX_CUBESANDBOX_BUILD_BASE_IMAGE`, including Cube startup/envd/Jupyter requirements. API and private image pull credentials remain provider-scoped. The adapter builds/pushes an immutable image, registers it through native CubeAPI and waits for its exact job. PTY remains undeclared.
+Configure Docker login, a writable `ABX_CUBESANDBOX_IMAGE_REPOSITORY` and an explicitly selected build recipe/profile satisfying Cube startup/envd/Jupyter requirements. API and private image pull credentials remain provider-scoped. The adapter builds/pushes an immutable image, registers it through native CubeAPI and waits for its exact job. PTY remains undeclared.
 
 所有新路径保持 Beta；原生 E2B、Cube、集群验收仍按维护者要求暂缓。单元/回环/实际 SDK 测试不能当成云验收。临时目录会清理；成功沙箱、镜像和已登记模板不会自动删除，可能继续计费。准备超时可能遗留已提交产物，启动/就绪失败会尝试删除本次新建沙箱并报告清理状态。源码安装、引用契约及完整限制见[指南](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/zh/guide/template-launch.md)。
 
 All new paths remain Beta. Native E2B/Cube/cluster acceptance is explicitly deferred by the maintainer; unit/loopback/official SDK protocol tests are not cloud acceptance. Temporary staging is cleaned. Successful sandboxes, images and registered templates are retained and may incur cost. Preparation timeout may leave submitted artifacts; startup/readiness failure attempts cleanup of this invocation's new sandbox. See the [host guide](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/en/guide/template-launch.md) for installation, reference contracts and limits.
+
+## Explicit workflow contract / 显式工作流契约
+
+See [operation declarations](../../docs/workflows.md) ([中文](../../docs/workflows.zh-CN.md)). CLI and Python declare separate operations; Python does not prepare source. Preparation preserves the Dockerfile and requires a persistent ownership journal. Retained artifacts requiring manual cleanup are reported as residuals. Historical backend checks do not certify the new workflow path.
+
+参见精确操作声明。CLI 与 Python 分开声明；Python 不准备源码。准备阶段保留 Dockerfile 并持久记录资源意图，需人工清理的产物明确列为残留；旧后端记录不认证新工作流。

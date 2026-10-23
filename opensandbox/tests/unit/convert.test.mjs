@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   validateMetadata, mapState, statusToStates, cpuLimit, memoryLimit, gpuLimit, ttlSeconds, parseAliasMap,
-  shellSplit, shellQuote, shellJoin, resolveImage, isCodeInterpreterImage, endpointUrl, modeDigits, fileEntry,
+  shellSplit, shellQuote, shellJoin, resolveImage, endpointUrl, modeDigits, fileEntry,
   exitFromErrorEvent, parseHttpDate, basename,
 } from "../../src/convert.mjs";
 
@@ -67,9 +67,6 @@ test("template -> image", () => {
   assert.equal(resolveImage("code", cfg), "opensandbox/code-interpreter:v1.1.0");
   assert.equal(resolveImage("ubuntu:22.04", cfg), "ubuntu:22.04");
   assert.equal(resolveImage("toString", cfg), "toString");
-  assert.ok(isCodeInterpreterImage("opensandbox/code-interpreter:v1.1.0"));
-  assert.ok(isCodeInterpreterImage("registry.example.com/opensandbox/code-interpreter"));
-  assert.ok(!isCodeInterpreterImage("python:3.12"));
 });
 
 test("endpoint urls", () => {
