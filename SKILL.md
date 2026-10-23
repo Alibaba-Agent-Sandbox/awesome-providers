@@ -20,7 +20,7 @@ The CLI installs from the git tree; add `--ref <40-hex-commit>` to pin instead o
 
 Index: `https://registry.agent-sandbox.cn/providers/index.json`. Override with `ABX_PROVIDER_REGISTRY` (URL or a local `index.json` path). A background check writes `~/.abx/providers/updates.json`. It does not install. `ABX_PROVIDER_UPDATE_CHECK=0` skips it. The registry website is https://registry.agent-sandbox.com. The official site is https://www.agent-sandbox.com.
 
-All four providers are `node` (an ES module the host loads; `opensandbox` runs its EPP methods in process through `kit.epp.infra`). Both run from the CLI (`abx --provider e2b create`) and from every SDK (`Sandbox.create(provider="e2b")`); SDKs reach the plugin through the local engine, `abx provider engine serve`, which needs `abx` on `PATH` or `ABX_BIN`.
+All four providers are `node` (an ES module the host loads; `opensandbox` runs its EPP methods in process through `kit.epp.infra`). Both run from the CLI (`abx --provider e2b create`) and from the Python Provider API (`ProviderSandbox.create(provider="e2b")`); Python reaches the plugin through the local engine, `abx provider engine serve`, which needs `abx` on `PATH` or `ABX_BIN`.
 
 ## Write a new provider
 

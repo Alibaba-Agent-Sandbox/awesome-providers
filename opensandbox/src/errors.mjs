@@ -31,7 +31,7 @@ export const failure = (message, data = {}) => new RpcError(CODES.FAIL, message,
 export function unsupported(feature, message) {
   return new RpcError(
     CODES.NO_FEATURE,
-    message ?? `OpenSandbox does not support '${feature}'.`,
+    message ?? `The OpenSandbox project adapter does not implement '${feature}'.`,
     { feature, details: { feature } },
   );
 }
@@ -104,9 +104,9 @@ export function mapHttpError(status, rawBody, ctx = {}) {
     });
   }
   if (lower.includes("runtime server not configured")) {
-    return make(CODES.NO_FEATURE, `${base}. The sandbox image has no code-interpreter runtime.`, {
-      feature: "code.interpret",
-      details: { feature: "code.interpret" },
+    return make(CODES.FAIL, `${base}. The execution environment reports an unconfigured runtime.`, {
+      sdk_code: "E3000", reason: "runtime-missing",
+      details: { reason: "runtime-missing", owner: "environment" },
     });
   }
   if (status === 501 || upper.includes("NOT_SUPPORTED")) {

@@ -50,3 +50,15 @@ test("all plugin manifests and runtime declarations use identical operation list
     assert.deepEqual(JSON.parse(manifest.split("\n").find(value => value.startsWith("startups = ")).split(" = ")[1]), STARTUP_MODES);
   }
 });
+
+test("E2B does not expose guessed Connect interpreter RPCs", async () => {
+  const { default: createE2b } = await import("../e2b/provider.mjs");
+  const calls = [];
+  const fixtureKit = kit(calls);
+  fixtureKit.CodeInterpreterProtocol = class { constructor() { throw new Error("guessed protocol must never be constructed"); } };
+  const infra = await createE2b(fixtureKit).buildInfra({ options: { api_key: "fixture" }, headerKeyAuth: () => ({}), http: () => ({}) });
+  assert.ok(!infra.operations.cli.some(operation => operation.startsWith("code.")));
+  assert.ok(!infra.operations.python.some(operation => operation.startsWith("code.")));
+  await assert.rejects(infra.code_interpreter_protocol.runCode("id", "https://envd.invalid", null, { code: "raise Exception()" }), Unsupported);
+  assert.equal(calls.length, 0);
+});

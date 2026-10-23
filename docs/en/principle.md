@@ -2,7 +2,7 @@
 
 A provider is a sandbox backend. `Sandbox.create` (or `abx create`) picks one, then that provider builds the control plane and the data plane. The SDK and the CLI compile in only `alicloud-express` (Alibaba Cloud Express Edition). Everything else lives in this catalog and is loaded after install.
 
-The provider layer is written once, in Node.js, and hosted by the TypeScript CLI. The CLI uses it directly. Every SDK reaches a catalog provider through the local engine (`abx provider engine serve`, HTTP + SSE + WebSocket on `127.0.0.1`). So a provider installed once works from the CLI, the Python SDK, and later the Node, Go and Java SDKs, with the same behavior. The host, the four kinds, and the engine are specified in [Node provider architecture](../../../cli/docs/en/design/node-provider-architecture.md).
+The provider layer is written once, in Node.js, and hosted by the TypeScript CLI. The CLI uses it directly. Python ProviderSandbox reaches catalog providers through the local engine (`abx provider engine serve`, HTTP + SSE + WebSocket on `127.0.0.1`). Each language bridge must implement its declared operations. The Node.js server HTTP client is a separate interface and does not manage cloud providers. The host, the four kinds, and the engine are specified in [Node provider architecture](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/en/design/node-provider-architecture.md).
 
 ## Built-in and catalog
 

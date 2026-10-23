@@ -7,11 +7,11 @@
 | 提供方 | CLI 代码操作 | Python 代码操作 | 源码准备 |
 | --- | --- | --- | --- |
 | OpenSandbox | 尚未适配 | 尚未适配 | 保留 Dockerfile 构建推送，返回 OCI 镜像 |
-| E2B | 无状态执行、持久默认上下文、显式上下文创建/执行/列表/重启/删除 | 通过明确 engine 路由提供相同操作 | 官方 Template SDK 注册 |
+| E2B | 尚未适配 | 尚未适配 | 官方 Template SDK 注册 |
 | CubeSandbox | 仅持久默认上下文执行 | 相同缓冲操作 | 镜像与原生 Cube 注册 |
 | 阿里云容器版 | 仅持久默认上下文执行 | 相同缓冲操作 | 镜像与自有 SandboxSet 注册 |
 
-`code.execute` 必须无状态，E2B 通过创建、执行和删除隔离上下文实现。持久默认上下文显式选择 `code.default-context.execute`。Cube/容器版 POST `/execute` 不宣称无状态。不支持时在发送 payload 前拒绝 context 参数和实时流回调；缓冲响应不能承诺 `code.stream`，HTTP404 不能降级 shell。
+`code.execute` 必须提供无状态执行。已删除的猜测 Connect RPC 不构成实现；Express、REST 预设与此 E2B adapter 均不声明项目解释器操作。持久默认上下文显式选择 `code.default-context.execute`。Cube/容器版 POST `/execute` 不宣称无状态。不支持时在发送 payload 前拒绝 context 参数和实时流回调；缓冲响应不能承诺 `code.stream`，HTTP404 不能降级 shell。
 
 Python Provider 只消费显式准备的镜像或托管引用，不声明 `template.prepare`。E2B/Cube/容器版不能把 OCI 镜像当原生模板 ID。OpenSandbox 支持镜像，但不宣称执行镜像原生 ENTRYPOINT；平台 API 要求显式进程，可见 keepalive 默认是 `tail -f /dev/null`。解释器脚本必须显式配置，不根据镜像名推断。
 

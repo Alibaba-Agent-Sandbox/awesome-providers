@@ -48,7 +48,7 @@ python -m agent_sandbox.providers install ./opensandbox --yes
 | `use_server_proxy` | `OPEN_SANDBOX_USE_SERVER_PROXY` | `false` | 通过服务代理访问沙箱 |
 | `default_image` | | `python:3.12-slim` | 通用模板 `base` 使用的镜像 |
 | `image_aliases` | | `code=opensandbox/code-interpreter:v1.1.0` | `name=image,...` 形式的模板短名 |
-| `entrypoint` | | `tail -f /dev/null` | 调用方未设置入口时使用，让通用镜像保持运行。生成镜像若要在 9000 端口提供服务，设为 `python3 commands.py`。显式传入的值优先；除非覆盖，code-interpreter 镜像仍用自己的运行时脚本 |
+| `entrypoint` | | `tail -f /dev/null` | 显式的保活默认值。应用工作流通过 exec 启动声明的服务。不会根据镜像名选择运行时脚本；其他进程需要显式配置 |
 | `ready_timeout` | | `60` | 等待 Running 与 execd 就绪的秒数 |
 | `registry_username`、`registry_password`（机密） | | 无 | 私有镜像仓库认证 |
 | `network_policy` | | 无 | 应用于每个新沙箱的 JSON 网络策略 |

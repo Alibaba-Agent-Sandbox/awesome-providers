@@ -16,7 +16,7 @@ abx --provider alicloud-container create --template code-interpreter
 ```
 
 ```python
-from agent_sandbox.api.sandbox import Sandbox
+from agent_sandbox import ProviderSandbox as Sandbox
 
 sb = await Sandbox.create(
     provider="alicloud-container",

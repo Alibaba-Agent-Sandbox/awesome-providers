@@ -17,6 +17,13 @@ export default function create(kit) {
       const domain = String(ctx.options.domain || "e2b.app");
       const auth = ctx.headerKeyAuth(key, "X-API-Key");
       const http = ctx.http({ base_url, domain, auth });
+      const unsupportedCode = Object.fromEntries([
+        ["runCode", "code.execute"], ["createContext", "code.context.create"],
+        ["listContexts", "code.context.list"], ["restartContext", "code.context.restart"],
+        ["removeContext", "code.context.delete"],
+      ].map(([method, operation]) => [method, async () => {
+        throw new kit.errors.ProviderFeatureNotSupportedError("e2b", operation);
+      }]));
       return {
         operation_contract_version: OPERATION_CONTRACT_VERSION,
         operations: OPERATIONS,
@@ -31,7 +38,7 @@ export default function create(kit) {
         ]),
         process_protocol: new kit.ProcessProtocol(http),
         filesystem_protocol: new kit.FilesystemProtocol(http),
-        code_interpreter_protocol: new kit.CodeInterpreterProtocol(http),
+        code_interpreter_protocol: unsupportedCode,
       };
     },
   };

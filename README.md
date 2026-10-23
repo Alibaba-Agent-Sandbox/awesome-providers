@@ -43,9 +43,9 @@ Each directory is one provider: `abx-provider.toml`, the plugin code, and
 EPP/1 methods in the host process (`kit.epp.infra`); `node provider.mjs` still serves EPP/1
 over stdio. `e2b`, `cubesandbox` and `alicloud-container` are
 `runtime.kind = "node"` (`provider.mjs`, an ES module the host loads). The
-providers are written once in Node.js. The CLI runs them directly and every SDK
+providers are written once in Node.js. The CLI runs them directly and the Python Provider API
 reaches them through the local engine (`abx provider engine serve`), so all four
-work from `abx --provider <id>` and from `Sandbox.create(provider="<id>")`.
+work from `abx --provider <id>` and from `ProviderSandbox.create(provider="<id>")`.
 
 | Directory | Docs |
 |---|---|

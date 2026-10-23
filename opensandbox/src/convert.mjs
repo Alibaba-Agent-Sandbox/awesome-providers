@@ -153,9 +153,6 @@ export function resolveImage(template, cfg) {
   return name;
 }
 
-export function isCodeInterpreterImage(uri) {
-  return /(^|\/)opensandbox\/code-interpreter(:|@|$)/.test(uri);
-}
 
 /** `Endpoint.endpoint` has no scheme ("host:port[/path]"). */
 export function endpointUrl(endpoint, scheme) {

@@ -26,7 +26,7 @@ try {
   assert.match(id, /^[a-zA-Z0-9-]+$/);
   assert.equal(result.workflow_id, "application"); assert.equal(result.build_profile, "portable");
   assert.match(result.source_digest, /^(?:sha256:)?[a-f0-9]{64}$/);
-  assert.match(result.template_reference, /^localhost:5000\/abx-project/);
+  assert.match(result.template_reference, /^localhost:5000\/abx-project@sha256:[a-f0-9]{64}$/);
   const response = JSON.parse(await invoke(["--provider", "opensandbox", "--json", "run", id, "hello", "--arg", "name=OpenSandbox"]));
   assert.ok(JSON.stringify(response).includes("Hello, OpenSandbox!"));
   // Both Python consumers use the exact prepared artifact, not Python source preparation.

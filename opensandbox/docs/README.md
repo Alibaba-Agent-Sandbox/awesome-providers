@@ -14,7 +14,7 @@ abx --provider opensandbox create
 ```
 
 ```python
-from agent_sandbox.api.sandbox import Sandbox
+from agent_sandbox import ProviderSandbox as Sandbox
 
 sb = await Sandbox.create(provider="opensandbox", template="base", timeout=300)
 print((await sb.commands.run("echo ok", timeout=30)).stdout)
@@ -54,7 +54,7 @@ await sb.kill()
 
 `files.watch`、`files.transfer`、`templates.read`、`ports.domain`、`storage.mount`、`network.vpc`、`code.default-context.execute`。
 
-`POST /code` 只有带 Jupyter 的 code-interpreter 镜像才有。默认的 `python:3.12-slim` 没有，所以代码解释器不声明。已声明的 `sessions` 指后台命令扩展；`POST /session` 那种有状态 shell 也没接。
+当前项目 adapter 没有接入原生解释器协议，因此所有 `code.*` 均不声明；这不等于平台或镜像没有解释器。已声明的 `sessions` 指后台命令扩展；`POST /session` 那种有状态 shell 也没接。
 
 ## 实测
 
@@ -97,9 +97,9 @@ abx --provider opensandbox template launch alibaba-agent-sandbox/awesome-templat
 
 Use a CLI source build containing `template launch` and `kit.project`. The node/1 `prepareProject` manager is guarded by `templates.build`. The exact returned native reference is handed to sandbox creation. Missing runtime capabilities fail before build. Normal sandbox operations remain unchanged.
 
-先配置 Docker 登录、可写 `ABX_OPENSANDBOX_IMAGE_REPOSITORY` 及服务连接；有占位符时设置 `ABX_OPENSANDBOX_BUILD_BASE_IMAGE`。此路径直接返回已推送的镜像，不创建或伪造模板 ID。当前 `code.default-context.execute` 未声明，要求该能力的模板仍被拒绝；自建仅需 shell/files/ports 的目录可走新入口。EPP 的模板 RPC 仍不支持；项目准备是 node/1 管理器能力。
+先配置 Docker 登录、可写 `ABX_OPENSANDBOX_IMAGE_REPOSITORY` 及服务连接；选择源码内显式提供的构建方案（如 python-hello 的 `--build-profile portable`），不会改写 FROM 占位符。此路径直接返回已推送的镜像，不创建或伪造模板 ID。当前未接入解释器的工作流会被拒绝；HTTP 命令服务工作流只要求其实际使用的 exec、ports 与应用协议。EPP 的模板 RPC 仍不支持；项目准备是 node/1 管理器能力。
 
-Configure Docker login, a writable `ABX_OPENSANDBOX_IMAGE_REPOSITORY` and the server; set `ABX_OPENSANDBOX_BUILD_BASE_IMAGE` for unresolved placeholders. The adapter returns the pushed image directly, never a fabricated template ID. `code.default-context.execute` remains undeclared, so templates requiring it are rejected. A project requiring only supported shell/files/ports can use the new flow. EPP template RPCs remain unsupported; preparation is a node/1 manager operation.
+Configure Docker login, a writable `ABX_OPENSANDBOX_IMAGE_REPOSITORY` and the server; explicitly select a reviewed source build profile (such as python-hello `--build-profile portable`); FROM placeholders are never rewritten. The adapter returns the pushed image directly, never a fabricated template ID. Interpreter workflows are not adapted. HTTP command-service workflows require only their selected exec, ports and application protocol operations. EPP template RPCs remain unsupported; preparation is a node/1 manager operation.
 
 所有新路径保持 Beta；原生 E2B、Cube、集群验收仍按维护者要求暂缓。单元/回环/实际 SDK 测试不能当成云验收。临时目录会清理；成功沙箱、镜像和已登记模板不会自动删除，可能继续计费。准备超时可能遗留已提交产物，启动/就绪失败会尝试删除本次新建沙箱并报告清理状态。源码安装、引用契约及完整限制见[指南](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/zh/guide/template-launch.md)。
 

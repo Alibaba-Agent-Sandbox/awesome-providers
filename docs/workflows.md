@@ -7,11 +7,11 @@ Every plugin declares `operation_contract_version = 1`, `[operations] cli/python
 | Provider | CLI code operations | Python code operations | Source preparation |
 | --- | --- | --- | --- |
 | OpenSandbox | Not adapted | Not adapted | Explicit Dockerfile build/push; OCI image reference |
-| E2B | Stateless execute, persistent default and explicit context create/execute/list/restart/delete | Same operations through explicit engine routes | Official Template SDK registration |
+| E2B | Not adapted | Not adapted | Official Template SDK registration |
 | CubeSandbox | Persistent default-context execute only | Same buffered operation | OCI image plus native Cube registration |
 | Alibaba Cloud Container | Persistent default-context execute only | Same buffered operation | OCI image plus owned SandboxSet registration |
 
-`code.execute` is stateless. E2B implements it by creating, executing and deleting an isolated context; persistent default execution explicitly selects `code.default-context.execute`. Cube/container POST `/execute` is not claimed as stateless. Context parameters and callbacks for real-time streaming are refused before sending a payload where unsupported. No adapter promises `code.stream` from a buffered response, and no HTTP404 falls back to shell execution.
+`code.execute` requires stateless execution. The removed guessed Connect RPC was not an implementation: Express, REST presets and this E2B adapter declare no project interpreter operations. Persistent default execution explicitly selects `code.default-context.execute`. Cube/container POST `/execute` is not claimed as stateless. Context parameters and callbacks for real-time streaming are refused before sending a payload where unsupported. No adapter promises `code.stream` from a buffered response, and no HTTP404 falls back to shell execution.
 
 Python Provider consumes an explicitly prepared image or managed reference; it does not claim `template.prepare`. E2B/Cube/container do not accept raw image IDs as native managed template IDs. OpenSandbox accepts images but does not claim native image ENTRYPOINT startup. Its lifecycle API requires an explicit process: the visible keepalive default is `tail -f /dev/null`; custom interpreter scripts require explicit configuration and are never inferred from an image name.
 
