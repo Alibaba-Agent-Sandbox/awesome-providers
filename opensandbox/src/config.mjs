@@ -9,7 +9,8 @@ export const DEFAULT_ALIASES = { code: "opensandbox/code-interpreter:v1.1.0" };
 /**
  * Long-running command present on stock images. OpenSandbox requires an entrypoint and
  * the container exits when that process exits, which takes execd with it.
- * Generated images that serve port 9000 set `entrypoint` to `python3 commands.py`.
+ * Application workflows start their declared service explicitly through exec; image names
+ * never select a runtime script or silently change this process.
  */
 export const DEFAULT_ENTRYPOINT = ["tail", "-f", "/dev/null"];
 
