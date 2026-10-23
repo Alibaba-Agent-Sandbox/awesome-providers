@@ -4,7 +4,7 @@
       "id": "opensandbox",
       "version": "0.5.0",
       "url": "opensandbox",
-      "maturity": "beta"
+      "maturity": "stable"
     },
     {
       "id": "alicloud-container",

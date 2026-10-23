@@ -37,6 +37,10 @@ test("handshake: protocol, features, config validation", async () => {
   assert.equal(bad.code, -32006);
   const init = await host.initialize({});
   assert.equal(init.protocol, "epp/1");
+  const { readFileSync } = await import("node:fs");
+  const manifest = readFileSync(new URL("../../abx-provider.toml", import.meta.url), "utf8");
+  const version = /^version\s*=\s*"([^"]+)"/m.exec(manifest)[1];
+  assert.equal(init.plugin.version, version, "Handshake identity must match the installed manifest");
   assert.ok(init.features.includes("sandbox.lifecycle"));
   assert.ok(!init.features.includes("code.interpret"));
   assert.equal(init.features.includes("pty"), typeof WebSocket === "function");

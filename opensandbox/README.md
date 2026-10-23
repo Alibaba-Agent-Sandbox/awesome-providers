@@ -1,6 +1,6 @@
 # opensandbox provider plugin
 
-**Status: Beta.** Formal acceptance is pending. Declared capabilities do not imply live-backend end-to-end verification. Only Alibaba Cloud Express is currently Stable; scoped test results do not automatically promote this provider.
+Accepted scope: Docker backend with OpenSandbox server 1.1.1 and digest-pinned release-1.1.1 execd, including CLI, Python SDK, project build/launch and cleanup. Kubernetes, network policies, secure access and code interpreter are outside this acceptance. See [provider acceptance](../docs/acceptance.md).
 
 [简体中文](README.zh-CN.md)
 
@@ -134,6 +134,6 @@ Licensed under Apache-2.0.
 
 ## Project source preparation / 项目源码准备
 
-The Node template manager supports `templates.build` for `abx template launch`: Docker builds and pushes the source and OpenSandbox consumes the returned image reference. The EPP template RPCs in the table remain unsupported. See [prerequisites and Beta limits](docs/README.md).
+The Node template manager supports `templates.build` for `abx template launch`: Docker builds and pushes the source and OpenSandbox consumes the returned image reference. The EPP template RPCs in the table remain unsupported. See [prerequisites and acceptance scope](docs/README.md).
 
-Node 模板管理器通过 `templates.build` 支持 `abx template launch`：Docker 构建并推送源码，OpenSandbox 使用返回的镜像引用。上表中的 EPP 模板 RPC 仍不支持。参见[前置条件与 Beta 范围](docs/README.md)。
+Node 模板管理器通过 `templates.build` 支持 `abx template launch`：Docker 构建并推送源码，OpenSandbox 使用返回的镜像引用。上表中的 EPP 模板 RPC 仍不支持。参见[前置条件与验收范围](docs/README.md)。

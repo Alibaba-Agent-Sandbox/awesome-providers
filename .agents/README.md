@@ -47,3 +47,9 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [Explicit template workflows](notes/proposed/architecture/2026-10-23-explicit-template-workflows.md) · [verification](evidence/verify/2026-10-23-explicit-template-workflows.md)
 
 - [Project interpreter audit](evidence/verify/2026-10-23-provider-interpreter-audit.md).
+
+- [OpenSandbox maturity](notes/implemented/process/2026-10-23-opensandbox-maturity.md) · [verification](evidence/verify/2026-10-23-opensandbox-maturity.md)
+
+- [Current-host OpenSandbox native promotion receipt](evidence/verify/2026-10-23-opensandbox-native-promotion.md).
+
+- [Upstream maturity merge verification](evidence/verify/2026-10-23-upstream-maturity-merge.md).
