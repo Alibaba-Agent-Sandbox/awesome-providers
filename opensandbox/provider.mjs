@@ -16,7 +16,7 @@ import { methods as fileMethods } from "./src/files.mjs";
 import { methods as ptyMethods, hasWebSocket } from "./src/pty.mjs";
 
 export const PROTOCOL = "epp/1";
-export const PLUGIN = { name: "opensandbox", version: "0.5.0" };
+export const PLUGIN = { name: "opensandbox", version: "0.5.1" };
 
 /** What this plugin implements; keep in sync with `[features] supported` in abx-provider.toml. */
 export const FEATURES = [

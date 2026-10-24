@@ -2,7 +2,7 @@
 
 **状态：Beta。** 本提供方暂未完成正式版验收。已声明的能力不等于已通过真实后端端到端测试；其他提供方的验收范围见[验收说明](../../docs/acceptance.md)。局部测试结果不会自动升级此状态。
 
-目录提供方，id 是 `e2b`，类型 `node`（`provider.mjs`，由宿主进程加载）。它用宿主内置的 E2B 协议类打 E2B 公开 API。CLI 和所有 SDK 都能用：CLI 直接运行，SDK 经由本机引擎（`abx provider engine serve`）。
+目录提供方，id 是 `e2b`，类型 `node`（`provider.mjs`，由宿主进程加载）。它用宿主内置的 E2B 协议类打 E2B 公开 API。CLI 和 Python ProviderSandbox 可用：CLI 直接运行，Python 经由本机引擎（`abx provider engine serve`）。
 
 总说明：[工作原理](../../docs/zh/principle.md) · [安装](../../docs/zh/install.md)
 
@@ -10,7 +10,7 @@
 
 ```bash
 export ABX_E2B_API_KEY=REPLACE_ME
-abx provider install alibaba-agent-sandbox/awesome-providers//e2b --allow-unpinned --yes   # 或 Python：python -m agent_sandbox.providers install registry:e2b --yes（索引上线后）
+abx provider install alibaba-agent-sandbox/awesome-providers//e2b --allow-unpinned --yes   # 或 Python：python -m agent_sandbox.providers install registry:e2b --yes
 abx --provider e2b create --template base
 ```
 
@@ -94,7 +94,7 @@ E2B_TEMPLATE_SDK_MODULE=file:///absolute/path/to/e2b/dist/index.mjs node tests/r
 
 ## English
 
-Catalog provider, id `e2b`, kind `node` (`provider.mjs`, loaded by the host). It uses the host's E2B protocol classes against the public E2B API and runs from the CLI and from every SDK (through the local engine, `abx provider engine serve`).
+Catalog provider, id `e2b`, kind `node` (`provider.mjs`, loaded by the host). It uses the host's E2B protocol classes against the public E2B API and runs from the CLI and from Python ProviderSandbox (through the local engine, `abx provider engine serve`).
 
 ```bash
 export ABX_E2B_API_KEY=REPLACE_ME

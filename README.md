@@ -36,7 +36,7 @@ abx provider install alibaba-agent-sandbox/awesome-providers//cubesandbox --allo
 abx provider install alibaba-agent-sandbox/awesome-providers//alicloud-container --allow-unpinned --yes
 ```
 
-The CLI installs from the git tree. `--allow-unpinned` is needed without a terminal because `main` moves; add `--ref <40-hex-commit>` to pin. `registry:<id>` is a Python installer form (`python -m agent_sandbox.providers install registry:<id> --yes`) and needs the index above, which is not published yet; the `abx` CLI does not implement `registry:`.
+The CLI installs from the git tree. `--allow-unpinned` is needed without a terminal because `main` moves; add `--ref <40-hex-commit>` to pin. `registry:<id>` is a Python installer form (`python -m agent_sandbox.providers install registry:<id> --yes`) and needs the index above; the `abx` CLI does not implement `registry:`.
 
 Each directory is one provider: `abx-provider.toml`, the plugin code, and
 `docs/README.md`. All four are `runtime.kind = "node"`. `opensandbox` exports `create(kit)` and runs its

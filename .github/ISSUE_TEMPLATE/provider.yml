@@ -15,6 +15,7 @@ body:
     attributes:
       label: Kind
       options:
+        - node
         - exec
         - rest
     validations:

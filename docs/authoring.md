@@ -6,7 +6,7 @@ An agent should load [SKILL.md](../SKILL.md) instead of this page.
 
 ## What you are adding
 
-A provider plugin is a directory with `abx-provider.toml`. The SDK and the CLI ship only `alicloud-express`. This catalog holds everything else. Publish one directory per provider and add a row to `index.json`.
+A provider plugin is a directory with `abx-provider.toml`. The SDK and the CLI ship only `alicloud-express`. This catalog holds everything else. Publish one directory per provider and add a row to `awesome-providers.yaml` and keep the source `index.json` consistent. The Registry currently reads `index.json` to select package directories; the same index supports local Python installation.
 
 Three runtimes:
 

@@ -2,14 +2,14 @@
 
 **状态：Beta。** 本提供方暂未完成正式版验收。已声明的能力不等于已通过真实后端端到端测试；其他提供方的验收范围见[验收说明](../../docs/acceptance.md)。局部测试结果不会自动升级此状态。
 
-目录提供方，id 是 `cubesandbox`，类型 `node`（`provider.mjs`，由宿主进程加载）。CLI 和所有 SDK 都能用：CLI 直接运行，SDK 经由本机引擎（`abx provider engine serve`）。
+目录提供方，id 是 `cubesandbox`，类型 `node`（`provider.mjs`，由宿主进程加载）。CLI 和 Python ProviderSandbox 可用：CLI 直接运行，Python 经由本机引擎（`abx provider engine serve`）。
 
 总说明：[工作原理](../../docs/zh/principle.md) · [安装](../../docs/zh/install.md) · [审查里还没跑到的项](../../docs/zh/catalog.md)
 
 ## 安装和调用
 
 ```bash
-abx provider install alibaba-agent-sandbox/awesome-providers//cubesandbox --allow-unpinned --yes   # 或 Python：python -m agent_sandbox.providers install registry:cubesandbox --yes（索引上线后）
+abx provider install alibaba-agent-sandbox/awesome-providers//cubesandbox --allow-unpinned --yes   # 或 Python：python -m agent_sandbox.providers install registry:cubesandbox --yes
 abx --provider cubesandbox --opt base_url=http://127.0.0.1:3000 create --template base
 ```
 
@@ -66,7 +66,7 @@ OpenAPI 里还有卷、网络策略、分发范围，适配器不调用，清单
 
 ## English
 
-Catalog provider, id `cubesandbox`, kind `node` (`provider.mjs`, loaded by the host). It runs from the CLI and from every SDK (through the local engine, `abx provider engine serve`).
+Catalog provider, id `cubesandbox`, kind `node` (`provider.mjs`, loaded by the host). It runs from the CLI and from Python ProviderSandbox (through the local engine, `abx provider engine serve`).
 
 ```bash
 abx provider install alibaba-agent-sandbox/awesome-providers//cubesandbox --allow-unpinned --yes   # or, Python only once the index is live: python -m agent_sandbox.providers install registry:cubesandbox --yes

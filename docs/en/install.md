@@ -13,7 +13,7 @@ abx provider install alibaba-agent-sandbox/awesome-providers//alicloud-container
 
 `--allow-unpinned` is required without a terminal because `main` moves; pass `--ref <40-hex-commit>` instead to pin.
 
-The Python installer can do the same from the index: `python -m agent_sandbox.providers install registry:<id> --yes` reads the index, turns that row into a local directory, then runs a normal install. Only the Python installer has the `registry:` form (`abx` does not), and the public index is not published yet, so use the git form above or a local index (below). Both write the same directory; the plugin runs the same way afterwards.
+The Python installer can do the same from the index: `python -m agent_sandbox.providers install registry:<id> --yes` reads the index, turns that row into a local directory, then runs a normal install. Only the Python installer has the `registry:` form (`abx` does not), use the public index, the git form above, or a local index (below). Both write the same directory; the plugin runs the same way afterwards.
 
 The default index is `https://registry.agent-sandbox.cn/providers/index.json`. The registry website is <https://registry.agent-sandbox.com>. The official site is <https://www.agent-sandbox.com>. To point the installer elsewhere:
 

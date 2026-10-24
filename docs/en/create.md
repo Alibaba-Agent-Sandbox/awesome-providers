@@ -1,6 +1,6 @@
 # Create a provider
 
-A provider is a directory: `abx-provider.toml`, plus the program that runtime needs. Do not put it in the SDK or CLI repository. A new backend is a new subdirectory here, plus one row in `index.json`.
+A provider is a directory: `abx-provider.toml`, plus the program that runtime needs. Do not put it in the SDK or CLI repository. A new backend is a new subdirectory here, plus one row in `awesome-providers.yaml`.
 
 Pick a runtime first. All three install under `~/.abx/providers/<id>`. The CLI and Python ProviderSandbox consume them through the provider engine. Other clients need an explicit bridge; the Node.js server HTTP client does not manage providers.
 
@@ -179,7 +179,7 @@ An `exec` process receives configuration in `initialize`. It must not read the p
 
 ## Add it to the index
 
-Add one object under `providers` in `index.json`:
+Add the provider to the source catalog `awesome-providers.yaml` using its documented schema. Keep the source `index.json` consistent too: the Registry currently reads this index to select provider directories and generates a separate public download index with archives and hashes. The source index also supports local Python installation:
 
 ```json
 { "id": "my-cloud", "version": "0.1.0", "url": "my-cloud" }

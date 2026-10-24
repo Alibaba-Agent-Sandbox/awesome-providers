@@ -45,7 +45,7 @@ Sandbox.create({ template, timeout, envs, metadata, ... })
       都用这个 id。没声明的能力返回 E8004，对应方法不会发出。
 ```
 
-Python 的 `Sandbox.create(template="base", provider="my-cloud")` 从第 2 步开始，用的是同一个已安装目录。
+Python 的 `ProviderSandbox.create(template="base", provider="my-cloud")`（`from agent_sandbox import ProviderSandbox`） 从第 2 步开始，用的是同一个已安装目录。
 
 下面两条不会进入你的插件：
 
@@ -98,12 +98,12 @@ abx exec my-cloud:<id> "echo hello"
 ## 加入本目录
 
 1. 目录名等于 `[provider].id`。
-2. 在 [`awesome-providers.yaml`](../awesome-providers.yaml) 增加一条：`name`、`path`、`description`、`kind`、`license`、`status`。
+2. 在 [`awesome-providers.yaml`](../awesome-providers.yaml) 增加一条：`name`、`path`、`description`、`kind`、`license`、`status`。 同时更新源 `index.json`；Registry 当前通过它选择打包目录，本地 Python 安装也使用它。
 3. README 写明哪些 CLI 命令和 SDK 方法可用，哪些返回 E8004，哪些只是部分可用。
 4. 提交 pull request。从目录安装：`abx provider install alibaba-agent-sandbox/awesome-providers//my-cloud`。
 
 ## 给 AI
 
-改插件之前，把 [`SKILL.md`](../SKILL.md)（`name: agent-sandbox-provider`）装进编码工具。它和本页是同一套规则，只是写成 agent 会加载的形式：代码放哪、create 的调用链、方法名、以及要跑的检查。
+改插件之前，把 [`SKILL.md`](../SKILL.md)（`name: awesome-providers`）装进编码工具。它和本页是同一套规则，只是写成 agent 会加载的形式：代码放哪、create 的调用链、方法名、以及要跑的检查。
 
 See [exact workflow operations](workflows.md) ([中文](workflows.zh-CN.md)).
