@@ -70,3 +70,5 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [Release lifecycle and onboarding](notes/proposed/feature/2026-10-23-release-readiness.md) · [verification](evidence/verify/2026-10-23-release-readiness.md)
 
 - [Release integration on current main](evidence/verify/2026-10-24-release-integration.md).
+
+- [Release remote Docker acceptance](evidence/verify/2026-10-24-release-remote-acceptance.md).
