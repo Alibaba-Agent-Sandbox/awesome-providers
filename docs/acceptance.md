@@ -1,5 +1,13 @@
 # Provider acceptance / 提供方验收
 
+The 2026-10-24 [three-consumer OpenSandbox check](../.agents/evidence/verify/2026-10-24-opensandbox-proxy-consumers-pass.md) covers default/direct, explicit portable/direct and default/server-proxy `python-hello` launches, with CLI/Python calls, independent Node HTTP calls through the proxy and cleanup. It used source-built candidates, not public npm/PyPI installation. The separate [public 92-case template matrix](https://github.com/Alibaba-Agent-Sandbox/awesome-templates/blob/78c30fbbd186cb59c3a0f0abd9fdf85b10c84b35/.agents/evidence/verify/2026-10-24-public-template-matrix.md) used CLI 0.4.16, host Python 0.3.1a5 and fixed provider/template checkouts on Express and default direct OpenSandbox. Neither result certifies real-model tasks, PTY, every cloud backend or the project unified interpreter.
+
+2026-10-24 [OpenSandbox 三客户端测试](../.agents/evidence/verify/2026-10-24-opensandbox-proxy-consumers-pass.md)覆盖 `python-hello` 默认直连、显式 portable 直连及默认 server-proxy 启动，含 CLI/Python 调用、独立 Node HTTP 代理调用与清理；它使用源码构建的候选工具，不是公开包安装测试。另一次[公开 92 组模板矩阵](https://github.com/Alibaba-Agent-Sandbox/awesome-templates/blob/78c30fbbd186cb59c3a0f0abd9fdf85b10c84b35/.agents/evidence/verify/2026-10-24-public-template-matrix.md)使用 CLI 0.4.16、宿主 Python 0.3.1a5 和固定 provider/模板 checkout，覆盖极速版及默认直连 OpenSandbox。两者均不认证真实模型任务、PTY、所有云后端或项目统一解释器。
+
+For new installations, use published CLI 0.4.17 and preview Python client 0.3.1a5; see the [CLI release](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/releases/tag/v0.4.17) and [Python release](https://github.com/Alibaba-Agent-Sandbox/python-sdk/releases/tag/v0.3.1a5). The plugin compatibility floor remains CLI 0.4.16 / SDK 0.3.1a4; the latter was not published to PyPI, so install a5. Historical receipts retain their tested versions.
+
+新安装使用已发布 CLI 0.4.17 与 Python client 0.3.1a5 预览版，见上方发布链接。插件兼容下限仍为 CLI 0.4.16 / SDK 0.3.1a4，但 a4 未发布到 PyPI，应安装 a5；历史收据保留原始测试版本。
+
 | Provider | Stage / 状态 | Scope / 范围 |
 | --- | --- | --- |
 | Alibaba Cloud Express / 阿里云极速版 | Stable / 正式版 | Accepted host/cloud scope; see linked evidence and known limits. / 已验收范围及已知限制见下方证据。 |
