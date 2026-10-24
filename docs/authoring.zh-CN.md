@@ -98,7 +98,7 @@ abx exec my-cloud:<id> "echo hello"
 ## 加入本目录
 
 1. 目录名等于 `[provider].id`。
-2. 在 [`awesome-providers.yaml`](../awesome-providers.yaml) 增加一条：`name`、`path`、`description`、`kind`、`license`、`status`。
+2. 在 [`awesome-providers.yaml`](../awesome-providers.yaml) 增加一条：`name`、`path`、`description`、`kind`、`license`、`status`。 同时更新源 `index.json`；Registry 当前通过它选择打包目录，本地 Python 安装也使用它。
 3. README 写明哪些 CLI 命令和 SDK 方法可用，哪些返回 E8004，哪些只是部分可用。
 4. 提交 pull request。从目录安装：`abx provider install alibaba-agent-sandbox/awesome-providers//my-cloud`。
 

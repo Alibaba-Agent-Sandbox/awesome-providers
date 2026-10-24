@@ -26,7 +26,7 @@ The independent Node.js SDK currently exposes `ServerClient` for in-sandbox HTTP
 
 ## Write a new provider
 
-New id, new directory, one row in the source catalog `awesome-providers.yaml`. Keep the local Python installer fixture `index.json` consistent; the Registry generates its public index and archives from source. Do not reuse `alicloud-express`, `opensandbox`, `cubesandbox`, `e2b`, or `alicloud-container`.
+New id, new directory, one row in the source catalog `awesome-providers.yaml`. Keep the source `index.json` consistent: the Registry currently reads it to select provider directories and generate its public download index and archives; it also supports local Python installer tests. Do not reuse `alicloud-express`, `opensandbox`, `cubesandbox`, `e2b`, or `alicloud-container`.
 
 | Kind | Write | Hosts |
 |---|---|---|

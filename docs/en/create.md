@@ -179,7 +179,7 @@ An `exec` process receives configuration in `initialize`. It must not read the p
 
 ## Add it to the index
 
-Add the provider to the source catalog `awesome-providers.yaml` using its documented schema. The Registry ingests that catalog and generates the public download index. Also keep the local Python installer fixture `index.json` consistent:
+Add the provider to the source catalog `awesome-providers.yaml` using its documented schema. Keep the source `index.json` consistent too: the Registry currently reads this index to select provider directories and generates a separate public download index with archives and hashes. The source index also supports local Python installation:
 
 ```json
 { "id": "my-cloud", "version": "0.1.0", "url": "my-cloud" }

@@ -68,3 +68,5 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 
 - [Workflow review host verification](notes/proposed/process/2026-10-23-workflow-review-host-verification.md) · [local verification](evidence/verify/2026-10-23-workflow-review-host-local.md).
 - [Release lifecycle and onboarding](notes/proposed/feature/2026-10-23-release-readiness.md) · [verification](evidence/verify/2026-10-23-release-readiness.md)
+
+- [Release integration on current main](evidence/verify/2026-10-24-release-integration.md).

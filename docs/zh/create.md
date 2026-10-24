@@ -179,7 +179,7 @@ export default function create(kit) {
 
 ## 放进目录索引
 
-按源目录 `awesome-providers.yaml` 的 schema 添加提供方；Registry 读取该目录并生成公开下载索引。同时维护本地 Python 安装器示例 `index.json`：
+按源目录 `awesome-providers.yaml` 的 schema 添加提供方；同时维护源索引 `index.json`：Registry 当前读取该索引选择提供方目录，并生成包含归档和摘要的独立公开下载索引。源索引也用于本地 Python 安装：
 
 ```json
 { "id": "my-cloud", "version": "0.1.0", "url": "my-cloud" }
