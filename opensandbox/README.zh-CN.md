@@ -4,7 +4,7 @@
 
 [English](README.md)
 
-一个 [EPP/1](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/docs/zh/design/providers-and-credentials.md) **exec 提供方**插件，让 Agent Sandbox 在
+一个 [EPP/1](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/docs/zh/design/providers-and-credentials.md) **Node 提供方**插件，让 Agent Sandbox 在
 [OpenSandbox](https://github.com/opensandbox-group/OpenSandbox) 服务（Docker 或 Kubernetes 运行时）上创建沙箱。
 Python SDK（`Sandbox.create(provider="opensandbox")`）与 `abx` CLI（`abx --provider opensandbox ...`）均可直接使用。
 
@@ -13,10 +13,11 @@ Python SDK（`Sandbox.create(provider="opensandbox")`）与 `abx` CLI（`abx --p
 
 * 运行时：**Node.js >= 20，无 npm 依赖**（使用内置 `fetch`；终端需要 Node 22+ 的全局 `WebSocket`）。选择 Node 是因为 `abx` CLI 本身基于 Node，
   使用 CLI 的用户已具备 Node；仅使用 Python SDK 时需要 `node` 在 `PATH` 中。
-* 设计与 API 映射：[`provider-opensandbox-mapping.md`](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/docs/en/design/provider-opensandbox-mapping.md)（仅英文）。
-* 产出本插件的编写体验评估：[`provider-authoring-evaluation.md`](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/docs/zh/design/provider-authoring-evaluation.md)。
+* 设计与 API 映射：[`provider-opensandbox-mapping.md`](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/docs/en/design/provider-opensandbox-mapping.md)（仅英文）。
+* 产出本插件的编写体验评估：[`provider-authoring-evaluation.md`](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/docs/zh/design/provider-authoring-evaluation.md)。
 
 ## 安装
+此 provider 提交需要 CLI 0.4.16+、Python SDK 0.3.1a4+，以准备源码并正确认证经过 server proxy 的模板应用。
 
 ```bash
 abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox@<40位提交哈希> --yes
@@ -64,12 +65,14 @@ python -m agent_sandbox.providers install ./opensandbox --yes
 | 你要做的事 | CLI | SDK | 本提供商 |
 |---|---|---|---|
 | 创建、列出、查看、销毁、按 id 再次连接 | `create`、`list`、`info`、`kill`、`connect` | `Sandbox.create/connect/list/kill` | 支持（`sandbox.lifecycle`、`sessions`） |
-| 执行命令，包括流式输出 | `exec`、`run`、`sandbox shell-stream` | `commands.run`、`commands.stream` | 支持 |
+| 执行进程，包括流式输出 | `exec`、`sandbox shell-stream` | `commands.run`、`commands.stream` | 支持 |
+| 调用模板命令 | `run` | application client 的 `commands.run` | 需要模板应用服务 |
 | 文件、上传、下载 | `upload`、`download`、`sandbox files` | `files.*` | 支持 |
 | 修改超时、暂停、恢复 | `sandbox timeout/pause/resume` | `set_timeout`、`pause`、`resume` | 支持 |
 | 端口的公网 URL | `sandbox url` | `network.get_url` | 支持 |
 | 进程列出、发信号、终止 | `sandbox process` | `commands.list/kill` | 部分：stdin 返回 E8004；execd 命令 id 只能 SIGKILL |
-| PTY、`run_code`、模板、文件监听、签名 URL、域名、OSS、VPC | 对应命令 | `get_terminal`、`run_code`、模板构建 | 不支持（E8004） |
+| 交互终端 | 无独立 PTY 命令（`connect` 是逐行 REPL） | `get_terminal` | provider 引擎运行 Node 22+ 时可用 |
+| `run_code`、EPP 模板 RPC、文件监听、签名 URL、域名、OSS、VPC | 对应命令 | `run_code`、EPP 模板 RPC | 当前适配器未接入（E8004） |
 
 创建时的 `template` 是容器镜像。`base` 表示 `default_image`（未修改时是 `python:3.12-slim`）。
 
@@ -95,7 +98,7 @@ node tests/run.mjs                      # 24 个单元测试 + 21 个模拟服�
 ```
 
 联机测试需要可访问的 OpenSandbox 服务。一键本地启动在 SDK 的测试工具里
-（[e2e/opensandbox](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/e2e/opensandbox/README.md)）：
+（[e2e/opensandbox](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/e2e/opensandbox/README.md)）：
 它负责启动服务并安装本插件，不是插件的第二份源码。
 
 ```bash

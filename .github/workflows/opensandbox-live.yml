@@ -19,7 +19,7 @@ jobs:
   live:
     name: OpenSandbox Docker + CLI + Python SDK (T4)
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
     env:
       OSB_WORKDIR: /tmp/abx-opensandbox-ci
       OSB_WITH_EGRESS: '0'
@@ -29,6 +29,7 @@ jobs:
       OPENSANDBOX_API_KEY: local-dev-key
       OPENSANDBOX_LIVE: '1'
       ABX_WORKFLOW_TEMPLATE_SOURCE: /tmp/abx-templates/python-hello
+      ABX_WORKFLOW_NODE_CLIENT: file:///tmp/abx-node/dist/index.js
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -40,15 +41,19 @@ jobs:
       - name: Fetch reviewed host sources
         run: |
           git clone https://github.com/Alibaba-Agent-Sandbox/agent-sandbox.git /tmp/abx-cli
-          git -C /tmp/abx-cli checkout 7958f13d72a02995a21e1d18b7883fb2777da514
+          git -C /tmp/abx-cli checkout 80c45cd2594d0fc997badfd31246d60ffa434de5
           git clone https://github.com/Alibaba-Agent-Sandbox/awesome-templates.git /tmp/abx-templates
-          git -C /tmp/abx-templates checkout 4235f53a8d8c74e504f0441d985ab26243889b4f
+          git -C /tmp/abx-templates checkout 295aff8f45f710eadf46d164b7ce4150b2c914ec
           git clone https://github.com/Alibaba-Agent-Sandbox/python-sdk.git /tmp/abx-python
-          git -C /tmp/abx-python checkout 3aa5e5ae6bd9c843f62c6689e549437f460b382d
+          git -C /tmp/abx-python checkout 588d126af9310ee5536ea631856b092b84c6ce6b
+          git clone https://github.com/Alibaba-Agent-Sandbox/nodejs-sdk.git /tmp/abx-node
+          git -C /tmp/abx-node checkout 344d297df816063b6580d7f2bb34180111ad9a54
       - name: Install locked CLI and matching SDK packages
         run: |
           npm ci --prefix /tmp/abx-cli
           npm run build --prefix /tmp/abx-cli
+          npm ci --prefix /tmp/abx-node
+          npm run build --prefix /tmp/abx-node
           python -m pip install -e /tmp/abx-python/server-sdk -e /tmp/abx-python/client-sdk pytest pytest-asyncio
           echo "ABX_BIN=/tmp/abx-cli/bin/abx" >> "$GITHUB_ENV"
           mkdir -p /tmp/abx-cli/bin
@@ -77,7 +82,9 @@ jobs:
       - name: Run native project build, registry push and automatic launch
         run: |
           docker run -d --name abx-project-registry -p 5000:5000 registry:2.8.3
-          node opensandbox/tests/project-launch.mjs
+          ABX_WORKFLOW_PROXY_PROBE=1 node opensandbox/tests/project-launch.mjs
+          ABX_WORKFLOW_BUILD_PROFILE=portable node opensandbox/tests/project-launch.mjs
+          ABX_OPENSANDBOX_USE_SERVER_PROXY=true ABX_WORKFLOW_PROXY_PROBE=1 node opensandbox/tests/project-launch.mjs
       - name: Cleanup and verify no sandbox containers remain
         if: always()
         run: |

@@ -1,0 +1,30 @@
+{
+  "run_url": "https://github.com/Alibaba-Agent-Sandbox/awesome-providers/actions/runs/40110372103",
+  "provider_ref": "65d8e5a9c130f424c05a662fe430b0eb04793c0e",
+  "cli_ref": "80c45cd2594d0fc997badfd31246d60ffa434de5",
+  "sdk_ref": "588d126af9310ee5536ea631856b092b84c6ce6b",
+  "node_sdk_ref": "344d297df816063b6580d7f2bb34180111ad9a54",
+  "templates_ref": "295aff8f45f710eadf46d164b7ce4150b2c914ec",
+  "result": "PASS",
+  "probe_statuses": [
+    {
+      "direct_bearer": 200,
+      "proxy_bearer": 401,
+      "proxy_access_token": 200
+    },
+    {
+      "direct_bearer": 200,
+      "proxy_bearer": 401,
+      "proxy_access_token": 200
+    }
+  ],
+  "static_success_markers": {
+    "PASS independent Node ServerClient named command through server proxy": 2,
+    "PASS CLI application HTTP named command": 3,
+    "PASS exact python-hello source/profile build -> OpenSandbox create/start/protocol -> CLI and Python application HTTP -> Python prepared-image workflow + owned cleanup": 3,
+    "Explicit endpoint mode: server proxy": 1,
+    "Explicit endpoint mode: default direct": 2
+  },
+  "cleanup_step": "success",
+  "scope": "python-hello default/direct, portable/direct and default/server-proxy; source-installed candidates and local provider; Node source client, no Node npm release claim"
+}

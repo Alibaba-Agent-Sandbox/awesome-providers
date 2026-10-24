@@ -72,3 +72,17 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [Release integration on current main](evidence/verify/2026-10-24-release-integration.md).
 
 - [Release remote Docker acceptance](evidence/verify/2026-10-24-release-remote-acceptance.md).
+
+- [Simplify template usage](notes/proposed/process/2026-10-24-template-usage-simplification.md) · [verification](evidence/verify/2026-10-24-template-usage-simplification.md)
+
+- [OpenSandbox default and portable live acceptance](evidence/verify/2026-10-24-opensandbox-default-and-portable.md).
+
+- [OpenSandbox final compatible-host acceptance](evidence/verify/2026-10-24-opensandbox-final-host-acceptance.md).
+
+- [OpenSandbox public endpoint authentication probe](evidence/verify/2026-10-24-opensandbox-proxy-auth-probe.md).
+
+- [Observed direct/proxy application authentication](evidence/verify/2026-10-24-opensandbox-auth-header-observation.md).
+
+- [OpenSandbox proxy consumer follow-up](evidence/verify/2026-10-24-opensandbox-proxy-consumer-follow-up.md).
+
+- [Three-consumer proxy acceptance](evidence/verify/2026-10-24-opensandbox-proxy-consumers-pass.md).

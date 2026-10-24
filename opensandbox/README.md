@@ -4,7 +4,7 @@ Accepted scope: Docker backend with OpenSandbox server 1.1.1 and digest-pinned r
 
 [简体中文](README.zh-CN.md)
 
-An [EPP/1](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/docs/en/design/providers-and-credentials.md) **exec provider** that runs Agent
+An [EPP/1](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/docs/en/design/providers-and-credentials.md) **Node provider** that runs Agent
 Sandbox sandboxes on an [OpenSandbox](https://github.com/opensandbox-group/OpenSandbox) server
 (Docker or Kubernetes runtime). It works unchanged from the Python SDK (`Sandbox.create(provider="opensandbox")`)
 and from the `abx` CLI (`abx --provider opensandbox ...`).
@@ -14,10 +14,11 @@ This directory is the canonical plugin. It lives in
 
 * Runtime: **Node.js >= 20, no npm dependencies** (built-in `fetch`; the terminal needs the global `WebSocket` of Node 22+). Chosen because the `abx` CLI is a
   Node program, so every `abx` user already has Node; the Python SDK needs `node` on `PATH` to use it.
-* Design and API mapping: [`provider-opensandbox-mapping.md`](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/docs/en/design/provider-opensandbox-mapping.md).
-* Authoring review that produced this plugin: [`provider-authoring-evaluation.md`](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/docs/en/design/provider-authoring-evaluation.md).
+* Design and API mapping: [`provider-opensandbox-mapping.md`](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/docs/en/design/provider-opensandbox-mapping.md).
+* Authoring review that produced this plugin: [`provider-authoring-evaluation.md`](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/docs/en/design/provider-authoring-evaluation.md).
 
 ## Install
+This provider revision requires CLI 0.4.16+ and Python SDK 0.3.1a4+ for source preparation and authenticated template applications through the server proxy.
 
 ```bash
 abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox@<40-hex-commit> --yes
@@ -68,12 +69,14 @@ Both hosts load this plugin. A method or command works only when its feature is 
 | You want | CLI | SDK | This provider |
 |---|---|---|---|
 | Create, list, info, kill, connect again by id | `create`, `list`, `info`, `kill`, `connect` | `Sandbox.create/connect/list/kill` | yes (`sandbox.lifecycle`, `sessions`) |
-| Run a command, including streamed output | `exec`, `run`, `sandbox shell-stream` | `commands.run`, `commands.stream` | yes |
+| Run a process, including streamed output | `exec`, `sandbox shell-stream` | `commands.run`, `commands.stream` | yes |
+| Call a template command | `run` | application client `commands.run` | requires the template application service |
 | Files, upload, download | `upload`, `download`, `sandbox files` | `files.*` | yes |
 | Change TTL, pause, resume | `sandbox timeout/pause/resume` | `set_timeout`, `pause`, `resume` | yes |
 | Public URL of a port | `sandbox url` | `network.get_url` | yes |
 | Process list, signal, kill | `sandbox process` | `commands.list/kill` | partial: stdin is E8004; an execd command id accepts only SIGKILL |
-| PTY, `run_code`, EPP template RPCs, file watch, signed URLs, domains, OSS, VPC | those commands | `get_terminal`, `run_code`, EPP template RPCs | no (E8004) |
+| Interactive terminal | no standalone PTY command (`connect` is a line REPL) | `get_terminal` | yes when the provider engine runs Node 22+ |
+| `run_code`, EPP template RPCs, file watch, signed URLs, domains, OSS, VPC | those commands | `run_code`, EPP template RPCs | not implemented by this adapter (E8004) |
 
 `template` on create is a container image. `base` means `default_image` (`python:3.12-slim` unless you change it).
 
@@ -99,7 +102,7 @@ node tests/run.mjs                      # 24 unit + 21 mock-server tests, no ser
 ```
 
 Live tiers need a reachable OpenSandbox server. The one-command local setup is the SDK
-harness ([e2e/opensandbox](https://github.com/alibaba-agent-sandbox/agent-sandbox/blob/main/python-sdk/e2e/opensandbox/README.md));
+harness ([e2e/opensandbox](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/e2e/opensandbox/README.md));
 that harness starts the server and installs this plugin, it is not a second copy of it.
 
 ```bash

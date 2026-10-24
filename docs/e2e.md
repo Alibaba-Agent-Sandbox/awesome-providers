@@ -34,8 +34,7 @@ The `OpenSandbox live integration` workflow runs T4 on a disposable Ubuntu Docke
 Do not pair a released server with a moving nightly `latest` execd. Newer execd generations may require a newer control-plane initialization protocol. Upgrade the tested pair deliberately and rerun T4; a changed upstream tag is not verification.
 
 After a host workflow correction, update the immutable reviewed CLI revision and
-rerun this complete T4 scope. The source path must select its declared portable
-profile explicitly. Application protocol discovery and the selected identity's
+rerun this complete T4 scope. The source path must exercise the default recipe through the public CLI. An explicitly selected portable profile is a separate test. Application protocol discovery and the selected identity's
 endpoint permission must succeed before invocation. Keep the independent Python
 prepared-image path and owned cleanup checks; an older host pass cannot certify
 the corrected consumer.
