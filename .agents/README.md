@@ -84,3 +84,5 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [Observed direct/proxy application authentication](evidence/verify/2026-10-24-opensandbox-auth-header-observation.md).
 
 - [OpenSandbox proxy consumer follow-up](evidence/verify/2026-10-24-opensandbox-proxy-consumer-follow-up.md).
+
+- [Three-consumer proxy acceptance](evidence/verify/2026-10-24-opensandbox-proxy-consumers-pass.md).
