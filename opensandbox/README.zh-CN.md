@@ -70,11 +70,10 @@ python -m agent_sandbox.providers install ./opensandbox --yes
 | 执行进程，包括流式输出 | `exec`（无独立流式命令） | `commands.run`、`commands.stream` | 支持 |
 | 调用模板命令 | `run` | application client 的 `commands.run` | 需要模板应用服务 |
 | 文件、上传、下载 | `upload`、`download`、`sandbox files` | `files.*` | 支持 |
-| 修改超时、暂停、恢复 | `sandbox pause`、`sandbox resume`（通过 SDK 修改超时） | `set_timeout`、`pause`、`resume` | 支持 |
+| 修改超时、暂停、恢复 | 此提供方通过 SDK 调用 | `set_timeout`、`pause`、`resume` | 支持 |
 | 端口访问地址与认证头 | 无独立 URL 命令 | `await network.resolve(port)` | 支持 |
 | 进程列出、发信号、终止 | `sandbox process` | `commands.list/kill` | 部分：stdin 返回 E8004；execd 命令 id 只能 SIGKILL |
 | 交互终端 | 无独立 PTY 命令（`connect` 是逐行 REPL） | `get_terminal` | provider 引擎运行 Node 22+ 时可用 |
-| `run_code`、EPP 模板 RPC、文件监听、签名 URL、域名、OSS、VPC | 对应命令 | `run_code`、EPP 模板 RPC | 当前适配器未接入（E8004） |
 
 创建时的 `template` 是容器镜像。`base` 表示 `default_image`（未修改时是 `python:3.12-slim`）。
 

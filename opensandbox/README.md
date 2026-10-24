@@ -74,11 +74,10 @@ Both hosts load this plugin. A method or command works only when its feature is 
 | Run a process, including streamed output | `exec` (no standalone streaming command) | `commands.run`, `commands.stream` | yes |
 | Call a template command | `run` | application client `commands.run` | requires the template application service |
 | Files, upload, download | `upload`, `download`, `sandbox files` | `files.*` | yes |
-| Change TTL, pause, resume | `sandbox pause`, `sandbox resume` (TTL changes through SDK) | `set_timeout`, `pause`, `resume` | yes |
+| Change TTL, pause, resume | Use the SDK for this provider | `set_timeout`, `pause`, `resume` | yes |
 | Port endpoint and access headers | no standalone URL command | `await network.resolve(port)` | yes |
 | Process list, signal, kill | `sandbox process` | `commands.list/kill` | partial: stdin is E8004; an execd command id accepts only SIGKILL |
 | Interactive terminal | no standalone PTY command (`connect` is a line REPL) | `get_terminal` | yes when the provider engine runs Node 22+ |
-| `run_code`, EPP template RPCs, file watch, signed URLs, domains, OSS, VPC | those commands | `run_code`, EPP template RPCs | not implemented by this adapter (E8004) |
 
 `template` on create is a container image. `base` means `default_image` (`python:3.12-slim` unless you change it).
 
