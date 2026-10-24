@@ -96,4 +96,4 @@ asyncio.run(main())
 
 各家要的环境变量写在该目录的 `docs/README.md`。没装就 `ProviderNotFoundError`，提示里会建议安装命令。
 
-任何类型安装之后，CLI 和 SDK 都能用：`abx --provider my-cloud create --template base`。Python SDK 需要时会启动本机引擎（`abx provider engine serve`），所以 SDK 调用 `node` 或 `exec` 提供方时，`abx` 要在 `PATH` 里（或用 `ABX_BIN` 指定）。
+任何类型安装之后，CLI 和 SDK 都能用：`abx --provider my-cloud create --template base`。Python SDK 需要时会启动本机引擎（`abx provider engine serve`），所以 SDK 调用 `node` 提供方时，`abx` 要在 `PATH` 里（或用 `ABX_BIN` 指定）。`exec` 提供方由 Python 宿主直接运行清单中的命令，不经过该 Node 引擎。
