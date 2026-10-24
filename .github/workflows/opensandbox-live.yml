@@ -40,11 +40,11 @@ jobs:
       - name: Fetch reviewed host sources
         run: |
           git clone https://github.com/Alibaba-Agent-Sandbox/agent-sandbox.git /tmp/abx-cli
-          git -C /tmp/abx-cli checkout 33c4e890d8017c6c89bb8e105a1f8432537ac3d0
+          git -C /tmp/abx-cli checkout 25e22d8f5c38bb0b7636ba699511da4f4695ec48
           git clone https://github.com/Alibaba-Agent-Sandbox/awesome-templates.git /tmp/abx-templates
-          git -C /tmp/abx-templates checkout cd1de48216b933da95785412b9e49c75ad9a0676
+          git -C /tmp/abx-templates checkout 295aff8f45f710eadf46d164b7ce4150b2c914ec
           git clone https://github.com/Alibaba-Agent-Sandbox/python-sdk.git /tmp/abx-python
-          git -C /tmp/abx-python checkout b2b9757be40df340bc8275386f5c23dbb55fa955
+          git -C /tmp/abx-python checkout 6398c6fdd777ff6c8ae9c7b2acb4cc52d457a633
       - name: Install locked CLI and matching SDK packages
         run: |
           npm ci --prefix /tmp/abx-cli
@@ -77,7 +77,7 @@ jobs:
       - name: Run native project build, registry push and automatic launch
         run: |
           docker run -d --name abx-project-registry -p 5000:5000 registry:2.8.3
-          node opensandbox/tests/project-launch.mjs
+          ABX_WORKFLOW_PROXY_PROBE=1 node opensandbox/tests/project-launch.mjs
           ABX_WORKFLOW_BUILD_PROFILE=portable node opensandbox/tests/project-launch.mjs
       - name: Cleanup and verify no sandbox containers remain
         if: always()

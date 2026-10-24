@@ -34,6 +34,51 @@ try {
   const response = JSON.parse(await invoke(["--provider", "opensandbox", "--json", "run", id, "hello", "--arg", "name=OpenSandbox"]));
   assert.ok(JSON.stringify(response).includes("Hello, OpenSandbox!"));
   console.log("PASS CLI application HTTP named command");
+  if (process.env.ABX_WORKFLOW_PROXY_PROBE === "1") {
+    // Resolve through the public lifecycle API; never discover a Docker bridge address.
+    const base = new URL(env.ABX_OPENSANDBOX_BASE_URL || "http://127.0.0.1:8080");
+    const apiPath = base.pathname.replace(/\/$/, "").replace(/\/v1$/, "") + "/v1";
+    const resolve = async proxy => {
+      const endpoint = new URL(base);
+      endpoint.pathname = `${apiPath}/sandboxes/${encodeURIComponent(id)}/endpoints/9000`;
+      endpoint.search = proxy ? "use_server_proxy=true" : "";
+      const headers = { "OPEN-SANDBOX-API-KEY": env.ABX_OPENSANDBOX_API_KEY || "local-dev-key" };
+      const response = await fetch(endpoint, { headers, redirect: "error", signal: AbortSignal.timeout(15000) });
+      assert.equal(response.status, 200, "public endpoint resolution status");
+      const binding = await response.json();
+      assert.equal(typeof binding.endpoint, "string", "public endpoint response schema");
+      const url = new URL(/^[a-z]+:\/\//i.test(binding.endpoint) ? binding.endpoint : base.protocol + "//" + binding.endpoint);
+      assert.ok(["http:", "https:"].includes(url.protocol) && !url.username && !url.password && !url.hash);
+      if (proxy) assert.equal(url.origin, base.origin, "server proxy remains on configured lifecycle origin");
+      url.pathname = url.pathname.replace(/\/$/, "") + "/commands/hello";
+      return { url, headers: new Headers(binding.headers || {}) };
+    };
+    const call = async (binding, header, value) => {
+      const headers = new Headers(binding.headers);
+      assert.ok(!headers.has(header), "probe cannot replace a provider gateway credential");
+      headers.set(header, value);
+      headers.set("Content-Type", "application/json");
+      const response = await fetch(binding.url, { method: "POST", headers,
+        body: JSON.stringify({ name: "ProxyProbe" }), redirect: "error", signal: AbortSignal.timeout(15000) });
+      if (response.status === 200) {
+        const value = await response.json();
+        assert.equal(value.result, "Hello, ProxyProbe!", "probe application result");
+      }
+      return response.status;
+    };
+    const direct = await resolve(false);
+    const proxy = await resolve(true);
+    const statuses = {
+      direct_bearer: await call(direct, "Authorization", "Bearer " + env.ABX_SERVER_TOKEN),
+      proxy_bearer: await call(proxy, "Authorization", "Bearer " + env.ABX_SERVER_TOKEN),
+      proxy_access_token: await call(proxy, "X-Access-Token", env.ABX_SERVER_TOKEN),
+    };
+    // This is a protocol diagnostic, separate from default/direct acceptance.
+    console.log("OpenSandbox 1.1.1 application authentication probe " + JSON.stringify(statuses));
+    assert.equal(statuses.direct_bearer, 200, "direct Bearer application baseline");
+    assert.equal(statuses.proxy_bearer, 401, "fixed upstream proxy strips Bearer authorization");
+    assert.equal(statuses.proxy_access_token, 200, "existing service-token header crosses proxy");
+  }
   // Both Python consumers use the exact prepared artifact, not Python source preparation.
   await run(process.env.PYTHON || "python", ["-c", `
 import asyncio, os
