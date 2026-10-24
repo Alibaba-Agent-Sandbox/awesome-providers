@@ -6,7 +6,7 @@
 
 一个 [EPP/1](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/docs/zh/design/providers-and-credentials.md) **Node 提供方**插件，让 Agent Sandbox 在
 [OpenSandbox](https://github.com/opensandbox-group/OpenSandbox) 服务（Docker 或 Kubernetes 运行时）上创建沙箱。
-Python SDK（`Sandbox.create(provider="opensandbox")`）与 `abx` CLI（`abx --provider opensandbox ...`）均可直接使用。
+Python SDK（`ProviderSandbox.create(provider="opensandbox")`）与 `abx` CLI（`abx --provider opensandbox ...`）均可直接使用。
 
 本目录是插件的唯一源码，位于
 [alibaba-agent-sandbox/awesome-providers](https://github.com/alibaba-agent-sandbox/awesome-providers)，不在 Python SDK 仓库里。
@@ -34,7 +34,9 @@ abx provider doctor opensandbox
 python -m agent_sandbox.providers install ./opensandbox --yes
 ```
 
-安装不会执行任何代码；只有命令实际用到插件时才会启动，且每次启动前都会按安装回执重新校验文件摘要。
+同意前仅检查静态元数据，不执行插件。同意后，默认验证可能导入并初始化这个 Node 插件以完成握手。
+`--yes` 表示接受授权，不会跳过验证。普通安装在加载时按回执校验文件摘要；`--link` 是开发场景的例外。
+详见 [CLI 安装与信任指南](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/zh/guide/providers.md)。
 
 ## 配置
 
@@ -56,7 +58,7 @@ python -m agent_sandbox.providers install ./opensandbox --yes
 | `platform` | | 无 | `linux/amd64`、`linux/arm64` 等 |
 | `secure_access` | | `false` | Kubernetes 网关安全访问 |
 
-`Sandbox.create(template=...)` 的解析顺序：先查别名，其次 `base` 映射到 `default_image`，否则按镜像引用原样使用。
+`ProviderSandbox.create(template=...)` 的解析顺序：先查别名，其次 `base` 映射到 `default_image`，否则按镜像引用原样使用。
 
 ## CLI 和 SDK 能调用什么
 
@@ -64,12 +66,12 @@ python -m agent_sandbox.providers install ./opensandbox --yes
 
 | 你要做的事 | CLI | SDK | 本提供商 |
 |---|---|---|---|
-| 创建、列出、查看、销毁、按 id 再次连接 | `create`、`list`、`info`、`kill`、`connect` | `Sandbox.create/connect/list/kill` | 支持（`sandbox.lifecycle`、`sessions`） |
-| 执行进程，包括流式输出 | `exec`、`sandbox shell-stream` | `commands.run`、`commands.stream` | 支持 |
+| 创建、列出、查看、销毁、按 id 再次连接 | `create`、`list`、`info`、`kill`、`connect` | `ProviderSandbox.create/connect/list`、实例 `kill` | 支持（`sandbox.lifecycle`、`sessions`） |
+| 执行进程，包括流式输出 | `exec`（无独立流式命令） | `commands.run`、`commands.stream` | 支持 |
 | 调用模板命令 | `run` | application client 的 `commands.run` | 需要模板应用服务 |
 | 文件、上传、下载 | `upload`、`download`、`sandbox files` | `files.*` | 支持 |
-| 修改超时、暂停、恢复 | `sandbox timeout/pause/resume` | `set_timeout`、`pause`、`resume` | 支持 |
-| 端口的公网 URL | `sandbox url` | `network.get_url` | 支持 |
+| 修改超时、暂停、恢复 | `sandbox pause`、`sandbox resume`（通过 SDK 修改超时） | `set_timeout`、`pause`、`resume` | 支持 |
+| 端口访问地址与认证头 | 无独立 URL 命令 | `await network.resolve(port)` | 支持 |
 | 进程列出、发信号、终止 | `sandbox process` | `commands.list/kill` | 部分：stdin 返回 E8004；execd 命令 id 只能 SIGKILL |
 | 交互终端 | 无独立 PTY 命令（`connect` 是逐行 REPL） | `get_terminal` | provider 引擎运行 Node 22+ 时可用 |
 | `run_code`、EPP 模板 RPC、文件监听、签名 URL、域名、OSS、VPC | 对应命令 | `run_code`、EPP 模板 RPC | 当前适配器未接入（E8004） |
@@ -123,8 +125,8 @@ tests/              unit/、mock/（进程内模拟服务）、live/、contract/
 ## 已知限制
 
 * 文件读写受 EPP 8 MiB 行长度限制（单次读取上限 4 MiB，可用 `offset`/`length` 分段）。
-* 传给 `Sandbox.create` 的 `secure=True` 会请求网关“安全访问”（仅 Kubernetes 网关部署；Docker 服务会拒绝）。`secure=False` 或不传 `secure` 则保持关闭；也可用 `secure_access` 配置字段设置全局默认值。
-* 按次创建的设置：传给 `Sandbox.create` 的 `provider_options={"network_policy": ..., "platform": ..., "default_image": ...}` 只对该沙箱覆盖已配置的值（白名单：`default_image`、`image_aliases`、`entrypoint`、`ready_timeout`、`registry_username`、`registry_password`、`network_policy`、`platform`、`secure_access`；绝不包括服务地址或 API key）。
+* 传给 `ProviderSandbox.create` 的 `secure=True` 会请求网关“安全访问”（仅 Kubernetes 网关部署；Docker 服务会拒绝）。`secure=False` 或不传 `secure` 则保持关闭；也可用 `secure_access` 配置字段设置全局默认值。
+* 按次创建的设置：传给 `ProviderSandbox.create` 的 `provider_options={"network_policy": ..., "platform": ..., "default_image": ...}` 只对该沙箱覆盖已配置的值（白名单：`default_image`、`image_aliases`、`entrypoint`、`ready_timeout`、`registry_username`、`registry_password`、`network_policy`、`platform`、`secure_access`；绝不包括服务地址或 API key）。
 * 对所有提供方，`commands.start()` 都是惰性的（迭代流之前什么都不会发送）；要启动后台进程，请通过 `commands.run(..., shell=True)` 运行 `nohup ... &`。
 
 许可证：Apache-2.0。

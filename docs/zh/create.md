@@ -2,13 +2,15 @@
 
 一个提供方是一个目录：`abx-provider.toml`，再加上这种运行时需要的程序。不要把它放进 SDK 或 CLI 仓库。新的后端放在本目录的一个新子目录里，并在 `awesome-providers.yaml` 加一条。
 
-先选运行时。三种都安装到 `~/.abx/providers/<id>`。CLI 与 Python ProviderSandbox 通过提供方引擎调用它们；其他客户端需要明确桥接，Node.js 服务 HTTP 客户端不管理提供方。
+先选运行时。三种都安装到 `~/.abx/providers/<id>`。CLI 与 Python ProviderSandbox 都可调用它们；Python 通过本机引擎调用 Node 插件；其他客户端需要明确桥接，Node.js 服务 HTTP 客户端不管理提供方。
 
 | Kind | 你要写的 | 什么时候用 |
 |---|---|---|
 | `rest` | 只有清单 | 后端就是 E2B HTTP：`POST /sandboxes`，正文 `templateID`，头 `X-API-Key` 或 bearer，envd 在 `https://{port}-{id}.{domain}` |
-| `exec` | 清单加一个进程 | API 不是 E2B 形状。任意语言。进程说 EPP/1。安装时不执行 |
-| `node` | 清单加 `provider.mjs` | 后端是 E2B 形状但需要小改动（代理拨号、可选令牌、不同路径）。一个 ES 模块，由宿主进程通过 kit 加载 |
+| `exec` | 清单加一个进程 | API 不是 E2B 形状。任意语言。进程说 EPP/1 |
+| `node` | 清单加 `provider.mjs` | 用 Node.js 适配后端 HTTP API 或厂商 SDK。一个 ES 模块，由宿主进程通过 kit 加载 |
+
+安装在同意前检查静态元数据；同意后，默认握手验证可能执行 Node 或 exec 插件代码。`--yes` 不会跳过验证。详见[安装指南](install.md)。
 
 不要从极速版引擎抄。不要读 `ABX_SANDBOX_API_KEY`。那是极速版的密钥。
 

@@ -2,13 +2,15 @@
 
 A provider is a directory: `abx-provider.toml`, plus the program that runtime needs. Do not put it in the SDK or CLI repository. A new backend is a new subdirectory here, plus one row in `awesome-providers.yaml`.
 
-Pick a runtime first. All three install under `~/.abx/providers/<id>`. The CLI and Python ProviderSandbox consume them through the provider engine. Other clients need an explicit bridge; the Node.js server HTTP client does not manage providers.
+Pick a runtime first. All three install under `~/.abx/providers/<id>`. The CLI and Python ProviderSandbox consume them; Python uses the local engine for Node plugins. Other clients need an explicit bridge; the Node.js server HTTP client does not manage providers.
 
 | Kind | What you write | When |
 |---|---|---|
 | `rest` | Manifest only | The backend is E2B HTTP: `POST /sandboxes` with `templateID`, header `X-API-Key` or bearer, envd at `https://{port}-{id}.{domain}` |
-| `exec` | Manifest plus a process | The API is not E2B-shaped. Any language. The process speaks EPP/1. Nothing runs at install time |
-| `node` | Manifest plus `provider.mjs` | The backend is E2B-shaped but needs a tweak (a proxy dial, an optional token, different paths). An ES module, loaded in the host process through a kit |
+| `exec` | Manifest plus a process | The API is not E2B-shaped. Any language. The process speaks EPP/1 |
+| `node` | Manifest plus `provider.mjs` | A Node.js adapter for the backend HTTP API or vendor SDK. An ES module, loaded in the host process through a kit |
+
+Before consent, installation inspects static metadata. After consent, default handshake verification may execute Node or exec plugin code. `--yes` does not skip verification. See [Install](install.md).
 
 Do not start from the Express engine. Do not read `ABX_SANDBOX_API_KEY`. That key is Express only.
 

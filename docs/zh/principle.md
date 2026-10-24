@@ -1,6 +1,6 @@
 # 提供方怎么工作
 
-提供方是一个沙箱后端。`Sandbox.create`（或 `abx create`）先选定提供方，再由它建立控制面和数据面。SDK 和 CLI 只把 `alicloud-express`（阿里云极速版）编译进去。其余提供方在本目录，安装之后才加载。
+提供方是一个沙箱后端。`ProviderSandbox.create`（或 `abx create`）先选定提供方，再由它建立控制面和数据面。SDK 和 CLI 只把 `alicloud-express`（阿里云极速版）编译进去。其余提供方在本目录，安装之后才加载。
 
 提供方这一层只用 Node.js 写一次，由 TypeScript 的 CLI 承载。CLI 直接使用它；Python ProviderSandbox 通过本机引擎（`abx provider engine serve`，`127.0.0.1` 上的 HTTP + SSE + WebSocket）调用目录提供方。每种语言桥接都须实现其声明的具体操作；Node.js 服务 HTTP 客户端属于独立接口，不管理云端提供方。宿主、四种类型和引擎的规格在 [Node 提供方架构](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/zh/design/node-provider-architecture.md)。
 
@@ -45,8 +45,10 @@
 | `runtime.kind` | 协议 | 宿主做什么 |
 |---|---|---|
 | `rest` | `e2b-rest/1` | 只读清单。用内置 HTTP 客户端打 E2B 形状的控制面，数据面打 envd |
-| `exec` | `epp/1` | 启动清单里的进程，stdin/stdout 上走 JSON-RPC。安装时不执行插件 |
+| `exec` | `epp/1` | 启动清单里的进程，stdin/stdout 上走 JSON-RPC |
 | `node` | `node/1` | 在宿主进程里导入清单 `entry`（默认 `provider.mjs`），调用它的默认导出 `create(kit)`。返回的 `buildInfra(ctx)` 交出协议对象。除非用 `--link` 安装，每次加载都校验目录摘要 |
+
+安装在同意前只检查静态元数据；同意后，默认验证可能导入 Node 模块或启动 exec 进程并初始化握手。`--yes` 不会跳过验证。详见[安装指南](install.md)和 [CLI 信任边界](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/zh/guide/providers.md)。
 
 从清单安装的 Python 插件（`kind = "python"`）已不存在。代码里仍可写 Python `Provider` 子类并用 `register_provider` 登记。
 
@@ -57,7 +59,7 @@
 ## 一次创建
 
 ```text
-Sandbox.create(provider="e2b", template="base", timeout=300)
+ProviderSandbox.create(provider="e2b", template="base", timeout=300)
     │
     ├─ 解析密钥和地址（provider_options，然后是 ABX_<ID>_*）
     ├─ provider.build_infra(config)

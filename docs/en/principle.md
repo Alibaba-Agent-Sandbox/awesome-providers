@@ -1,6 +1,6 @@
 # How a provider works
 
-A provider is a sandbox backend. `Sandbox.create` (or `abx create`) picks one, then that provider builds the control plane and the data plane. The SDK and the CLI compile in only `alicloud-express` (Alibaba Cloud Express Edition). Everything else lives in this catalog and is loaded after install.
+A provider is a sandbox backend. `ProviderSandbox.create` (or `abx create`) picks one, then that provider builds the control plane and the data plane. The SDK and the CLI compile in only `alicloud-express` (Alibaba Cloud Express Edition). Everything else lives in this catalog and is loaded after install.
 
 The provider layer is written once, in Node.js, and hosted by the TypeScript CLI. The CLI uses it directly. Python ProviderSandbox reaches catalog providers through the local engine (`abx provider engine serve`, HTTP + SSE + WebSocket on `127.0.0.1`). Each language bridge must implement its declared operations. The Node.js server HTTP client is a separate interface and does not manage cloud providers. The host, the four kinds, and the engine are specified in [Node provider architecture](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/en/design/node-provider-architecture.md).
 
@@ -45,8 +45,10 @@ An installed plugin then forks on the manifest. In the CLI the host runs it. In 
 | `runtime.kind` | Protocol | What the host does |
 |---|---|---|
 | `rest` | `e2b-rest/1` | Manifest only. The built-in HTTP client calls an E2B-shaped control plane and envd for the data plane |
-| `exec` | `epp/1` | Starts the process in the manifest and speaks JSON-RPC on stdin/stdout. Install does not run the plugin |
+| `exec` | `epp/1` | Starts the process in the manifest and speaks JSON-RPC on stdin/stdout |
 | `node` | `node/1` | Imports the manifest `entry` (default `provider.mjs`) in the host process and calls its default export `create(kit)`. The returned `buildInfra(ctx)` yields the protocol objects. The tree digest is checked on every load unless the plugin was installed with `--link` |
+
+Installation inspects static metadata before consent. After consent, default verification may import a Node module or start an exec process and initialize it for the handshake. `--yes` does not skip this verification. See the [installation guide](install.md) and [CLI trust boundary](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/en/guide/providers.md).
 
 Manifest-installed Python plugins (`kind = "python"`) no longer exist. A Python `Provider` subclass is still allowed in code, registered with `register_provider`.
 
@@ -57,7 +59,7 @@ An undeclared feature is rejected before any request, as `E8004` (`ProviderFeatu
 ## One create
 
 ```text
-Sandbox.create(provider="e2b", template="base", timeout=300)
+ProviderSandbox.create(provider="e2b", template="base", timeout=300)
     │
     ├─ resolve key and origin (provider_options, then ABX_<ID>_*)
     ├─ provider.build_infra(config)
