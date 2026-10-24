@@ -19,7 +19,7 @@ jobs:
   live:
     name: OpenSandbox Docker + CLI + Python SDK (T4)
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
     env:
       OSB_WORKDIR: /tmp/abx-opensandbox-ci
       OSB_WITH_EGRESS: '0'
@@ -40,11 +40,11 @@ jobs:
       - name: Fetch reviewed host sources
         run: |
           git clone https://github.com/Alibaba-Agent-Sandbox/agent-sandbox.git /tmp/abx-cli
-          git -C /tmp/abx-cli checkout 7958f13d72a02995a21e1d18b7883fb2777da514
+          git -C /tmp/abx-cli checkout 90d6c3abfbb0b717ad5cc6e3922c6a18f6ecc960
           git clone https://github.com/Alibaba-Agent-Sandbox/awesome-templates.git /tmp/abx-templates
-          git -C /tmp/abx-templates checkout 4235f53a8d8c74e504f0441d985ab26243889b4f
+          git -C /tmp/abx-templates checkout 7afc10cdd90cf01bc6871caae0a7f62aeec471d8
           git clone https://github.com/Alibaba-Agent-Sandbox/python-sdk.git /tmp/abx-python
-          git -C /tmp/abx-python checkout 3aa5e5ae6bd9c843f62c6689e549437f460b382d
+          git -C /tmp/abx-python checkout 4bc11a701b8c262aefb27f6e59780749b1d3cb08
       - name: Install locked CLI and matching SDK packages
         run: |
           npm ci --prefix /tmp/abx-cli
@@ -78,6 +78,7 @@ jobs:
         run: |
           docker run -d --name abx-project-registry -p 5000:5000 registry:2.8.3
           node opensandbox/tests/project-launch.mjs
+          ABX_WORKFLOW_BUILD_PROFILE=portable node opensandbox/tests/project-launch.mjs
       - name: Cleanup and verify no sandbox containers remain
         if: always()
         run: |

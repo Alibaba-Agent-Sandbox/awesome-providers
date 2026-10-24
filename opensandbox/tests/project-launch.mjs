@@ -1,4 +1,4 @@
-/** Exact catalog source -> portable image -> native OpenSandbox application workflows. */
+/** Exact catalog source -> default or explicitly selected image -> native OpenSandbox application workflows. */
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -12,20 +12,22 @@ const cli = process.env.ABX_BIN;
 const source = process.env.ABX_WORKFLOW_TEMPLATE_SOURCE;
 assert.ok(cli, "ABX_BIN must be the reviewed built CLI wrapper");
 assert.ok(source, "ABX_WORKFLOW_TEMPLATE_SOURCE must be the exact reviewed python-hello directory");
+const profile = process.env.ABX_WORKFLOW_BUILD_PROFILE;
+assert.ok(profile === undefined || profile === "portable", "Only the reviewed portable override is accepted");
 let id;
 let primaryFailure;
 const env = { ...process.env, HOME: path.join(work, "home"), ABX_NO_KEYCHAIN: "1", NO_COLOR: "1",
   ABX_SERVER_TOKEN: randomBytes(24).toString("hex"),
   ABX_OPENSANDBOX_IMAGE_REPOSITORY: process.env.ABX_OPENSANDBOX_IMAGE_REPOSITORY || "localhost:5000/abx-project" };
-const invoke = async args => (await run(cli, args, { env, cwd: work, timeout: 600000, maxBuffer: 1024 * 1024 })).stdout;
+const invoke = async args => (await run(cli, args, { env, cwd: work, timeout: 1200000, maxBuffer: 1024 * 1024 })).stdout;
 try {
   await fs.mkdir(env.HOME);
   await invoke(["provider", "install", process.env.ABX_OPENSANDBOX_PLUGIN, "-y"]);
   const result = JSON.parse(await invoke(["--provider", "opensandbox", "--json", "template", "launch", source,
-    "--workflow", "application", "--build-profile", "portable", "--timeout", "540", "--sandbox-timeout", "540", "--yes"]));
+    "--workflow", "application", ...(profile ? ["--build-profile", profile] : []), "--timeout", "900", "--sandbox-timeout", "540", "--yes"]));
   id = result.sandbox_id;
   assert.match(id, /^[a-zA-Z0-9-]+$/);
-  assert.equal(result.workflow_id, "application"); assert.equal(result.build_profile, "portable");
+  assert.equal(result.workflow_id, "application"); assert.equal(result.build_profile, profile ?? null);
   assert.match(result.source_digest, /^(?:sha256:)?[a-f0-9]{64}$/);
   assert.match(result.template_reference, /^localhost:5000\/abx-project@sha256:[a-f0-9]{64}$/);
   console.log("PASS exact source/profile -> prepared image -> owned sandbox -> application readiness");

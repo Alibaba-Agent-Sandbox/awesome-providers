@@ -101,16 +101,22 @@ abx --provider opensandbox template launch alibaba-agent-sandbox/awesome-templat
 
 Use a CLI source build with workflow v1 and `--build-profile`; CLI 0.4.10 predates this manifest contract. The node/1 `prepareProject` manager is guarded by `templates.build`. The exact returned native reference is handed to sandbox creation. Missing runtime capabilities fail before build. Normal sandbox operations remain unchanged.
 
-先配置 Docker 登录、可写 `ABX_OPENSANDBOX_IMAGE_REPOSITORY` 及服务连接；选择源码内显式提供的构建方案（如 python-hello 的 `--build-profile portable`），不会改写 FROM 占位符。此路径直接返回已推送的镜像，不创建或伪造模板 ID。当前未接入解释器的工作流会被拒绝；HTTP 命令服务工作流只要求其实际使用的 exec、ports 与应用协议。EPP 的模板 RPC 仍不支持；项目准备是 node/1 管理器能力。
+先配置 Docker 登录、可写 `ABX_OPENSANDBOX_IMAGE_REPOSITORY` 和服务连接。新版 CLI 会在临时构建目录解析官方基础镜像的区域、标签并准备固定版本的服务端；不修改模板源码。自定义构建方案仍可通过 `--build-profile` 显式选择。构建后返回镜像引用，供同一 OpenSandbox 后端创建实例。
 
-Configure Docker login, a writable `ABX_OPENSANDBOX_IMAGE_REPOSITORY` and the server; explicitly select a reviewed source build profile (such as python-hello `--build-profile portable`); FROM placeholders are never rewritten. The adapter returns the pushed image directly, never a fabricated template ID. Interpreter workflows are not adapted. HTTP command-service workflows require only their selected exec, ports and application protocol operations. EPP template RPCs remain unsupported; preparation is a node/1 manager operation.
+Configure Docker login, a writable `ABX_OPENSANDBOX_IMAGE_REPOSITORY`, and the server. The updated CLI resolves the official base image region/tag and prepares the pinned server in a temporary build directory; the template source stays unchanged. Select an optional custom recipe with `--build-profile`. Preparation returns the image reference consumed by OpenSandbox.
 
-OpenSandbox 保留已验收 Docker 范围的 stable 成熟度；既有回执对应其固定源码，不自动验证本轮新 manifest、构建方案或工作流。其他部署模式仍需独立原生验收。临时目录会清理；成功沙箱、镜像和已登记模板不会自动删除，可能继续计费。准备超时可能遗留已提交产物，启动/就绪失败会尝试删除本次新建沙箱并报告清理状态。源码安装、引用契约及完整限制见[指南](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/zh/guide/template-launch.md)。
+```bash
+abx --provider opensandbox template launch Alibaba-Agent-Sandbox/awesome-templates//python-hello --yes
+```
 
-OpenSandbox retains stable maturity for its accepted Docker scope. Existing receipts bind their pinned source and do not automatically verify this new manifest/profile/workflow. Other deployment modes need independent native acceptance. Temporary staging is cleaned. Successful sandboxes, images and registered templates are retained and may incur cost. Preparation timeout may leave submitted artifacts; startup/readiness failure attempts cleanup of this invocation's new sandbox. See the [host guide](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/en/guide/template-launch.md) for installation, reference contracts and limits.
+`ABX_SERVER_TOKEN` must be set before launching an application. The CLI starts the service and checks its actual application endpoint. Python connects to the returned sandbox ID; its provider API does not build source images. See the [launch guide](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/en/guide/template-launch.md).
 
-## Explicit workflow contract / 显式工作流契约
+应用启动前需配置 `ABX_SERVER_TOKEN`。CLI 负责启动服务并检查实际访问端点；Python 连接返回的沙箱 ID，其 provider API 不负责构建源码镜像。见[启动指南](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/zh/guide/template-launch.md)。
 
-See [operation declarations](../../docs/workflows.md) ([中文](../../docs/workflows.zh-CN.md)). CLI and Python declare separate operations; Python does not prepare source. Preparation preserves the Dockerfile and requires a persistent ownership journal. Retained artifacts requiring manual cleanup are reported as residuals. Historical backend checks do not certify the new workflow path.
+Successful launches keep their sandbox and image for use. Delete the sandbox when finished; remove the exact owned image tag from your registry when it is no longer needed. On failure, consult the CLI resource journal before retrying an uncertain submission.
 
-参见精确操作声明。CLI 与 Python 分开声明；Python 不准备源码。准备阶段保留 Dockerfile 并持久记录资源意图，需人工清理的产物明确列为残留；旧后端记录不认证新工作流。
+启动成功后保留沙箱和镜像供使用。用完删除沙箱，不再需要镜像时清理本次所属标签；提交结果不明确时，先检查 CLI 资源记录再重试。
+
+Native interpreter APIs and project `run_code` are different interfaces. This adapter has no `code.*` implementation; named application commands and PTY do not require it. [Executed checks](../../docs/acceptance.md) state their backend and tested scope.
+
+原生解释器与本项目 `run_code` 是不同接口。本适配器尚未接入 `code.*`；模板命名命令和 PTY 不依赖它。[实测记录](../../docs/acceptance.md)列出对应后端与范围。
