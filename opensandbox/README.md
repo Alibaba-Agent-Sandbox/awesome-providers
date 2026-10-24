@@ -6,7 +6,7 @@ Accepted scope: Docker backend with OpenSandbox server 1.1.1 and digest-pinned r
 
 An [EPP/1](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/docs/en/design/providers-and-credentials.md) **Node provider** that runs Agent
 Sandbox sandboxes on an [OpenSandbox](https://github.com/opensandbox-group/OpenSandbox) server
-(Docker or Kubernetes runtime). It works unchanged from the Python SDK (`Sandbox.create(provider="opensandbox")`)
+(Docker or Kubernetes runtime). It works unchanged from the Python SDK (`ProviderSandbox.create(provider="opensandbox")`)
 and from the `abx` CLI (`abx --provider opensandbox ...`).
 
 This directory is the canonical plugin. It lives in
@@ -36,8 +36,10 @@ A branch or tag without a 40-hex `--ref` is unpinned and needs `--allow-unpinned
 python -m agent_sandbox.providers install ./opensandbox --yes
 ```
 
-Installing does not execute anything; the plugin runs only when a command uses it, and its files are
-re-hashed against the install receipt before every start.
+Before consent, inspection reads static metadata without executing the plugin. After consent, default
+verification may import and initialize this Node plugin for its handshake. `--yes` accepts consent; it
+does not skip verification. Regular installs check the file digest against the receipt on load;
+`--link` is the development exception. See the [CLI installation and trust guide](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/en/guide/providers.md).
 
 ## Configure
 
@@ -59,7 +61,7 @@ under `[providers.opensandbox]`, or (where listed) with the OpenSandbox-native v
 | `platform` | | none | `linux/amd64`, `linux/arm64`, ... |
 | `secure_access` | | `false` | Kubernetes gateway secure access |
 
-The template argument of `Sandbox.create(template=...)` is resolved as: alias, then `base` -> `default_image`,
+The template argument of `ProviderSandbox.create(template=...)` is resolved as: alias, then `base` -> `default_image`,
 otherwise used as an image reference verbatim.
 
 ## What the CLI and the SDK can call
@@ -68,15 +70,14 @@ Both hosts load this plugin. A method or command works only when its feature is 
 
 | You want | CLI | SDK | This provider |
 |---|---|---|---|
-| Create, list, info, kill, connect again by id | `create`, `list`, `info`, `kill`, `connect` | `Sandbox.create/connect/list/kill` | yes (`sandbox.lifecycle`, `sessions`) |
-| Run a process, including streamed output | `exec`, `sandbox shell-stream` | `commands.run`, `commands.stream` | yes |
+| Create, list, info, kill, connect again by id | `create`, `list`, `info`, `kill`, `connect` | `ProviderSandbox.create/connect/list`, instance `kill` | yes (`sandbox.lifecycle`, `sessions`) |
+| Run a process, including streamed output | `exec` (no standalone streaming command) | `commands.run`, `commands.stream` | yes |
 | Call a template command | `run` | application client `commands.run` | requires the template application service |
 | Files, upload, download | `upload`, `download`, `sandbox files` | `files.*` | yes |
-| Change TTL, pause, resume | `sandbox timeout/pause/resume` | `set_timeout`, `pause`, `resume` | yes |
-| Public URL of a port | `sandbox url` | `network.get_url` | yes |
+| Change TTL, pause, resume | Use the SDK for this provider | `set_timeout`, `pause`, `resume` | yes |
+| Port endpoint and access headers | no standalone URL command | `await network.resolve(port)` | yes |
 | Process list, signal, kill | `sandbox process` | `commands.list/kill` | partial: stdin is E8004; an execd command id accepts only SIGKILL |
 | Interactive terminal | no standalone PTY command (`connect` is a line REPL) | `get_terminal` | yes when the provider engine runs Node 22+ |
-| `run_code`, EPP template RPCs, file watch, signed URLs, domains, OSS, VPC | those commands | `run_code`, EPP template RPCs | not implemented by this adapter (E8004) |
 
 `template` on create is a container image. `base` means `default_image` (`python:3.12-slim` unless you change it).
 
@@ -128,8 +129,8 @@ tests/              unit/, mock/ (in-process fake server), live/, contract/ (pyt
 ## Known limits
 
 * File reads/writes are limited by EPP's 8 MiB line limit (reads are capped at 4 MiB per call; use `offset`/`length`).
-* `secure=True` passed to `Sandbox.create` requests gateway "secure access" (Kubernetes gateway deployments only; a Docker server refuses it). `secure=False` and an omitted `secure` leave it off, or use the `secure_access` config field for a global default.
-* Per-create settings: `provider_options={"network_policy": ..., "platform": ..., "default_image": ...}` given to `Sandbox.create` override the configured values for that sandbox only (whitelist: `default_image`, `image_aliases`, `entrypoint`, `ready_timeout`, `registry_username`, `registry_password`, `network_policy`, `platform`, `secure_access`; never the server address or API key).
+* `secure=True` passed to `ProviderSandbox.create` requests gateway "secure access" (Kubernetes gateway deployments only; a Docker server refuses it). `secure=False` and an omitted `secure` leave it off, or use the `secure_access` config field for a global default.
+* Per-create settings: `provider_options={"network_policy": ..., "platform": ..., "default_image": ...}` given to `ProviderSandbox.create` override the configured values for that sandbox only (whitelist: `default_image`, `image_aliases`, `entrypoint`, `ready_timeout`, `registry_username`, `registry_password`, `network_policy`, `platform`, `secure_access`; never the server address or API key).
 * `commands.start()` is lazy for every provider (nothing is sent until the stream is iterated); run `nohup ... &` through `commands.run(..., shell=True)` to start a background process.
 * Streaming startup requires the native execd `init` event and its process identifier. Missing acknowledgment fails without fabricating an ID or replaying an uncertain command.
 * The execd backend must support native `argv` requests and preserve output bytes. Older execd interfaces are unsupported; command failures are returned without retrying another protocol.
