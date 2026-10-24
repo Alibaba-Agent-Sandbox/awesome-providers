@@ -17,7 +17,7 @@ Python SDK（`Sandbox.create(provider="opensandbox")`）与 `abx` CLI（`abx --p
 * 产出本插件的编写体验评估：[`provider-authoring-evaluation.md`](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/docs/zh/design/provider-authoring-evaluation.md)。
 
 ## 安装
-此 provider 提交需要 CLI 0.4.15+、Python SDK 0.3.1a3+，以读取源码准备元数据。
+此 provider 提交需要 CLI 0.4.16+、Python SDK 0.3.1a4+，以准备源码并正确认证经过 server proxy 的模板应用。
 
 ```bash
 abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox@<40位提交哈希> --yes

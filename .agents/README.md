@@ -80,3 +80,7 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [OpenSandbox final compatible-host acceptance](evidence/verify/2026-10-24-opensandbox-final-host-acceptance.md).
 
 - [OpenSandbox public endpoint authentication probe](evidence/verify/2026-10-24-opensandbox-proxy-auth-probe.md).
+
+- [Observed direct/proxy application authentication](evidence/verify/2026-10-24-opensandbox-auth-header-observation.md).
+
+- [OpenSandbox proxy consumer follow-up](evidence/verify/2026-10-24-opensandbox-proxy-consumer-follow-up.md).

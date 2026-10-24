@@ -29,3 +29,7 @@ Run owner checks and scope-specific regressions. Execute the real public launch 
 ## Acceptance criteria
 
 Guides have usable examples and precise scope; historical receipts remain unchanged; required owner checks and current-head CI pass. New backend claims require executed receipts, actual caller endpoint assertions and independent owned cleanup.
+
+## Observed proxy authentication follow-up
+
+The real same-sandbox probe confirmed direct Bearer200, proxy Bearer401, and proxy X-Access-Token200. Consumers now use the already-supported application header without replacing gateway credentials. The provider revision raises its uniform host floor to CLI0.4.16 / paired Python SDK0.3.1a4; no conditional version schema or new status is introduced. Prior0.4.15/a3 direct receipts remain historical facts. Final native CI additionally exercises explicit proxy CLI/Python and independent Node ServerClient with exact producer refs. Refs https://github.com/Alibaba-Agent-Sandbox/awesome-providers/issues/31 .

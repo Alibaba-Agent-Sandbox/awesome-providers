@@ -22,6 +22,7 @@ const env = { ...process.env, HOME: path.join(work, "home"), ABX_NO_KEYCHAIN: "1
 const invoke = async args => (await run(cli, args, { env, cwd: work, timeout: 1200000, maxBuffer: 1024 * 1024 })).stdout;
 try {
   await fs.mkdir(env.HOME);
+  console.log("Explicit endpoint mode: " + (env.ABX_OPENSANDBOX_USE_SERVER_PROXY === "true" ? "server proxy" : "default direct"));
   await invoke(["provider", "install", process.env.ABX_OPENSANDBOX_PLUGIN, "-y"]);
   const result = JSON.parse(await invoke(["--provider", "opensandbox", "--json", "template", "launch", source,
     "--workflow", "application", ...(profile ? ["--build-profile", profile] : []), "--timeout", "900", "--sandbox-timeout", "540", "--yes"]));
@@ -50,8 +51,9 @@ try {
       const url = new URL(/^[a-z]+:\/\//i.test(binding.endpoint) ? binding.endpoint : base.protocol + "//" + binding.endpoint);
       assert.ok(["http:", "https:"].includes(url.protocol) && !url.username && !url.password && !url.hash);
       if (proxy) assert.equal(url.origin, base.origin, "server proxy remains on configured lifecycle origin");
+      const baseUrl = url.toString();
       url.pathname = url.pathname.replace(/\/$/, "") + "/commands/hello";
-      return { url, headers: new Headers(binding.headers || {}) };
+      return { url, baseUrl, headers: new Headers(binding.headers || {}) };
     };
     const call = async (binding, header, value) => {
       const headers = new Headers(binding.headers);
@@ -78,6 +80,20 @@ try {
     assert.equal(statuses.direct_bearer, 200, "direct Bearer application baseline");
     assert.equal(statuses.proxy_bearer, 401, "fixed upstream proxy strips Bearer authorization");
     assert.equal(statuses.proxy_access_token, 200, "existing service-token header crosses proxy");
+    assert.equal(await call(proxy, "X-Access-Token", "intentionally-wrong"), 401, "proxy must reject an incorrect application token");
+    if (env.ABX_WORKFLOW_NODE_CLIENT) {
+      const { ServerClient } = await import(env.ABX_WORKFLOW_NODE_CLIENT);
+      const nodeClient = new ServerClient(proxy.baseUrl, {
+        token: env.ABX_SERVER_TOKEN, headers: Object.fromEntries(proxy.headers), timeout: 30,
+      });
+      try {
+        const result = await nodeClient.send("run_command", "POST", "/commands/hello", { jsonBody: { name: "NodeProxy" } });
+        assert.equal(result.result, "Hello, NodeProxy!", "independent Node SDK through the public proxy endpoint");
+        console.log("PASS independent Node ServerClient named command through server proxy");
+      } finally {
+        await nodeClient.close();
+      }
+    }
   }
   // Both Python consumers use the exact prepared artifact, not Python source preparation.
   await run(process.env.PYTHON || "python", ["-c", `

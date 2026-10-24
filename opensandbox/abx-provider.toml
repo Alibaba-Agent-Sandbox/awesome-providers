@@ -12,7 +12,7 @@ homepage    = "https://github.com/alibaba-agent-sandbox/awesome-providers/tree/m
 
 [compat]
 protocol = "node/1"
-requires = { sdk = ">=0.3.1a3", cli = ">=0.4.15" }
+requires = { sdk = ">=0.3.1a4", cli = ">=0.4.16" }
 
 [runtime]
 kind  = "node"                           # loaded in the host process; `node provider.mjs` still serves EPP/1 on stdio

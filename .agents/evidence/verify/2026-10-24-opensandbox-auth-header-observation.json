@@ -1,0 +1,16 @@
+{
+  "result": "success",
+  "workflow_run": 40109164062,
+  "provider_ref": "84c54980f5712bb7dfedee6d90ef9d50aee82898",
+  "cli_ref": "25e22d8f5c38bb0b7636ba699511da4f4695ec48",
+  "sdk_ref": "6398c6fdd777ff6c8ae9c7b2acb4cc52d457a633",
+  "templates_ref": "295aff8f45f710eadf46d164b7ce4150b2c914ec",
+  "scope": "same owned python-hello sandbox; actual public direct/proxy endpoints; static HTTP status and result assertions; no consumer authentication changes",
+  "http_status": {
+    "direct_bearer": 200,
+    "proxy_bearer": 401,
+    "proxy_access_token": 200
+  },
+  "independent_container_cleanup": "success",
+  "url": "https://github.com/Alibaba-Agent-Sandbox/awesome-providers/actions/runs/40109164062"
+}

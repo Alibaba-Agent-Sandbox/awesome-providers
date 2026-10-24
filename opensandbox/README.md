@@ -18,7 +18,7 @@ This directory is the canonical plugin. It lives in
 * Authoring review that produced this plugin: [`provider-authoring-evaluation.md`](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/docs/en/design/provider-authoring-evaluation.md).
 
 ## Install
-This provider revision requires CLI 0.4.15+ and Python SDK 0.3.1a3+ for source-preparation metadata.
+This provider revision requires CLI 0.4.16+ and Python SDK 0.3.1a4+ for source preparation and authenticated template applications through the server proxy.
 
 ```bash
 abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox@<40-hex-commit> --yes
