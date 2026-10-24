@@ -1,6 +1,6 @@
 # Decision: Accurate provider installation and consumer guidance
 
-Status: proposed
+Status: implemented
 
 ## Problem
 

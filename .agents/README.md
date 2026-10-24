@@ -87,4 +87,4 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 
 - [Three-consumer proxy acceptance](evidence/verify/2026-10-24-opensandbox-proxy-consumers-pass.md).
 
-- [Provider installation consent guidance](notes/proposed/process/2026-10-24-provider-install-consent.md) · [verification](evidence/verify/2026-10-24-provider-install-consent.md).
+- [Provider installation consent guidance](notes/implemented/process/2026-10-24-provider-install-consent.md) · [verification](evidence/verify/2026-10-24-provider-install-consent.md).
