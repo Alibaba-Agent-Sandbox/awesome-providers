@@ -22,6 +22,8 @@ Index: `https://registry.agent-sandbox.cn/providers/index.json`. Override with `
 
 All four providers are `node` (an ES module the host loads; `opensandbox` runs its EPP methods in process through `kit.epp.infra`). All four run from the CLI (`abx --provider e2b create`) and from the Python Provider API (`ProviderSandbox.create(provider="e2b")`); Python reaches the plugin through the local engine, `abx provider engine serve`, which needs `abx` on `PATH` or `ABX_BIN`.
 
+Python hosts `exec` plugins directly as processes and `rest` plugins directly over HTTP; these do not need the Node engine. Installation reads static metadata before consent; after consent, default verification may load the plugin for its handshake. `--yes` does not skip verification.
+
 The independent Node.js SDK currently exposes `ServerClient` for in-sandbox HTTP services; it does not load providers. Other languages need an implemented engine bridge. For shared protocol development, read [agent-sandbox-provider](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/agent-sandbox-provider/SKILL.md).
 
 ## Write a new provider

@@ -16,7 +16,9 @@ Three runtimes:
 | `exec` | `epp/1` | A process that speaks JSON-RPC on stdin/stdout, any language |
 | `node` | `node/1` | `provider.mjs`: an ES module the host loads, default export `create(kit)` |
 
-The CLI and Python ProviderSandbox consume these runtimes through the provider engine; other clients require their own explicit bridge. Manifest-installed Python plugins (`kind = "python"`) are gone. All four (`opensandbox`, `e2b`, `cubesandbox`, `alicloud-container`) are `node`. Install the Git tree with `abx provider install alibaba-agent-sandbox/awesome-providers//<id> --allow-unpinned --yes`, or use the Python registry installer: `python -m agent_sandbox.providers install registry:<id> --yes`.
+The CLI hosts all three runtimes. Python `ProviderSandbox` uses the local CLI engine for `node` plugins, starts an `exec` plugin process directly, and calls `rest` backends directly over HTTP. The independent Node.js SDK is an application HTTP client and does not load providers; other clients need an implemented bridge. Manifest-installed Python plugins (`kind = "python"`) are gone. All four (`opensandbox`, `e2b`, `cubesandbox`, `alicloud-container`) are `node`. Install the Git tree with `abx provider install alibaba-agent-sandbox/awesome-providers//<id> --allow-unpinned --yes`, or use the Python registry installer: `python -m agent_sandbox.providers install registry:<id> --yes`.
+
+Installation inspects static metadata before consent; after consent, default handshake verification may load plugin code. `--yes` does not skip that verification. See the [installation guide](en/install.md).
 
 ## Id, features, secrets
 

@@ -1,6 +1,6 @@
 # Template usage simplification
 
-Status: proposed
+Status: implemented
 
 ## Problem
 
@@ -33,3 +33,7 @@ Guides have usable examples and precise scope; historical receipts remain unchan
 ## Observed proxy authentication follow-up
 
 The real same-sandbox probe confirmed direct Bearer200, proxy Bearer401, and proxy X-Access-Token200. Consumers now use the already-supported application header without replacing gateway credentials. The provider revision raises its uniform host floor to CLI0.4.16 / paired Python SDK0.3.1a4; no conditional version schema or new status is introduced. Prior0.4.15/a3 direct receipts remain historical facts. Final native CI additionally exercises explicit proxy CLI/Python and independent Node ServerClient with exact producer refs. Refs https://github.com/Alibaba-Agent-Sandbox/awesome-providers/issues/31 .
+
+## Delivery
+
+Implemented in [PR #30](https://github.com/Alibaba-Agent-Sandbox/awesome-providers/pull/30). The [current documentation synchronization](2026-10-24-current-documentation-sync.md) links later public delivery and dated verification without rewriting historical attempts.

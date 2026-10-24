@@ -1,5 +1,14 @@
 # Engineering records: awesome-providers
 
+## Current delivery (2026-10-24)
+
+- [Documentation and record synchronization](notes/implemented/process/2026-10-24-current-documentation-sync.md) · [verification](evidence/verify/2026-10-24-current-documentation-sync.md)
+- [OpenSandbox direct/portable/proxy and three application consumers](evidence/verify/2026-10-24-opensandbox-proxy-consumers-pass.md)
+- [Installation consent](evidence/verify/2026-10-24-provider-install-consent.md) · [Python exec host](evidence/verify/2026-10-24-exec-install-host.md)
+- [Current acceptance scope and public-package references](../docs/acceptance.md)
+
+Earlier partial/pending receipts remain unchanged. Later completed checks and releases are linked above; candidate-source T4 results do not become public-package installation tests.
+
 This repository owns provider plugins, catalog metadata and their verification.
 Read [CONTRIBUTING.md](../CONTRIBUTING.md), the provider [skill](../SKILL.md)
 and the [test tiers](../docs/e2e.md) before changing a provider.
@@ -73,7 +82,7 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 
 - [Release remote Docker acceptance](evidence/verify/2026-10-24-release-remote-acceptance.md).
 
-- [Simplify template usage](notes/proposed/process/2026-10-24-template-usage-simplification.md) · [verification](evidence/verify/2026-10-24-template-usage-simplification.md)
+- [Simplify template usage](notes/implemented/process/2026-10-24-template-usage-simplification.md) · [verification](evidence/verify/2026-10-24-template-usage-simplification.md)
 
 - [OpenSandbox default and portable live acceptance](evidence/verify/2026-10-24-opensandbox-default-and-portable.md).
 

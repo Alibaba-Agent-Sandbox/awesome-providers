@@ -2,55 +2,21 @@
 
 [English](authoring.md)
 
-Provider 是可安装的沙箱后端。本仓库里一个目录就是一个 provider。Python SDK 和 `abx` CLI 不包含具体实现；它们把这里的目录安装到 `~/.abx/providers/<id>`，再和它通信。
+Provider 是可安装的沙箱后端。本仓库里一个目录就是一个 provider。Python SDK 和 `abx` CLI 只内置 `alicloud-express`；其他提供方从这里安装到 `~/.abx/providers/<id>`，再和它通信。
 
 后端是真实 HTTP 服务时，复制 [opensandbox/](../opensandbox/)。想要最小的 exec 插件时，复制 Python SDK 里的 `examples/providers/local-process/`。
 
 ## `abx create` 如何调用到你的插件
 
-`abx create` 不会 import 你的代码。它调用 `Sandbox.create`。这次调用在访问任何沙箱 API 之前先选定 provider。
+CLI 按所选 provider 加载安装目录，再调用该后端。`node` 插件由 CLI 宿主导入，`exec` 插件以 EPP/1 进程运行，`rest` 插件由宿主发送 HTTP 请求。内置 `alicloud-express` 使用自己的实现，其他 provider 不接收它的凭据。
 
-```text
+```bash
 abx --provider my-cloud create --template base
-        │
-        │  1. CLI 从命令行取出 --provider 和 --opt（任意位置），
-        │     只在本次进程内保存。
-        ▼
-Sandbox.create({ template, timeout, envs, metadata, ... })
-        │
-        │  2. provider id，先匹配到的生效：
-        │     provider= 参数
-        │     > --provider
-        │     > ABX_PROVIDER
-        │     > ./.env  >  ~/.abx/.env
-        │     > ~/.abx/config.toml 的 [core] provider
-        │     > alicloud-express
-        ▼
-   是 alicloud-express？ ── 是 ──► 内置阿里云客户端。你的插件不会启动。
-        │
-        否
-        ▼
-   3. 读取 ~/.abx/providers/my-cloud，校验目录摘要（文件被改过则是 E8011）。
-      摘要失败时不启动进程。
-        ▼
-   4. 启动清单里的 command。工作目录是插件目录。
-      环境变量被裁剪：PATH、locale、ABX_PROVIDER_DATA_DIR，
-      以及清单点名的那些变量。
-        ▼
-   5. initialize → 插件返回 features。
-        ▼
-   6. sandbox.create → 带 sandbox_id 的 SandboxRecord。
-        ▼
-   7. CLI 打印 my-cloud:<sandbox_id>。之后的 exec / 文件 / kill
-      都用这个 id。没声明的能力返回 E8004，对应方法不会发出。
 ```
 
-Python 的 `ProviderSandbox.create(template="base", provider="my-cloud")`（`from agent_sandbox import ProviderSandbox`） 从第 2 步开始，用的是同一个已安装目录。
+Python 使用公开入口 `from agent_sandbox import ProviderSandbox`，调用 `await ProviderSandbox.create(template="base", provider="my-cloud")`。其中 `node` 经本机 CLI 引擎 `abx provider engine serve`，需要 `abx` 在 `PATH` 或设置 `ABX_BIN`；`exec` 直接启动插件进程，`rest` 直接发送 HTTP 请求。独立 Node.js SDK 是应用 HTTP 客户端，不加载 provider。
 
-下面两条不会进入你的插件：
-
-- 没有选定 provider 时的 `abx create --template base`。那是 `alicloud-express`。
-- `abx create "一个 node 服务"` 这种带描述、没有 `--template` 的命令。CLI 会先走内置的模板编写流程（生成、构建、部署）。只有最后一次创建使用选中的 provider。启动插件用 `abx --provider my-cloud create --template <镜像或名称>`。
+安装在同意前仅检查静态元数据；同意后，默认握手验证可能加载插件代码。`--yes` 不跳过验证。正式安装按目录摘要检查完整性，开发用 `--link` 是显式例外。配置优先级、路由和信任边界见[工作原理](zh/principle.md)与[安装指南](zh/install.md)。
 
 ## 你要提交的文件
 
