@@ -40,11 +40,11 @@ jobs:
       - name: Fetch reviewed host sources
         run: |
           git clone https://github.com/Alibaba-Agent-Sandbox/agent-sandbox.git /tmp/abx-cli
-          git -C /tmp/abx-cli checkout 90d6c3abfbb0b717ad5cc6e3922c6a18f6ecc960
+          git -C /tmp/abx-cli checkout 33c4e890d8017c6c89bb8e105a1f8432537ac3d0
           git clone https://github.com/Alibaba-Agent-Sandbox/awesome-templates.git /tmp/abx-templates
-          git -C /tmp/abx-templates checkout 7afc10cdd90cf01bc6871caae0a7f62aeec471d8
+          git -C /tmp/abx-templates checkout cd1de48216b933da95785412b9e49c75ad9a0676
           git clone https://github.com/Alibaba-Agent-Sandbox/python-sdk.git /tmp/abx-python
-          git -C /tmp/abx-python checkout 4bc11a701b8c262aefb27f6e59780749b1d3cb08
+          git -C /tmp/abx-python checkout b2b9757be40df340bc8275386f5c23dbb55fa955
       - name: Install locked CLI and matching SDK packages
         run: |
           npm ci --prefix /tmp/abx-cli
