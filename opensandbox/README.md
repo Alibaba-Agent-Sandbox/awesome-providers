@@ -69,7 +69,8 @@ Both hosts load this plugin. A method or command works only when its feature is 
 | You want | CLI | SDK | This provider |
 |---|---|---|---|
 | Create, list, info, kill, connect again by id | `create`, `list`, `info`, `kill`, `connect` | `Sandbox.create/connect/list/kill` | yes (`sandbox.lifecycle`, `sessions`) |
-| Run a command, including streamed output | `exec`, `run`, `sandbox shell-stream` | `commands.run`, `commands.stream` | yes |
+| Run a process, including streamed output | `exec`, `sandbox shell-stream` | `commands.run`, `commands.stream` | yes |
+| Call a template command | `run` | application client `commands.run` | requires the template application service |
 | Files, upload, download | `upload`, `download`, `sandbox files` | `files.*` | yes |
 | Change TTL, pause, resume | `sandbox timeout/pause/resume` | `set_timeout`, `pause`, `resume` | yes |
 | Public URL of a port | `sandbox url` | `network.get_url` | yes |

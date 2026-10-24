@@ -74,3 +74,5 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [Release remote Docker acceptance](evidence/verify/2026-10-24-release-remote-acceptance.md).
 
 - [Simplify template usage](notes/proposed/process/2026-10-24-template-usage-simplification.md) · [verification](evidence/verify/2026-10-24-template-usage-simplification.md)
+
+- [OpenSandbox default and portable live acceptance](evidence/verify/2026-10-24-opensandbox-default-and-portable.md).

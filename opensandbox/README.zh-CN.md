@@ -65,7 +65,8 @@ python -m agent_sandbox.providers install ./opensandbox --yes
 | 你要做的事 | CLI | SDK | 本提供商 |
 |---|---|---|---|
 | 创建、列出、查看、销毁、按 id 再次连接 | `create`、`list`、`info`、`kill`、`connect` | `Sandbox.create/connect/list/kill` | 支持（`sandbox.lifecycle`、`sessions`） |
-| 执行命令，包括流式输出 | `exec`、`run`、`sandbox shell-stream` | `commands.run`、`commands.stream` | 支持 |
+| 执行进程，包括流式输出 | `exec`、`sandbox shell-stream` | `commands.run`、`commands.stream` | 支持 |
+| 调用模板命令 | `run` | application client 的 `commands.run` | 需要模板应用服务 |
 | 文件、上传、下载 | `upload`、`download`、`sandbox files` | `files.*` | 支持 |
 | 修改超时、暂停、恢复 | `sandbox timeout/pause/resume` | `set_timeout`、`pause`、`resume` | 支持 |
 | 端口的公网 URL | `sandbox url` | `network.get_url` | 支持 |
