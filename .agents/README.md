@@ -76,3 +76,5 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [Simplify template usage](notes/proposed/process/2026-10-24-template-usage-simplification.md) · [verification](evidence/verify/2026-10-24-template-usage-simplification.md)
 
 - [OpenSandbox default and portable live acceptance](evidence/verify/2026-10-24-opensandbox-default-and-portable.md).
+
+- [OpenSandbox final compatible-host acceptance](evidence/verify/2026-10-24-opensandbox-final-host-acceptance.md).
