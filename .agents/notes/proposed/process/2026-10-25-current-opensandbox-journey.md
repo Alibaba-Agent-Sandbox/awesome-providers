@@ -39,6 +39,11 @@ runner is unnecessary; update the existing gate.
 - https://github.com/Alibaba-Agent-Sandbox/python-sdk/releases/tag/v0.4.0a2
 - https://github.com/Alibaba-Agent-Sandbox/nodejs-sdk/pull/16
 
+The subsequent public a2 prepared-launch failure is owned by
+https://github.com/Alibaba-Agent-Sandbox/python-sdk/issues/121. Validate the exact
+reviewed readiness candidate before public a3 consumption; do not hide the race
+with a fixed harness sleep or skip.
+
 ## Test Strategy
 
 Run existing provider T0 and preparation tests, actual embedded Python syntax and
