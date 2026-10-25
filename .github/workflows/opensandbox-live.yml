@@ -41,11 +41,11 @@ jobs:
       - name: Fetch reviewed host sources
         run: |
           git clone https://github.com/Alibaba-Agent-Sandbox/agent-sandbox.git /tmp/abx-cli
-          git -C /tmp/abx-cli checkout 6dfdf9897ad76bf2fdb7eb1ccf455252b2dcb9fb
+          git -C /tmp/abx-cli checkout 3f7fa28e16888a5489980dc56c86d6c71c11c4a0
           git clone https://github.com/Alibaba-Agent-Sandbox/awesome-templates.git /tmp/abx-templates
-          git -C /tmp/abx-templates checkout cbef1cde59e760f7fbae4482cc03b23f636dc569
+          git -C /tmp/abx-templates checkout 389302f5dc9429a4b215801dbd4025d4dba95f7e
           git clone https://github.com/Alibaba-Agent-Sandbox/python-sdk.git /tmp/abx-python
-          git -C /tmp/abx-python checkout v0.4.0a3
+          git -C /tmp/abx-python checkout v0.4.0a6
           git clone https://github.com/Alibaba-Agent-Sandbox/nodejs-sdk.git /tmp/abx-node
           git -C /tmp/abx-node checkout 63d7cd8ece221b9f968eef51eeb932ea334c90d3
       - name: Install locked CLI and matching SDK packages
@@ -54,7 +54,7 @@ jobs:
           npm run build --prefix /tmp/abx-cli
           npm ci --prefix /tmp/abx-node
           npm run build --prefix /tmp/abx-node
-          python -m pip install --index-url https://pypi.org/simple agent-sandbox-client==0.4.0a3 pytest pytest-asyncio
+          python -m pip install --index-url https://pypi.org/simple agent-sandbox-client==0.4.0a6 pytest pytest-asyncio
           echo "ABX_BIN=/tmp/abx-cli/bin/abx" >> "$GITHUB_ENV"
           mkdir -p /tmp/abx-cli/bin
           printf '#!/bin/sh\nexec node /tmp/abx-cli/dist/bin/abx.js "$@"\n' > /tmp/abx-cli/bin/abx

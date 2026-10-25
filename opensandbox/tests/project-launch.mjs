@@ -105,7 +105,7 @@ async def main():
     sandbox = await ProviderSandbox.connect(os.environ['LAUNCH_SANDBOX_ID'], provider='opensandbox')
     try:
         runtime = await sandbox.commands.run("python -c 'from importlib.metadata import version; print(version(\"agent-sandbox-server\"))'")
-        assert (runtime.exit_code, runtime.stdout.strip()) == (0, '0.4.0a3'), (
+        assert (runtime.exit_code, runtime.stdout.strip()) == (0, '0.4.0a6'), (
             f'Actual guest runtime mismatch: exit={runtime.exit_code}, version={runtime.stdout.strip()!r}'
         )
         async with await sandbox.application_client(9000, token=os.environ['ABX_SERVER_TOKEN']) as client:

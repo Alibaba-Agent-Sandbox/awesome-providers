@@ -107,3 +107,5 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [Current whole-template T4 journey](notes/proposed/process/2026-10-25-current-opensandbox-journey.md) · [verification](evidence/verify/2026-10-25-current-opensandbox-journey.md).
 
 - [Prepared-launch readiness diagnosis](evidence/verify/2026-10-25-prepared-launch-readiness.md).
+
+- [Published patch OpenSandbox consumers](notes/proposed/process/2026-10-25-public-patch-opensandbox.md) · [verification](evidence/verify/2026-10-25-public-patch-opensandbox.md).
