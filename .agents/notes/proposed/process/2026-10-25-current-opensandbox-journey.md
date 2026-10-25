@@ -13,7 +13,7 @@ backend. Neither behavior proves the current documented developer journey.
 Remove old workflow calls and test-only configuration aliases. Use one whole
 CLI template launch and the current Python prepared-reference launcher. Keep all
 three default/portable/server-proxy scenarios, independent Node HTTP calls and
-owned cleanup. Install public host SDK a2 and verify actual guest server a2.
+owned cleanup. Install public host SDK a3 and verify actual guest server a3.
 Without live opt-in skip; with explicit opt-in require a reachable configured
 backend. Preserve historical evidence and do not change provider implementation,
 capability declarations, authentication behavior or package versions.
@@ -35,13 +35,13 @@ runner is unnecessary; update the existing gate.
 ## Dependencies
 
 - https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/pull/170
-- https://github.com/Alibaba-Agent-Sandbox/awesome-templates/pull/222
-- https://github.com/Alibaba-Agent-Sandbox/python-sdk/releases/tag/v0.4.0a2
-- https://github.com/Alibaba-Agent-Sandbox/nodejs-sdk/pull/16
+- https://github.com/Alibaba-Agent-Sandbox/awesome-templates/pull/225
+- https://github.com/Alibaba-Agent-Sandbox/python-sdk/releases/tag/v0.4.0a3
+- https://github.com/Alibaba-Agent-Sandbox/nodejs-sdk/pull/17
 
 The subsequent public a2 prepared-launch failure is owned by
-https://github.com/Alibaba-Agent-Sandbox/python-sdk/issues/121. Validate the exact
-reviewed readiness candidate before public a3 consumption; do not hide the race
+https://github.com/Alibaba-Agent-Sandbox/python-sdk/issues/121. The reviewed readiness fix is now published as a3. Validate official a3
+installation and the updated template recipes; do not hide the race
 with a fixed harness sleep or skip.
 
 ## Test Strategy

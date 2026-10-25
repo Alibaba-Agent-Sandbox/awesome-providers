@@ -33,3 +33,34 @@ All existing default, portable, proxy, Python/Node invocation and cleanup checks
 remain required. Candidate T4, latest-head gates, normal merge and later public-a3
 installation/T4 remain pending. No fixed sleep, retry of creation or relaxed
 assertion was added to the harness.
+
+## Public a3 follow-up inputs
+
+Source-candidate run [40208641347](https://github.com/Alibaba-Agent-Sandbox/awesome-providers/actions/runs/40208641347)
+completed all 18 steps SUCCESS at provider head b78ea200ba7ccb30cd868ae609cad9c7b5031e31.
+Its host was candidate SDK a3 source and guest was public a2, exactly as above;
+that run is not public-a3 installation or guest-a3 acceptance.
+
+SDK PR 122 subsequently merged at a7d6aa3e5e16fcf8cde1d91465f4a5fc53f5a030.
+Official [v0.4.0a3 publication](https://github.com/Alibaba-Agent-Sandbox/python-sdk/actions/runs/40209677091)
+succeeded; independent fresh installation and all four artifact hashes matched
+actual PyPI bytes. The current T4 now checks out that immutable SDK tag for its
+existing runner, but installs `agent-sandbox-client==0.4.0a3` from official PyPI,
+which requires the matching public server package. No local SDK source is installed.
+
+Template PR 225 was independently read back at exact head
+cbef1cde59e760f7fbae4482cc03b23f636dc569; both default and portable python-hello
+Dockerfiles install public server a3 from the official index. The actual running
+guest assertion is a3. CLI and Node source pins remain their previously reviewed
+inputs. This is a template source candidate with public host/guest Python packages;
+it is not a claim that the template PR is already merged.
+
+This exact public-a3 T4 and current-head gates remain pending at this checkpoint.
+All default/portable/proxy consumers and owned cleanup assertions remain required.
+
+Local follow-up: project/operation tests 16 PASS, OpenSandbox T0 63 PASS, live-gate
+regressions 3 PASS, embedded runner syntax and diff checks PASS. An initial local
+invocation referenced nonexistent test filenames and was corrected to repository
+commands; the fresh public runtime-only environment lacks pytest, so the harness
+unit checks used the existing development environment instead. These setup errors
+are not product failures and do not substitute for the pending real T4.
