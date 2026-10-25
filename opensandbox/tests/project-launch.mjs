@@ -1,4 +1,4 @@
-/** Exact catalog source -> default or explicitly selected image -> native OpenSandbox application workflows. */
+/** Exact catalog source -> default or explicitly selected image -> native OpenSandbox template startup. */
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -9,10 +9,10 @@ import { promisify } from "node:util";
 const run = promisify(execFile);
 const work = await fs.mkdtemp(path.join(os.tmpdir(), "abx-project-live-"));
 const cli = process.env.ABX_BIN;
-const source = process.env.ABX_WORKFLOW_TEMPLATE_SOURCE;
+const source = process.env.ABX_LAUNCH_TEMPLATE_SOURCE;
 assert.ok(cli, "ABX_BIN must be the reviewed built CLI wrapper");
-assert.ok(source, "ABX_WORKFLOW_TEMPLATE_SOURCE must be the exact reviewed python-hello directory");
-const profile = process.env.ABX_WORKFLOW_BUILD_PROFILE;
+assert.ok(source, "ABX_LAUNCH_TEMPLATE_SOURCE must be the exact reviewed python-hello directory");
+const profile = process.env.ABX_LAUNCH_BUILD_PROFILE;
 assert.ok(profile === undefined || profile === "portable", "Only the reviewed portable override is accepted");
 let id;
 let primaryFailure;
@@ -25,17 +25,18 @@ try {
   console.log("Explicit endpoint mode: " + (env.ABX_OPENSANDBOX_USE_SERVER_PROXY === "true" ? "server proxy" : "default direct"));
   await invoke(["provider", "install", process.env.ABX_OPENSANDBOX_PLUGIN, "-y"]);
   const result = JSON.parse(await invoke(["--provider", "opensandbox", "--json", "template", "launch", source,
-    "--workflow", "application", ...(profile ? ["--build-profile", profile] : []), "--timeout", "900", "--sandbox-timeout", "540", "--yes"]));
+    ...(profile ? ["--build-profile", profile] : []), "--timeout", "900", "--sandbox-timeout", "540", "--yes"]));
   id = result.sandbox_id;
   assert.match(id, /^[a-zA-Z0-9-]+$/);
-  assert.equal(result.workflow_id, "application"); assert.equal(result.build_profile, profile ?? null);
+  assert.equal(result.build_profile, profile ?? null);
+  assert.ok(result.services && Object.keys(result.services).length > 0);
   assert.match(result.source_digest, /^(?:sha256:)?[a-f0-9]{64}$/);
   assert.match(result.template_reference, /^localhost:5000\/abx-project@sha256:[a-f0-9]{64}$/);
   console.log("PASS exact source/profile -> prepared image -> owned sandbox -> application readiness");
   const response = JSON.parse(await invoke(["--provider", "opensandbox", "--json", "run", id, "hello", "--arg", "name=OpenSandbox"]));
   assert.ok(JSON.stringify(response).includes("Hello, OpenSandbox!"));
   console.log("PASS CLI application HTTP named command");
-  if (process.env.ABX_WORKFLOW_PROXY_PROBE === "1") {
+  if (process.env.ABX_LAUNCH_PROXY_PROBE === "1") {
     // Resolve through the public lifecycle API; never discover a Docker bridge address.
     const base = new URL(env.ABX_OPENSANDBOX_BASE_URL || "http://127.0.0.1:8080");
     const apiPath = base.pathname.replace(/\/$/, "").replace(/\/v1$/, "") + "/v1";
@@ -81,8 +82,8 @@ try {
     assert.equal(statuses.proxy_bearer, 401, "fixed upstream proxy strips Bearer authorization");
     assert.equal(statuses.proxy_access_token, 200, "existing service-token header crosses proxy");
     assert.equal(await call(proxy, "X-Access-Token", "intentionally-wrong"), 401, "proxy must reject an incorrect application token");
-    if (env.ABX_WORKFLOW_NODE_CLIENT) {
-      const { ServerClient } = await import(env.ABX_WORKFLOW_NODE_CLIENT);
+    if (env.ABX_LAUNCH_NODE_CLIENT) {
+      const { ServerClient } = await import(env.ABX_LAUNCH_NODE_CLIENT);
       const nodeClient = new ServerClient(proxy.baseUrl, {
         token: env.ABX_SERVER_TOKEN, headers: Object.fromEntries(proxy.headers), timeout: 30,
       });
@@ -96,27 +97,29 @@ try {
     }
   }
   // Both Python consumers use the exact prepared artifact, not Python source preparation.
-  await run(process.env.PYTHON || "python", ["-c", `
+  await run(process.env.PYTHON || "python", ["-c", String.raw`
 import asyncio, os
 from agent_sandbox import ProviderSandbox
-from agent_sandbox.api.workflow import launch_workflow
+from agent_sandbox.api.template import launch_template
 async def main():
-    sandbox = await ProviderSandbox.connect(os.environ['WORKFLOW_SANDBOX_ID'], provider='opensandbox')
+    sandbox = await ProviderSandbox.connect(os.environ['LAUNCH_SANDBOX_ID'], provider='opensandbox')
     try:
+        runtime = await sandbox.commands.run("python -c 'from importlib.metadata import version; print(version(\"agent-sandbox-server\"))'")
+        assert runtime.exit_code == 0 and runtime.stdout.strip() == '0.4.0a2'
         async with await sandbox.application_client(9000, token=os.environ['ABX_SERVER_TOKEN']) as client:
             result = await client.commands.run('hello', name='OpenSandbox')
             assert 'Hello, OpenSandbox!' in str(result)
     finally:
         await sandbox.close()
-    session = await launch_workflow(os.environ['WORKFLOW_MANIFEST'], provider='opensandbox',
-        workflow_id='application-image', reference=os.environ['WORKFLOW_IMAGE'],
+    session = await launch_template(os.environ['LAUNCH_MANIFEST'], provider='opensandbox',
+        reference=os.environ['LAUNCH_IMAGE'],
         application_token=os.environ['ABX_SERVER_TOKEN'], timeout=180, readiness_timeout=60)
     async with session:
         assert 'Hello, OpenSandbox!' in str(await session.run_command('hello', name='OpenSandbox'))
     assert session.sandbox.id not in {item.sandbox_id for item in await ProviderSandbox.list(provider='opensandbox')}
 asyncio.run(main())
-`], { env: { ...env, WORKFLOW_SANDBOX_ID: id, WORKFLOW_MANIFEST: path.join(source, "template.yaml"), WORKFLOW_IMAGE: result.template_reference }, cwd: work, timeout: 240000, maxBuffer: 1024 * 1024 });
-  console.log("PASS exact python-hello source/profile build -> OpenSandbox create/start/protocol -> CLI and Python application HTTP -> Python prepared-image workflow + owned cleanup");
+`], { env: { ...env, LAUNCH_SANDBOX_ID: id, LAUNCH_MANIFEST: path.join(source, "template.yaml"), LAUNCH_IMAGE: result.template_reference }, cwd: work, timeout: 240000, maxBuffer: 1024 * 1024 });
+  console.log("PASS exact python-hello source/profile build -> OpenSandbox create/start/protocol -> CLI and Python application HTTP -> Python prepared-template launch + owned cleanup");
 } catch (error) {
   primaryFailure = error;
   throw error;
@@ -130,7 +133,7 @@ asyncio.run(main())
   } catch (error) {
     if (!primaryFailure) throw error;
     // Never replace the application failure with a secondary cleanup assertion.
-    console.error("Secondary owned cleanup verification failed; the primary workflow error follows.");
+    console.error("Secondary owned cleanup verification failed; the primary launch error follows.");
   } finally {
     await fs.rm(work, { recursive: true, force: true });
   }

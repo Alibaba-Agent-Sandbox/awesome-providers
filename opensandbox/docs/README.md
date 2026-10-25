@@ -87,19 +87,22 @@ On 2026-10-14 a local OpenSandbox 1.1.1 returned real results for create, list, 
 
 ## 自动准备项目 / Automatic project preparation
 
-使用包含 workflow v1 与 `--build-profile` 的 CLI 源码版（旧版 CLI 0.4.10 不支持当前 manifest），安装或更新本插件后运行：
+安装官网当前 CLI，配置 OpenSandbox 连接与独立应用令牌 `ABX_SERVER_TOKEN`。
+令牌用于模板内服务，不是 OpenSandbox 平台 API key。模板按 specification 5
+声明的 `start_cmd`、`ready_cmd` 和全部 `provides` 服务整体启动，无需 workflow 参数。
 
-先设置独立应用令牌 `ABX_SERVER_TOKEN`；它不是 OpenSandbox 平台 API key。先前的镜像验收不等于此新工作流已验收。
-
-Set a separate application token through `ABX_SERVER_TOKEN` before launching; it is not the OpenSandbox API key. Prior image acceptance does not certify this new workflow.
+Install the current CLI, configure OpenSandbox and set a separate application
+`ABX_SERVER_TOKEN`. A specification-5 template starts all its declared services;
+the token authenticates the application, not the provider gateway.
 
 ```sh
-abx --provider opensandbox template launch alibaba-agent-sandbox/awesome-templates//python-hello --workflow application --build-profile portable --yes
+abx --provider opensandbox template launch alibaba-agent-sandbox/awesome-templates//python-hello --yes
 ```
 
-提供方现在声明 `templates.build`，用于 node/1 管理器的 `prepareProject`。CLI 自动把适配器返回的 ID、名称或镜像传给创建，启动服务并验证就绪；缺少模板声明的运行时能力时，在构建前拒绝。正常沙箱行为不变。
-
-Use a CLI source build with workflow v1 and `--build-profile`; CLI 0.4.10 predates this manifest contract. The node/1 `prepareProject` manager is guarded by `templates.build`. The exact returned native reference is handed to sandbox creation. Missing runtime capabilities fail before build. Normal sandbox operations remain unchanged.
+The provider owns project preparation through `templates.build` / `prepareProject`.
+The CLI passes the returned immutable image reference to the same provider,
+starts the template and checks readiness. Backend credentials, Docker login and
+image-repository access belong to provider configuration.
 
 先配置 Docker 登录、可写 `ABX_OPENSANDBOX_IMAGE_REPOSITORY` 和服务连接。新版 CLI 会在临时构建目录解析官方基础镜像的区域、标签并准备固定版本的服务端；不修改模板源码。自定义构建方案仍可通过 `--build-profile` 显式选择。构建后返回镜像引用，供同一 OpenSandbox 后端创建实例。
 
