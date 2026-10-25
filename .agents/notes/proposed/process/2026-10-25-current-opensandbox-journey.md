@@ -22,7 +22,9 @@ capability declarations, authentication behavior or package versions.
 
 Use `launch_template(reference=...)` without workflow_id and public
 `ProviderSandbox`. The CLI receipt supplies declared services, not a workflow ID.
-No new public interface, compatibility alias or launch mode.
+No new public interface, compatibility alias or launch mode. Correct the E2B
+Python guide to current provider_options names and show owned sandbox cleanup;
+this does not change E2B implementation or claim E2B cloud acceptance.
 
 ## Alternatives considered
 

@@ -46,3 +46,19 @@ retired Git server requirement, omitted from the first default-Dockerfile sweep.
 Templates candidate 6302d9f53c068831e76c24bbe4e93dcaf1d342af updates that recipe
 and validates all declared profiles. T4 is rerun on that exact input. The
 intermediate known-obsolete run was canceled, never counted as a pass.
+
+Latest selected T4: PASS. Workflow run 40203802510 at provider source
+36f3be46fc7260300f62186c2ae946f8dfccd294 completed successfully, with all
+18 job steps successful. Inputs were templates 6302d9f53c068831e76c24bbe4e93dcaf1d342af,
+merged CLI source 6dfdf9897ad76bf2fdb7eb1ccf455252b2dcb9fb, published SDK a2
+and Node source a4e24a81d9a6305a7a6e992fd9cec6077587537a. Default, portable
+and explicit server-proxy launch, actual guest-version assertions, named CLI
+and Python HTTP calls, independent Node proxy call and final no-owned-container
+check passed. This tests exact source inputs, not a fresh public CLI install
+and not the whole catalog. The prior portable failure remains in history.
+
+The E2B guide's unsupported Python api_url call was removed in favor of current
+provider_options names; the example now includes owned cleanup. Public a2
+signature and top-level-await syntax checks passed after correcting an initial
+local checker working-directory mistake (no source failure). E2B T0: 12 PASS,
+1 explicit official-SDK opt-in SKIP. No E2B cloud credential or acceptance claim.
