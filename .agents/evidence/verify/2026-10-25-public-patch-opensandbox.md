@@ -1,7 +1,7 @@
 # Public patch OpenSandbox verification
 
 Date: 2026-10-25
-Result: PARTIAL (merged recipe bytes checked; real T4 and current-head CI pending)
+Result: PASS for exact source-built consumer scope below; final record-head CI and normal merge pending
 
 Base: merged provider PR40 at 126a50e3c4e4c6792019b9c96674d35a9518d8ad.
 Issue: https://github.com/Alibaba-Agent-Sandbox/awesome-providers/issues/41.
@@ -13,7 +13,7 @@ Prepared consumer inputs are formally published CLI .5 source
 PyPI; the matching server is its exact dependency. Actual guest assertion is a6.
 The existing Node source stays 63d7cd8ece221b9f968eef51eeb932ea334c90d3.
 
-PR225 normally merged to public main `389302f5dc9429a4b215801dbd4025d4dba95f7e` after all 54 final checks passed. Independent GitHub content readback of that immutable merged revision verified both default and portable python-hello recipes install exact server a6 from the official PyPI index, with no wheel/source fallback. The workflow selects that merged revision. Its recipe/manifest bytes equal the earlier reviewed candidate; the old candidate readback remains separate history. No a6 Docker/T4 pass is claimed before the real run completes.
+PR225 normally merged to public main `389302f5dc9429a4b215801dbd4025d4dba95f7e` after all 54 final checks passed. Independent GitHub content readback of that immutable merged revision verified both default and portable python-hello recipes install exact server a6 from the official PyPI index, with no wheel/source fallback. The workflow selects that merged revision. Its recipe/manifest bytes equal the earlier reviewed candidate; the old candidate readback remains separate history. The complete real a6 Docker/T4 run subsequently passed as recorded below.
 
 | Merged input | SHA-256 |
 | --- | --- |
@@ -23,12 +23,22 @@ PR225 normally merged to public main `389302f5dc9429a4b215801dbd4025d4dba95f7e` 
 
 All three startup paths, named CLI/Python calls, independent Node proxy requests,
 authentication checks, installed contracts and final cleanup remain required.
-This is planned source-built CLI testing with public Python packages, not a
+This is source-built CLI testing with public Python packages, not a
 fresh official npm/SEA install or all-template/platform certification.
 
 Local preparation: OpenSandbox T0 63 PASS (0 skips), project/operation tests 16
 PASS, explicit-live gating regressions 3 PASS, actual embedded runner syntax and
-diff checks PASS. These tests do not establish the pending real a6 Docker scope.
+diff checks PASS. These local tests are separate from the real a6 Docker result below.
 
 The maintained Skill now recommends public CLI 0.5.5 with the current catalog,
 replacing its old 0.5.0 entry; no earlier tested receipt is relabeled.
+
+## Actual final dependency T4
+
+Exact source head `ebb765f68eb8b1d0aa34bd13fa6e502acf9ac47c` passed all five checks: four T0 jobs and [real Docker T4 run 40233605878](https://github.com/Alibaba-Agent-Sandbox/awesome-providers/actions/runs/40233605878), attempt 1, job 121290364936. All 18 job steps completed SUCCESS, including unconditional cleanup. This counts steps, not 18 independent scenarios.
+
+The unchanged gate ran default/direct, portable/direct and default/server-proxy native source build → registry push → launch. Each path passed the CLI named command, actual installed guest server `0.4.0a6`, Python application client, a second Python prepared-reference launch and owned cleanup (three final success markers). Two explicit proxy probes passed authentication checks, and two independent Node client proxy invocations passed. The direct plugin, installed contracts, environment checks, Python contract scenarios, CLI lifecycle/commands/files and official SDK parser with actual host staging also passed.
+
+Cleanup verified each known owned launch ID absent from the Python/CLI lists, then teardown and the final Docker assertion verified no sandbox containers remained. This is the existing list/container-absence contract; it is not an independent typed-404 lookup. No secondary cleanup failure marker occurred. The isolated runner's registry container was removed.
+
+The host CLI was built from the immutable released `.5` source, not freshly installed from npm/SEA in this T4. Matching official Python a6 packages and merged template recipes were used. This does not certify all templates, other clouds, Kubernetes, PTY or model execution. Older a3 passes and a2 failure receipts remain unchanged.
