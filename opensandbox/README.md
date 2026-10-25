@@ -54,7 +54,7 @@ under `[providers.opensandbox]`, or (where listed) with the OpenSandbox-native v
 | `use_server_proxy` | `OPEN_SANDBOX_USE_SERVER_PROXY` | `false` | Route sandbox traffic through the server proxy |
 | `default_image` | | `python:3.12-slim` | Image for the generic template `base` |
 | `image_aliases` | | `code=opensandbox/code-interpreter:v1.1.0` | `name=image,...` short template names |
-| `entrypoint` | | `tail -f /dev/null` | Explicit keepalive default. An application workflow starts its declared service through exec. Image names never select runtime scripts; a different process requires explicit configuration |
+| `entrypoint` | | `tail -f /dev/null` | Explicit keepalive default. The template launcher runs the declared `start_cmd` through exec to start all application services. Image names never select runtime scripts; a different process requires explicit configuration |
 | `ready_timeout` | | `60` | Seconds to wait for Running + execd |
 | `registry_username`, `registry_password` (secret) | | none | Private registry auth |
 | `network_policy` | | none | JSON NetworkPolicy for every new sandbox (overridable per create) |
