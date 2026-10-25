@@ -41,7 +41,7 @@ jobs:
       - name: Fetch reviewed host sources
         run: |
           git clone https://github.com/Alibaba-Agent-Sandbox/agent-sandbox.git /tmp/abx-cli
-          git -C /tmp/abx-cli checkout 3f7fa28e16888a5489980dc56c86d6c71c11c4a0
+          git -C /tmp/abx-cli checkout 1ea3eabd679c3cf26c824492a60fe2a8aea43f62
           git clone https://github.com/Alibaba-Agent-Sandbox/awesome-templates.git /tmp/abx-templates
           git -C /tmp/abx-templates checkout 389302f5dc9429a4b215801dbd4025d4dba95f7e
           git clone https://github.com/Alibaba-Agent-Sandbox/python-sdk.git /tmp/abx-python

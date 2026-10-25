@@ -109,3 +109,5 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [Prepared-launch readiness diagnosis](evidence/verify/2026-10-25-prepared-launch-readiness.md).
 
 - [Published patch OpenSandbox consumers](notes/proposed/process/2026-10-25-public-patch-opensandbox.md) · [verification](evidence/verify/2026-10-25-public-patch-opensandbox.md).
+
+- [CLI 0.5.6 consumer synchronization](notes/proposed/process/2026-10-25-current-cli-056.md) · [verification](evidence/verify/2026-10-25-current-cli-056.md). CLI 0.5.6 publication is verified; this follow-up's exact-head T4 and merge remain pending.

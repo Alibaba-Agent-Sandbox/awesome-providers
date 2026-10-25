@@ -50,7 +50,7 @@ Each provider directory has `docs/README.md`. Update that file when you change p
 
 ## Prepare project sources
 
-Use public CLI 0.5.5 with the current v5 template catalog for whole-template startup; upgrade them together:
+Use public CLI 0.5.6 with the current v5 template catalog for whole-template startup; upgrade them together:
 
 ```sh
 abx --provider <id> template launch owner/repository//template-path --yes
