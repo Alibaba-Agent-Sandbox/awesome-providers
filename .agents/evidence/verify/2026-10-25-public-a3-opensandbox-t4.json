@@ -1,0 +1,106 @@
+{
+  "provider_head": "f4769f2308d1649038bbb6f70285cd3e1603417c",
+  "run_id": 40212643836,
+  "run_url": "https://github.com/Alibaba-Agent-Sandbox/awesome-providers/actions/runs/40212643836",
+  "job_id": 121226993987,
+  "conclusion": "success",
+  "cli_source": "6dfdf9897ad76bf2fdb7eb1ccf455252b2dcb9fb",
+  "template_source": "cbef1cde59e760f7fbae4482cc03b23f636dc569",
+  "sdk_tag": "v0.4.0a3",
+  "sdk_source": "a7d6aa3e5e16fcf8cde1d91465f4a5fc53f5a030",
+  "host_install": "official PyPI agent-sandbox-client==0.4.0a3 plus matching server dependency",
+  "actual_guest_version_assertion": "0.4.0a3",
+  "node_source": "63d7cd8ece221b9f968eef51eeb932ea334c90d3",
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/checkout@v4",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/setup-node@v4",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/setup-python@v5",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Fetch reviewed host sources",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Install locked CLI and matching SDK packages",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Project parser with actual host staging and pinned official SDK",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Verify SDK fixture and CLI share an isolated home",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Start real Docker-backed OpenSandbox",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run direct plugin, installed contract kit and environment tests",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run Python SDK scenarios with streamed diagnostics",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run CLI lifecycle, commands and files",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run native project build, registry push and automatic launch",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Cleanup and verify no sandbox containers remain",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Run actions/setup-python@v5",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Run actions/setup-node@v4",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Run actions/checkout@v4",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}

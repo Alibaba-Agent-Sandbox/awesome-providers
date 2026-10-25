@@ -1,7 +1,7 @@
 # Prepared-launch readiness follow-up
 
 Date: 2026-10-25
-Result: PARTIAL
+Result: PASS (public-a3 T4 and local checks; source merge pending)
 
 Original [run 40206364834](https://github.com/Alibaba-Agent-Sandbox/awesome-providers/actions/runs/40206364834)
 at provider source 410d07d failed in public a2 Python prepared-template readiness,
@@ -64,3 +64,25 @@ invocation referenced nonexistent test filenames and was corrected to repository
 commands; the fresh public runtime-only environment lacks pytest, so the harness
 unit checks used the existing development environment instead. These setup errors
 are not product failures and do not substitute for the pending real T4.
+
+## Actual public a3 T4 result
+
+[Run 40212643836](https://github.com/Alibaba-Agent-Sandbox/awesome-providers/actions/runs/40212643836),
+job 121226993987 at exact provider head f4769f2308d1649038bbb6f70285cd3e1603417c:
+all 18 steps completed SUCCESS, including final Docker cleanup.
+[Sanitized receipt](2026-10-25-public-a3-opensandbox-t4.json) retains exact inputs
+and all step outcomes. The private raw log is preserved outside the repository.
+
+Default/direct, portable/direct and default/server-proxy each passed source build,
+local-registry push, automatic launch/readiness, CLI named-command calls, public
+Python application calls and Python prepared-reference launch/owned cleanup.
+All three actual guest runtime assertions were a3. Both explicit proxy probes
+passed independent Node ServerClient calls and the existing authentication checks.
+Plugin/installed contract kit, public Python scenarios and CLI lifecycle/file/command
+checks passed. Final cleanup verified no sandbox containers remained.
+
+This follow-up also updates only the current English/Chinese acceptance-page
+installation recommendation to public a3 with the official index. Old acceptance
+receipts retain their actual source/package identities and failures. No runtime
+or test assertion changed after f4769f2; this final evidence/docs commit still
+requires normal current-head checks/review and remote merge confirmation.

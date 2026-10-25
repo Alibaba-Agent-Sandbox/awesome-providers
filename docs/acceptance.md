@@ -4,9 +4,9 @@ The 2026-10-24 [three-consumer OpenSandbox check](../.agents/evidence/verify/202
 
 2026-10-24 [OpenSandbox 三客户端测试](../.agents/evidence/verify/2026-10-24-opensandbox-proxy-consumers-pass.md)覆盖 `python-hello` 默认直连、显式 portable 直连及默认 server-proxy 启动，含 CLI/Python 调用、独立 Node HTTP 代理调用与清理；它使用源码构建的候选工具，不是公开包安装测试。另一次[公开 92 组模板矩阵](https://github.com/Alibaba-Agent-Sandbox/awesome-templates/blob/78c30fbbd186cb59c3a0f0abd9fdf85b10c84b35/.agents/evidence/verify/2026-10-24-public-template-matrix.md)使用 CLI 0.4.16、宿主 Python 0.3.1a5 和固定 provider/模板 checkout，覆盖极速版及默认直连 OpenSandbox。两者均不认证真实模型任务、PTY、所有云后端或项目统一解释器。
 
-For new installations, use the current CLI from the [official installation page](https://www.agent-sandbox.cn/start/) and exact public Python client `0.4.0a2`. Installing `agent-sandbox-client==0.4.0a2` also installs its matching server dependency. Historical receipts below retain their actual tested versions; they are not installation recommendations or current-release certification.
+For new installations, use the current CLI from the [official installation page](https://www.agent-sandbox.cn/start/) and exact public Python client `0.4.0a3`. Install with `python -m pip install --index-url https://pypi.org/simple agent-sandbox-client==0.4.0a3`; this also installs its matching server dependency. Historical receipts below retain their actual tested versions; they are not installation recommendations or current-release certification.
 
-新安装使用[官网](https://www.agent-sandbox.cn/start/)当前 CLI 与公开 Python client `0.4.0a2`；安装客户端会自动安装同版本服务端。下方历史收据保留实际测试身份，不再作为当前安装建议或新版测试证明。
+新安装使用[官网](https://www.agent-sandbox.cn/start/)当前 CLI 与公开 Python client `0.4.0a3`；使用 `python -m pip install --index-url https://pypi.org/simple agent-sandbox-client==0.4.0a3` 安装客户端及同版本服务端。下方历史收据保留实际测试身份，不再作为当前安装建议或新版测试证明。
 
 | Provider | Stage / 状态 | Scope / 范围 |
 | --- | --- | --- |
