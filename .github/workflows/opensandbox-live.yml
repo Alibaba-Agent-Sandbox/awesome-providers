@@ -43,7 +43,7 @@ jobs:
           git clone https://github.com/Alibaba-Agent-Sandbox/agent-sandbox.git /tmp/abx-cli
           git -C /tmp/abx-cli checkout 6dfdf9897ad76bf2fdb7eb1ccf455252b2dcb9fb
           git clone https://github.com/Alibaba-Agent-Sandbox/awesome-templates.git /tmp/abx-templates
-          git -C /tmp/abx-templates checkout f2a5bb4345769b3481985a9b4f4138358ea36634
+          git -C /tmp/abx-templates checkout 6302d9f53c068831e76c24bbe4e93dcaf1d342af
           git clone https://github.com/Alibaba-Agent-Sandbox/python-sdk.git /tmp/abx-python
           git -C /tmp/abx-python checkout v0.4.0a2
           git clone https://github.com/Alibaba-Agent-Sandbox/nodejs-sdk.git /tmp/abx-node

@@ -37,3 +37,12 @@ now explicitly uses official PyPI. The next T4 run selects templates candidate
 f2a5bb4345769b3481985a9b4f4138358ea36634 and merged CLI 0.5.3 source
 6dfdf9897ad76bf2fdb7eb1ccf455252b2dcb9fb; adds the observed guest version to
 failure diagnostics instead of a bare assertion. Complete T4 remains pending.
+
+Further diagnosis separated the two recipes: the default startup, explicit
+proxy authentication probe (direct Bearer 200, proxy Bearer 401, proxy access
+header 200) and independent Node proxy call passed. The second portable recipe
+failed its runtime assertion. Its declared Dockerfile.portable still used a
+retired Git server requirement, omitted from the first default-Dockerfile sweep.
+Templates candidate 6302d9f53c068831e76c24bbe4e93dcaf1d342af updates that recipe
+and validates all declared profiles. T4 is rerun on that exact input. The
+intermediate known-obsolete run was canceled, never counted as a pass.
