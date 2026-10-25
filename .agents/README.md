@@ -103,3 +103,7 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [Provider installation consent guidance](notes/implemented/process/2026-10-24-provider-install-consent.md) · [verification](evidence/verify/2026-10-24-provider-install-consent.md).
 
 - [Exec installation host](notes/implemented/process/2026-10-24-exec-install-host.md) · [verification](evidence/verify/2026-10-24-exec-install-host.md).
+
+- [Current whole-template T4 journey](notes/proposed/process/2026-10-25-current-opensandbox-journey.md) · [verification](evidence/verify/2026-10-25-current-opensandbox-journey.md).
+
+- [Prepared-launch readiness diagnosis](evidence/verify/2026-10-25-prepared-launch-readiness.md).

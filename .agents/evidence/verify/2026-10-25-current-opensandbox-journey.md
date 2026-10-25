@@ -1,0 +1,64 @@
+# Current OpenSandbox journey verification
+
+Date: 2026-10-25
+Result: PARTIAL
+
+Scope: existing OpenSandbox T4 workflow/runner, SDK fixture, current provider
+guide and installation recommendations. Plugin implementation/metadata unchanged.
+
+- `node tests/run.mjs` in opensandbox: PASS, 63 tests.
+- `node --test tests/project.test.mjs tests/workflow-operations.test.mjs`: PASS,
+  16 tests.
+- `pytest opensandbox/tests/harness/test_live_gate.py --confcutdir=opensandbox/tests/harness`:
+  PASS, 3 tests (no opt-in skips; explicit missing/unreachable backend fails).
+- Node syntax check and compilation of the actual embedded Python launcher:
+  PASS; corrected import is `agent_sandbox.api.template.launch_template`.
+- Public a2 ProviderSandbox and template-launcher imports: PASS.
+- Independent review by the template reviewer retained default/portable/proxy,
+  Python/Node application calls and cleanup. Guest version is checked explicitly.
+
+Selected candidate inputs: CLI PR170 20a0fc8c252ec4c048d6cd257d50b2522fc187a4,
+templates PR222 ecead480736b2791f220d4c3f42fa8a128bacd1a, public SDK v0.4.0a2,
+Node source a4e24a81d9a6305a7a6e992fd9cec6077587537a. This is not a public
+CLI 0.5.3 installation claim. Required real Docker T4 remains pending; this local
+environment has no Docker. No cloud resource was created for these local checks.
+Old and failed receipts remain historical. Platform-native credential names
+belonging to the OpenSandbox server itself are not obsolete project aliases.
+
+Issue: https://github.com/Alibaba-Agent-Sandbox/awesome-providers/issues/39
+
+First candidate T4: FAIL at the explicit actual guest-version assertion, after
+installed-host fixture, 11 backend/environment checks, SDK contract scenarios,
+CLI lifecycle, source preparation, launch and the CLI named HTTP call passed.
+The runner cleanup step succeeded. No inference that host a2 implies guest a2.
+The original failed source pin is preserved in workflow history. Template builds
+independently exposed a base-image pip mirror missing a2; selected template source
+now explicitly uses official PyPI. The next T4 run selects templates candidate
+f2a5bb4345769b3481985a9b4f4138358ea36634 and merged CLI 0.5.3 source
+6dfdf9897ad76bf2fdb7eb1ccf455252b2dcb9fb; adds the observed guest version to
+failure diagnostics instead of a bare assertion. Complete T4 remains pending.
+
+Further diagnosis separated the two recipes: the default startup, explicit
+proxy authentication probe (direct Bearer 200, proxy Bearer 401, proxy access
+header 200) and independent Node proxy call passed. The second portable recipe
+failed its runtime assertion. Its declared Dockerfile.portable still used a
+retired Git server requirement, omitted from the first default-Dockerfile sweep.
+Templates candidate 6302d9f53c068831e76c24bbe4e93dcaf1d342af updates that recipe
+and validates all declared profiles. T4 is rerun on that exact input. The
+intermediate known-obsolete run was canceled, never counted as a pass.
+
+Latest selected T4: PASS. Workflow run 40203802510 at provider source
+36f3be46fc7260300f62186c2ae946f8dfccd294 completed successfully, with all
+18 job steps successful. Inputs were templates 6302d9f53c068831e76c24bbe4e93dcaf1d342af,
+merged CLI source 6dfdf9897ad76bf2fdb7eb1ccf455252b2dcb9fb, published SDK a2
+and Node source a4e24a81d9a6305a7a6e992fd9cec6077587537a. Default, portable
+and explicit server-proxy launch, actual guest-version assertions, named CLI
+and Python HTTP calls, independent Node proxy call and final no-owned-container
+check passed. This tests exact source inputs, not a fresh public CLI install
+and not the whole catalog. The prior portable failure remains in history.
+
+The E2B guide's unsupported Python api_url call was removed in favor of current
+provider_options names; the example now includes owned cleanup. Public a2
+signature and top-level-await syntax checks passed after correcting an initial
+local checker working-directory mistake (no source failure). E2B T0: 12 PASS,
+1 explicit official-SDK opt-in SKIP. No E2B cloud credential or acceptance claim.

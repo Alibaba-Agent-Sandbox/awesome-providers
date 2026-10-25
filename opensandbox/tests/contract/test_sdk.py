@@ -7,7 +7,7 @@ import time
 
 import pytest
 
-from agent_sandbox.api.sandbox import Sandbox
+from agent_sandbox import ProviderSandbox as Sandbox
 from agent_sandbox.models.errors import (
     FileNotFoundError_,
     ProviderFeatureNotSupportedError,

@@ -18,6 +18,14 @@ abx --provider e2b create --template base
 from agent_sandbox import ProviderSandbox as Sandbox
 
 sb = await Sandbox.create(provider="e2b", template="base", timeout=300)
+try:
+    result = await sb.commands.run("printf 'hello\n'")
+    print(result.stdout)
+finally:
+    try:
+        await sb.kill()
+    finally:
+        await sb.close()
 ```
 
 没有 `ABX_E2B_API_KEY` 时，`Sandbox.create` 在发请求前抛 `InvalidAPIKeyError`。不读 `ABX_SANDBOX_API_KEY`，也不读 `E2B_API_KEY`。
@@ -30,7 +38,7 @@ sb = await Sandbox.create(provider="e2b", template="base", timeout=300)
 | 数据面域名 | `ABX_E2B_DOMAIN` | `e2b.app` |
 | `X-API-Key` | `ABX_E2B_API_KEY` | 不设置 |
 
-三个名字也可以放在 `provider_options` 里。`Sandbox.create(api_url=...)` 不会改这个源站，除非调用方把它抄进 `provider_options["base_url"]`。
+非默认配置使用 `provider_options={"base_url": "https://api.e2b.app", "domain": "e2b.app", "api_key": "..."}`；字段名分别是 `base_url`、`domain` 和 `api_key`。常规用法只需设置上表环境变量。
 
 数据面主机名是 `https://{port}-{sandboxID}.e2b.app`，envd 端口 49983。旧账号还在 `e2b.dev` 时，同时设置 `ABX_E2B_BASE_URL` 和 `ABX_E2B_DOMAIN`。创建响应里没有 `region` 时保持空字符串，不会落成 `cn-hangzhou`。
 
@@ -108,6 +116,8 @@ abx provider install alibaba-agent-sandbox/awesome-providers//e2b --allow-unpinn
 | `X-API-Key` | `ABX_E2B_API_KEY` | unset |
 
 Missing `ABX_E2B_API_KEY` raises `InvalidAPIKeyError` before any request. It does not read `ABX_SANDBOX_API_KEY` or `E2B_API_KEY`. An old account on `e2b.dev` sets both `ABX_E2B_BASE_URL` and `ABX_E2B_DOMAIN`.
+
+For non-default settings, use `provider_options={"base_url": "https://api.e2b.app", "domain": "e2b.app", "api_key": "..."}`. The option names are `base_url`, `domain` and `api_key`; the environment variables above are enough for normal use.
 
 Connect tries `POST /v2/sandboxes/{id}/connect`, then `POST /sandboxes/{id}/connect`, then GET. Process Start sends `stdin: false`. `files.watch` is declared. `pty` is not declared because public envd has no `/terminal`.
 

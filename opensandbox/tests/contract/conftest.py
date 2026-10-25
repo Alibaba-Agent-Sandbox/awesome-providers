@@ -1,7 +1,8 @@
 """Fixtures for the pytest tier: install the plugin into a throwaway store, talk to a live server.
 
-Opt in with ``OPENSANDBOX_LIVE=1`` plus ``ABX_OPENSANDBOX_BASE_URL`` and ``OPEN_SANDBOX_API_KEY``
-(or ``ABX_OPENSANDBOX_API_KEY``). Everything is skipped otherwise.
+Opt in with ``OPENSANDBOX_LIVE=1``, ``ABX_OPENSANDBOX_BASE_URL`` and
+``ABX_OPENSANDBOX_API_KEY``. Without opt-in tests skip; an explicitly requested
+live run fails if its server is missing or unreachable.
 """
 
 from __future__ import annotations
@@ -13,18 +14,20 @@ from pathlib import Path
 import pytest
 
 PLUGIN_DIR = Path(__file__).resolve().parents[2]
-BASE_URL = os.environ.get("ABX_OPENSANDBOX_BASE_URL") or os.environ.get("OPEN_SANDBOX_DOMAIN")
+BASE_URL = os.environ.get("ABX_OPENSANDBOX_BASE_URL")
 
 
 def _live() -> bool:
-    if os.environ.get("OPENSANDBOX_LIVE") != "1" or not BASE_URL:
+    if os.environ.get("OPENSANDBOX_LIVE") != "1":
         return False
+    if not BASE_URL:
+        raise RuntimeError("Explicit live tests require ABX_OPENSANDBOX_BASE_URL")
     url = BASE_URL if BASE_URL.startswith("http") else f"http://{BASE_URL}"
     try:
         with urllib.request.urlopen(url.rstrip("/").removesuffix("/v1") + "/health", timeout=3):
             return True
-    except OSError:
-        return False
+    except OSError as exc:
+        raise RuntimeError("Explicit live tests could not reach the configured server") from exc
 
 
 def pytest_collection_modifyitems(config, items):
