@@ -26,3 +26,14 @@ Old and failed receipts remain historical. Platform-native credential names
 belonging to the OpenSandbox server itself are not obsolete project aliases.
 
 Issue: https://github.com/Alibaba-Agent-Sandbox/awesome-providers/issues/39
+
+First candidate T4: FAIL at the explicit actual guest-version assertion, after
+installed-host fixture, 11 backend/environment checks, SDK contract scenarios,
+CLI lifecycle, source preparation, launch and the CLI named HTTP call passed.
+The runner cleanup step succeeded. No inference that host a2 implies guest a2.
+The original failed source pin is preserved in workflow history. Template builds
+independently exposed a base-image pip mirror missing a2; selected template source
+now explicitly uses official PyPI. The next T4 run selects templates candidate
+f2a5bb4345769b3481985a9b4f4138358ea36634 and merged CLI 0.5.3 source
+6dfdf9897ad76bf2fdb7eb1ccf455252b2dcb9fb; adds the observed guest version to
+failure diagnostics instead of a bare assertion. Complete T4 remains pending.
