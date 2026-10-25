@@ -1,8 +1,8 @@
-# Provider 精确工作流操作
+# Provider 操作与模板启动
 
 平台有某种运行时，不代表项目 adapter 或语言桥接已接入。模板软件、平台操作和客户端接口分别声明。[English](workflows.md)。
 
-每个插件声明 `operation_contract_version = 1`、`[operations] cli/python` 和 `[workflow] inputs/startups`；Node infrastructure 或 EPP initialize 返回相同信息。声明必须有真实消费入口 handler。[共享 IDL](https://github.com/Alibaba-Agent-Sandbox/python-sdk/tree/main/contracts) 归 Python SDK 契约维护。粗粒度 features 仅用于发现，不承诺解释器语义。
+每个插件声明 `operation_contract_version = 1`、`[operations] cli/python` 和 `[workflow] inputs/startups`；这些 `[workflow]` 键仅保留为 Provider 安装协议内部的准备输入和启动机制元数据，不是模板让用户选择的工作流或 CLI 参数。Node infrastructure 或 EPP initialize 返回相同信息。声明必须有真实消费入口 handler。[共享 IDL](https://github.com/Alibaba-Agent-Sandbox/python-sdk/tree/main/contracts) 归 Python SDK 契约维护。粗粒度 features 仅用于发现，不承诺解释器语义。
 
 | 提供方 | CLI 代码操作 | Python 代码操作 | 源码准备 |
 | --- | --- | --- | --- |
@@ -15,7 +15,7 @@
 
 Python Provider 只消费显式准备的镜像或托管引用，不声明 `template.prepare`。E2B/Cube/容器版不能把 OCI 镜像当原生模板 ID。OpenSandbox 支持镜像，但不宣称执行镜像原生 ENTRYPOINT；平台 API 要求显式进程，可见 keepalive 默认是 `tail -f /dev/null`。解释器脚本必须显式配置，不根据镜像名推断。
 
-准备保留 Dockerfile 的 FROM、USER、COPY、ENTRYPOINT；删除 `build_base_image` 且无兼容回退。占位符未显式解析时检查失败。`startup: exec` 只由 launcher 启动一次，不重复注入为平台启动命令。应用部署 hooks 独立。
+准备保留 Dockerfile 的 FROM、USER、COPY、ENTRYPOINT；删除 `build_base_image` 且无兼容回退。占位符未显式解析时检查失败。spec v5 模板声明 `start_cmd`，不声明 `startup: exec`：launcher 根据该命令推导 exec 启动并执行一次，不重复注入为平台启动命令。没有 `start_cmd` 时，托管模板使用原生启动；源码或镜像需要 Provider 支持镜像入口启动。应用部署 hooks 独立。
 
 构建、推送和注册需要持久 ownership journal；请求前记 intent，响应后记返回 ID。未知响应不盲重试。`owned_resources` 只列本轮新建资源，复用项和共享 base 不算新拥有。没有删除协议的产物需人工清理，调用方必须报告残留及恢复方式，不能宣称完全清理。
 

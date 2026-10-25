@@ -13,6 +13,10 @@ This repository owns provider plugins, catalog metadata and their verification.
 Read [CONTRIBUTING.md](../CONTRIBUTING.md), the provider [skill](../SKILL.md)
 and the [test tiers](../docs/e2e.md) before changing a provider.
 
+## Pending coordinated update (2026-10-25)
+
+- [Whole-template startup guidance](notes/proposed/process/2026-10-25-whole-template-startup-docs.md) · [verification](evidence/verify/2026-10-25-whole-template-startup-docs.md). Provider metadata stays unchanged; CLI and template v5 publication must be coordinated.
+
 ## Records and lifecycle
 
 New records use English. Decisions live in

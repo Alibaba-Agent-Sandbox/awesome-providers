@@ -50,7 +50,7 @@ Each provider directory has `docs/README.md`. Update that file when you change p
 
 ## Prepare project sources
 
-Use a CLI build containing `template launch` (the original npm 0.4.0 release predates it):
+Spec v5 whole-template startup requires CLI 0.5.0 and the matching v5 template catalog; upgrade them together:
 
 ```sh
 abx --provider <id> template launch owner/repository//template-path --yes
@@ -58,8 +58,8 @@ abx --provider <id> template launch owner/repository//template-path --yes
 
 Configure backend credentials and build prerequisites once; read that provider’s `docs/README.md`. The manager owns `prepareProject(directory, options)` under `templates.build` and returns `{reference,status:"ready"}` with optional service/readiness commands and creation metadata. Pass its exact native reference to the same provider. Use generic `kit.project.stage`, `buildImage` and `runTool` primitives; keep SDK/API mapping, authentication, polling and cluster policy in the adapter. Do not add vendor-ID switches to the host or Registry.
 
-E2B uses its independent key and official SDK parser; Cube builds/pushes then registers natively; OpenSandbox uses the built image directly; container edition clones a configured base SandboxSet in the API-key namespace. Only exact operations of the selected workflow block that path; an application does not inherit a unified interpreter requirement. Successful build artifacts remain for reuse; do not silently delete existing resources. OpenSandbox retains stable maturity for its accepted Docker scope; the other catalog providers remain Beta. New workflows, profiles and inputs still need their own exact-scope evidence; maturity does not certify them.
+E2B uses its independent key and official SDK parser; Cube builds/pushes then registers natively; OpenSandbox uses the built image directly; container edition clones a configured base SandboxSet in the API-key namespace. Only operations required by the template manifest block startup; an application does not inherit a unified interpreter requirement. Templates declare `start_cmd` and `provides`, with no workflow selector. Retained provider `[workflow] inputs/startups` keys are internal capability metadata. Successful build artifacts remain for reuse; do not silently delete existing resources. OpenSandbox retains stable maturity for its accepted Docker scope; the other catalog providers remain Beta. New launch paths, profiles and inputs still need their own exact-scope evidence; maturity does not certify them.
 
 Use `abx provider update <id> --check` to inspect a recorded Git source, then the documented consent/pin options to update. Pinned installs stay pinned. `abx provider update alicloud-express --check` reports the bundled upgrade path; built-in code is updated with the CLI, not a separately installed plugin.
 
-See [exact workflow operations](docs/workflows.md) ([中文](docs/workflows.zh-CN.md)).
+See [provider operations and template startup](docs/workflows.md) ([中文](docs/workflows.zh-CN.md)).
