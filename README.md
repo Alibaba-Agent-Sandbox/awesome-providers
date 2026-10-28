@@ -1,64 +1,57 @@
-# Awesome Providers
+# Agent Sandbox Providers
 
-Installable sandbox providers for Agent Sandbox. The SDK and the CLI ship only
-`alicloud-express`. Everything else is installed from this catalog.
+**English** | [中文](README.zh-CN.md)
 
-Alibaba Cloud Express and the verified OpenSandbox Docker scope are accepted.
-E2B, CubeSandbox and Alibaba Cloud Container remain **Beta**. `official` describes
-maintenance, not acceptance. Provider maturity does not certify a new workflow, profile or consumer input identity. See [acceptance scope and evidence](docs/acceptance.md).
+Connect Agent Sandbox to different sandbox backends. This repository contains installable provider plugins for the [abx CLI](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox) and [Python SDK](https://github.com/Alibaba-Agent-Sandbox/python-sdk).
 
-阿里云极速版与已验证的 OpenSandbox Docker 范围已验收。
-E2B、CubeSandbox、阿里云容器版仍标记 **Beta**；`official` 只表示维护来源。
-提供方成熟度不认证新的工作流、构建方案或消费入口输入身份。
-见[验收范围与证据](docs/acceptance.md)。
+Alibaba Cloud Express (`alicloud-express`) is built in to the CLI. Install a plugin below to use another backend.
 
-The docs cover how a provider works, how to create one, how to develop it,
-and how to install it:
+[Browse providers](https://registry.agent-sandbox.cn/en/providers/) · [Installation guide](docs/en/install.md) · [Provider authoring](docs/authoring.md)
 
-- [中文](docs/README.md)
-- [English](docs/en/principle.md)
-- [Authoring](docs/authoring.md)
-- [Skill for agents](SKILL.md)
+## Providers
 
-The public index is `https://registry.agent-sandbox.cn/providers/index.json`.
-`ABX_PROVIDER_REGISTRY` overrides that URL. A background check compares
-installed versions and writes `~/.abx/providers/updates.json`. It does not
-download. Set `ABX_PROVIDER_UPDATE_CHECK=0` to skip it.
+| Provider | Backend | Setup |
+| --- | --- | --- |
+| `opensandbox` | OpenSandbox, including its supported Docker runtime | [Guide](opensandbox/docs/README.md) |
+| `e2b` | E2B sandbox service · Beta | [Guide](e2b/docs/README.md) |
+| `cubesandbox` | CubeSandbox · Beta | [Guide](cubesandbox/docs/README.md) |
+| `alicloud-container` | Alibaba Cloud Container edition · Beta | [Guide](alicloud-container/docs/README.md) |
 
-The official site is <https://www.agent-sandbox.com>. The registry website is
-<https://registry.agent-sandbox.com>. The index URL above is what the installer
-fetches.
+Each guide describes the required account or server, credentials, supported operations and limits. OpenSandbox support depends on the deployment profile; see [supported scope](docs/acceptance.md) before choosing a backend.
+
+## Install and configure
+
+Install [abx](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox#installation), then run in a terminal:
 
 ```bash
-abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox --allow-unpinned --yes
-abx provider install alibaba-agent-sandbox/awesome-providers//e2b --allow-unpinned --yes
-abx provider install alibaba-agent-sandbox/awesome-providers//cubesandbox --allow-unpinned --yes
-abx provider install alibaba-agent-sandbox/awesome-providers//alicloud-container --allow-unpinned --yes
+abx provider install Alibaba-Agent-Sandbox/awesome-providers//opensandbox
+abx provider list
 ```
 
-The CLI installs from the git tree. `--allow-unpinned` is needed without a terminal because `main` moves; add `--ref <40-hex-commit>` to pin. `registry:<id>` is a Python installer form (`python -m agent_sandbox.providers install registry:<id> --yes`) and needs the index above; the `abx` CLI does not implement `registry:`.
+Review the installation prompt, then follow the [OpenSandbox setup guide](opensandbox/docs/README.md) to configure the server and credentials. Use `abx --provider opensandbox` for commands against that backend.
 
-Each directory is one provider: `abx-provider.toml`, the plugin code, and
-`docs/README.md`. All four are `runtime.kind = "node"`. `opensandbox` exports `create(kit)` and runs its
-EPP/1 methods in the host process (`kit.epp.infra`); `node provider.mjs` still serves EPP/1
-over stdio. `e2b`, `cubesandbox` and `alicloud-container` are
-`runtime.kind = "node"` (`provider.mjs`, an ES module the host loads). The
-providers are written once in Node.js. The CLI runs them directly and the Python Provider API
-reaches them through the local engine (`abx provider engine serve`), so all four
-work from `abx --provider <id>` and from `ProviderSandbox.create(provider="<id>")`.
+For automation, pin the source with `--ref <40-hex-commit>` and use `--yes` after reviewing the plugin. `--allow-unpinned` explicitly permits a moving source reference. See [installation](docs/en/install.md) for updates, local plugins and the Python installer.
 
-| Directory | Docs |
-|---|---|
-| `opensandbox/` | [docs/README.md](opensandbox/docs/README.md) |
-| `cubesandbox/` | [docs/README.md](cubesandbox/docs/README.md) |
-| `e2b/` | [docs/README.md](e2b/docs/README.md) |
-| `alicloud-container/` | [docs/README.md](alicloud-container/docs/README.md) |
+## Use from Python
 
-Provider create examples are owned by each plugin in `catalog.json`; see [catalog metadata](docs/catalog-metadata.md) ([中文](docs/catalog-metadata.zh-CN.md)). These patch versions do not activate pending image factories.
+Installed providers are available through `ProviderSandbox.create(provider="opensandbox", ...)`. Use the backend's own template or image reference and credentials; provider-specific examples are in its setup guide. Node provider plugins require `abx` on PATH or `ABX_BIN` pointing to it.
 
-## Current API / 当前接口
+The [Node.js HTTP SDK](https://github.com/Alibaba-Agent-Sandbox/nodejs-sdk) connects to application services; it does not load provider plugins or create cloud sandboxes.
 
-Development changes remove retired project compatibility paths. Provider project preparation uses `templates.build`; the shared feature list no longer advertises the standalone image factory.
-开发变更直接删除旧项目兼容路径。提供方项目准备使用 `templates.build`，共享能力表移除独立镜像工厂。
+## Documentation
 
-See [exact workflow operations](docs/workflows.md) ([中文](docs/workflows.zh-CN.md)).
+- [How providers work](docs/en/principle.md)
+- [Install, update and remove providers](docs/en/install.md)
+- [Create a provider](docs/en/create.md)
+- [Develop a provider](docs/en/develop.md)
+- [Template operations](docs/workflows.md)
+
+The [Registry](https://registry.agent-sandbox.cn/en/providers/) lists provider capabilities and installation options. The Python installer uses its [provider index](https://registry.agent-sandbox.cn/providers/index.json); `ABX_PROVIDER_REGISTRY` can override that source.
+
+## Contributing
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) for plugin structure and required checks. Provider authors using AI tools can load [SKILL.md](SKILL.md). Report plugin problems in [Issues](https://github.com/Alibaba-Agent-Sandbox/awesome-providers/issues).
+
+## License
+
+See each provider's license and notices in its directory for redistribution terms.
