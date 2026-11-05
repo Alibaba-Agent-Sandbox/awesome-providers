@@ -38,6 +38,8 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 
 ## Index
 
+- [Provider installation and runtime guidance](notes/proposed/process/2026-11-05-provider-installation-runtime.md) · [verification](evidence/verify/2026-11-05-provider-installation-runtime.md).
+
 - [E2B image adapter](notes/proposed/feature/2026-10-16-e2b-image-template-adapter.md) · [verification](evidence/verify/2026-10-16-e2b-image-template-adapter.md)
 - [Provider portability and updates](notes/proposed/architecture/2026-10-18-provider-portability-updates.md) · [verification](evidence/verify/2026-10-18-provider-portability-updates.md)
 

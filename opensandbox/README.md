@@ -1,24 +1,28 @@
 # opensandbox provider plugin
 
-Accepted scope: Docker backend with OpenSandbox server 1.1.1 and digest-pinned release-1.1.1 execd, including CLI, Python SDK, project build/launch and cleanup. Kubernetes, network policies, secure access and code interpreter are outside this acceptance. See [provider acceptance](../docs/acceptance.md).
-
 [简体中文](README.zh-CN.md)
 
-An [EPP/1](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/docs/en/design/providers-and-credentials.md) **Node provider** that runs Agent
-Sandbox sandboxes on an [OpenSandbox](https://github.com/opensandbox-group/OpenSandbox) server
-(Docker or Kubernetes runtime). It works unchanged from the Python SDK (`ProviderSandbox.create(provider="opensandbox")`)
-and from the `abx` CLI (`abx --provider opensandbox ...`).
+Create and manage sandboxes on an existing [OpenSandbox](https://github.com/opensandbox-group/OpenSandbox) server from the Python SDK (`ProviderSandbox.create(provider="opensandbox")`) or CLI (`abx --provider opensandbox ...`). Docker-backed deployments are supported. Kubernetes-specific network policy and secure access are outside the documented support scope; native code-interpreter APIs are not implemented by this provider.
 
 This directory is the canonical plugin. It lives in
 [alibaba-agent-sandbox/awesome-providers](https://github.com/alibaba-agent-sandbox/awesome-providers), not in the Python SDK.
 
-* Runtime: **Node.js >= 20, no npm dependencies** (built-in `fetch`; the terminal needs the global `WebSocket` of Node 22+). Chosen because the `abx` CLI is a
-  Node program, so every `abx` user already has Node; the Python SDK needs `node` on `PATH` to use it.
-* Design and API mapping: [`provider-opensandbox-mapping.md`](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/docs/en/design/provider-opensandbox-mapping.md).
-* Authoring review that produced this plugin: [`provider-authoring-evaluation.md`](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/docs/en/design/provider-authoring-evaluation.md).
+Python uses this Node provider through the local `abx` engine. The recommended standalone `abx` binary bundles Node, so Python users do not need a separate Node.js or npm installation. An npm-installed CLI needs Node.js 20+; interactive terminals require the engine to run Node.js 22+. See [requirements and quick setup](../docs/en/install.md#requirements).
 
 ## Install
-This provider revision requires CLI 0.4.16+ and Python SDK 0.3.1a4+ for source preparation and authenticated template applications through the server proxy.
+
+First prepare `abx` and, for Python use, Python 3.10+ and the SDK using the [installation guide](../docs/en/install.md#quick-setup-for-python). Install this provider once:
+
+```bash
+python -m agent_sandbox.providers install registry:opensandbox --yes
+python -m agent_sandbox.providers doctor opensandbox
+```
+
+This registry package path does not require Git. Installing the provider does not install or start an OpenSandbox server. Docker is needed on the client only for a local server or source-image builds; a client connecting to an existing remote service does not need it.
+
+Use a compatible server/execd pair. The documented Docker setup uses OpenSandbox server 1.1.1 with release-1.1.1 execd; do not combine it with a moving `latest` execd image.
+
+CLI-only users can instead install a pinned Git source (requires Git):
 
 ```bash
 abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox@<40-hex-commit> --yes
@@ -36,12 +40,24 @@ A branch or tag without a 40-hex `--ref` is unpinned and needs `--allow-unpinned
 python -m agent_sandbox.providers install ./opensandbox --yes
 ```
 
+This provider's compatibility floor is CLI 0.4.16 and Python SDK 0.3.1a4. Use the current CLI for current application templates; see [template launch](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/en/guide/template-launch.md).
+
 Before consent, inspection reads static metadata without executing the plugin. After consent, default
 verification may import and initialize this Node plugin for its handshake. `--yes` accepts consent; it
 does not skip verification. Regular installs check the file digest against the receipt on load;
 `--link` is the development exception. See the [CLI installation and trust guide](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/en/guide/providers.md).
 
 ## Configure
+
+The default server address is `http://127.0.0.1:8080`; do not export it again when that is your server. For another server, set its address. If that server requires authentication, obtain the OpenSandbox API key from its administrator and set it before use:
+
+```bash
+# Only when your service differs from the local, unauthenticated default:
+export ABX_OPENSANDBOX_BASE_URL="https://opensandbox.example.com"
+export ABX_OPENSANDBOX_API_KEY="<key supplied by your OpenSandbox administrator>"
+```
+
+This key authenticates the OpenSandbox service; it is separate from an Express Sandbox API key and from a template application's `ABX_SERVER_TOKEN`.
 
 Every field can be set with the canonical `ABX_OPENSANDBOX_<FIELD>` variable, in `~/.abx/config.toml`
 under `[providers.opensandbox]`, or (where listed) with the OpenSandbox-native variable. Canonical names win.
@@ -63,6 +79,15 @@ under `[providers.opensandbox]`, or (where listed) with the OpenSandbox-native v
 
 The template argument of `ProviderSandbox.create(template=...)` is resolved as: alias, then `base` -> `default_image`,
 otherwise used as an image reference verbatim.
+
+## Call path and performance
+
+```text
+Python ProviderSandbox → local abx engine → OpenSandbox provider → OpenSandbox/execd
+abx CLI                → OpenSandbox provider                  → OpenSandbox/execd
+```
+
+The engine starts on demand and is reused across calls. Python command and file operations also pass through it. Compared with an equivalent native Python provider, this adds local communication, data encoding/decoding, possible data copies, and an extra process's memory. Startup and loading affect the first call; high-frequency short operations and larger transfers can expose steady-state overhead. There is no fixed millisecond or throughput guarantee for the complete SDK path. The [performance guidance](../docs/en/install.md#call-path-and-performance) explains how to assess your workload. Bundling Node in the binary simplifies setup without removing this forwarding path.
 
 ## What the CLI and the SDK can call
 
@@ -96,35 +121,9 @@ Both hosts load this plugin. A method or command works only when its feature is 
 | `pty` | yes (Node 22+) | `pty.open` creates an execd terminal (`POST /pty`) and bridges its WebSocket (`/pty/{id}/ws`): input is `0x00` + bytes, `pty.output` carries the output, `pty.exit` ends it. On Node 20/21 there is no global WebSocket, so the plugin does not advertise `pty` |
 | `code.default-context.execute`, EPP template RPCs, `files.watch`, transfer URLs | no | `E8004` (`-32003`) |
 
-## Test
+## Contributing
 
-```bash
-node tests/run.mjs                      # 24 unit + 21 mock-server tests, no server needed
-```
-
-Live tiers need a reachable OpenSandbox server. The one-command local setup is the SDK
-harness ([e2e/opensandbox](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/e2e/opensandbox/README.md));
-that harness starts the server and installs this plugin, it is not a second copy of it.
-
-```bash
-export ABX_OPENSANDBOX_BASE_URL=http://127.0.0.1:8080
-export OPEN_SANDBOX_API_KEY=...         # whatever your server expects
-OPENSANDBOX_LIVE=1 node tests/run.mjs live                         # plugin over EPP/1 directly
-OPENSANDBOX_LIVE=1 python -m pytest tests/contract                 # contract kit + SDK scenarios
-```
-
-`tests/contract` needs `agent_sandbox` importable and `pytest`; it installs the plugin into a temporary
-`~/.abx` and never touches your real store.
-
-## Layout
-
-```
-abx-provider.toml   manifest (runtime, features, security, config schema)
-provider.mjs        entry: EPP dispatcher and capability wiring
-src/                http.mjs (lifecycle + execd client), sandbox.mjs, exec.mjs, files.mjs,
-                    sse.mjs, multipart.mjs, convert.mjs, config.mjs, errors.mjs, epp.mjs
-tests/              unit/, mock/ (in-process fake server), live/, contract/ (pytest)
-```
+See [contribution instructions](../CONTRIBUTING.md) and [test tiers](../docs/e2e.md). The [API mapping](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/docs/en/design/provider-opensandbox-mapping.md) describes the provider contract for contributors.
 
 ## Known limits
 
