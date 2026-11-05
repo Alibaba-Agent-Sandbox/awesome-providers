@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Clarify Python provider runtime requirements, standalone-binary quick installation, OpenSandbox credential setup, and the performance costs of the reused local engine in English and Chinese.
+
 - Document default and portable source launch separately from native interpreter support, and link exact OpenSandbox direct/proxy and public template-matrix evidence.
 - Clarify installation consent: metadata inspection precedes consent; default verification can load plugin code afterwards. Python uses the CLI engine for Node plugins, while exec/rest are hosted directly.
 - Synchronize the English/Chinese authoring guides and agent skill with those host paths; retain plugin compatibility floors and historical verification versions.

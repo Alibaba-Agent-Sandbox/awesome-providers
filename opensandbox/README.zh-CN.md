@@ -1,23 +1,28 @@
 # opensandbox 提供方插件
 
-已验收范围：Docker 后端，OpenSandbox server 1.1.1 与固定摘要的 release-1.1.1 execd，涵盖 CLI、Python SDK 和项目构建启动及清理。Kubernetes、网络策略、安全访问和代码解释器不在本次验收范围。详见[提供方验收](../docs/acceptance.md)。
-
 [English](README.md)
 
-一个 [EPP/1](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/docs/zh/design/providers-and-credentials.md) **Node 提供方**插件，让 Agent Sandbox 在
-[OpenSandbox](https://github.com/opensandbox-group/OpenSandbox) 服务（Docker 或 Kubernetes 运行时）上创建沙箱。
-Python SDK（`ProviderSandbox.create(provider="opensandbox")`）与 `abx` CLI（`abx --provider opensandbox ...`）均可直接使用。
+通过 Python SDK（`ProviderSandbox.create(provider="opensandbox")`）或 CLI（`abx --provider opensandbox ...`），在已有的 [OpenSandbox](https://github.com/opensandbox-group/OpenSandbox) 服务上创建和管理沙箱。支持 Docker 后端。Kubernetes 专用网络策略与安全访问不在当前文档支持范围内；本提供方尚未实现原生代码解释器 API。
 
 本目录是插件的唯一源码，位于
 [alibaba-agent-sandbox/awesome-providers](https://github.com/alibaba-agent-sandbox/awesome-providers)，不在 Python SDK 仓库里。
 
-* 运行时：**Node.js >= 20，无 npm 依赖**（使用内置 `fetch`；终端需要 Node 22+ 的全局 `WebSocket`）。选择 Node 是因为 `abx` CLI 本身基于 Node，
-  使用 CLI 的用户已具备 Node；仅使用 Python SDK 时需要 `node` 在 `PATH` 中。
-* 设计与 API 映射：[`provider-opensandbox-mapping.md`](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/docs/en/design/provider-opensandbox-mapping.md)（仅英文）。
-* 产出本插件的编写体验评估：[`provider-authoring-evaluation.md`](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/docs/zh/design/provider-authoring-evaluation.md)。
+Python 通过本机 `abx` 引擎调用这个 Node 提供方。推荐的独立 `abx` 二进制已经内嵌 Node，Python 用户无需另装 Node.js、npm。npm 安装的 CLI 需要 Node.js 20+；交互终端要求引擎使用 Node.js 22+。详见[环境要求与快速准备](../docs/zh/install.md#环境要求)。
 
 ## 安装
-此 provider 提交需要 CLI 0.4.16+、Python SDK 0.3.1a4+，以准备源码并正确认证经过 server proxy 的模板应用。
+
+先按[安装指南](../docs/zh/install.md#python-快速准备)准备 `abx`；Python 用户还需 Python 3.10+ 和 SDK。然后安装一次本提供方：
+
+```bash
+python -m agent_sandbox.providers install registry:opensandbox --yes
+python -m agent_sandbox.providers doctor opensandbox
+```
+
+这条索引安装路径不需要 Git。安装提供方不会安装或启动 OpenSandbox 服务。本机运行服务或构建源码镜像时才需要客户端 Docker；连接已有远端服务不需要。
+
+服务端与 execd 需要匹配。文档中的 Docker 配置使用 OpenSandbox server 1.1.1 与 release-1.1.1 execd，不要混用持续变化的 `latest` execd 镜像。
+
+仅使用 CLI 时，也可从固定的 Git 来源安装（需要 Git）：
 
 ```bash
 abx provider install alibaba-agent-sandbox/awesome-providers//opensandbox@<40位提交哈希> --yes
@@ -34,11 +39,23 @@ abx provider doctor opensandbox
 python -m agent_sandbox.providers install ./opensandbox --yes
 ```
 
+本提供方的兼容性下限为 CLI 0.4.16、Python SDK 0.3.1a4。运行当前应用模板请使用当前 CLI，见[模板启动指南](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/zh/guide/template-launch.md)。
+
 同意前仅检查静态元数据，不执行插件。同意后，默认验证可能导入并初始化这个 Node 插件以完成握手。
 `--yes` 表示接受授权，不会跳过验证。普通安装在加载时按回执校验文件摘要；`--link` 是开发场景的例外。
 详见 [CLI 安装与信任指南](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/zh/guide/providers.md)。
 
 ## 配置
+
+默认服务地址为 `http://127.0.0.1:8080`，使用这个地址时不用重复导出。其他服务请设置实际地址；服务启用鉴权时，向其管理员获取 OpenSandbox API Key，并在使用前配置：
+
+```bash
+# 仅在服务与本地无鉴权的默认配置不同时设置：
+export ABX_OPENSANDBOX_BASE_URL="https://opensandbox.example.com"
+export ABX_OPENSANDBOX_API_KEY="<OpenSandbox 管理员提供的密钥>"
+```
+
+该密钥用于 OpenSandbox 服务鉴权，与极速版 Sandbox API Key、模板应用的 `ABX_SERVER_TOKEN` 分开。
 
 每个字段都可通过规范名称 `ABX_OPENSANDBOX_<FIELD>`、`~/.abx/config.toml` 的 `[providers.opensandbox]` 段，
 或（有列出时）OpenSandbox 原生环境变量设置。规范名称优先。
@@ -59,6 +76,15 @@ python -m agent_sandbox.providers install ./opensandbox --yes
 | `secure_access` | | `false` | Kubernetes 网关安全访问 |
 
 `ProviderSandbox.create(template=...)` 的解析顺序：先查别名，其次 `base` 映射到 `default_image`，否则按镜像引用原样使用。
+
+## 调用原理与性能
+
+```text
+Python ProviderSandbox → 本机 abx 引擎 → OpenSandbox 提供方 → OpenSandbox/execd
+abx CLI                → OpenSandbox 提供方               → OpenSandbox/execd
+```
+
+引擎按需启动并持续复用，Python 的命令和文件操作也经过它。与等价原生 Python 提供方相比，这增加了本机通信、数据编解码、可能的数据拷贝，以及额外进程的内存占用。首次调用还包含启动与加载；高频短操作和较大传输更容易体现持续调用的开销。完整 SDK 路径没有固定毫秒数或吞吐保证，如何评估自己的负载见[性能说明](../docs/zh/install.md#调用原理与性能)。二进制内嵌 Node 简化了准备步骤，仍保留这条转发路径。
 
 ## CLI 和 SDK 能调用什么
 
@@ -92,34 +118,9 @@ python -m agent_sandbox.providers install ./opensandbox --yes
 | `pty` | 支持（Node 22+） | `pty.open` 创建 execd 终端（`POST /pty`）并桥接它的 WebSocket（`/pty/{id}/ws`）：输入是 `0x00` + 字节，`pty.output` 携带输出，`pty.exit` 结束。Node 20/21 没有全局 WebSocket，插件不会声明 `pty` |
 | `code.default-context.execute`、`templates.*`、`files.watch`、传输 URL | 不支持 | `E8004`（`-32003`） |
 
-## 测试
+## 贡献
 
-```bash
-node tests/run.mjs                      # 24 个单元测试 + 21 个模拟服务测试，无需真实服务
-```
-
-联机测试需要可访问的 OpenSandbox 服务。一键本地启动在 SDK 的测试工具里
-（[e2e/opensandbox](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/e2e/opensandbox/README.md)）：
-它负责启动服务并安装本插件，不是插件的第二份源码。
-
-```bash
-export ABX_OPENSANDBOX_BASE_URL=http://127.0.0.1:8080
-export OPEN_SANDBOX_API_KEY=...         # 按你的服务要求设置
-OPENSANDBOX_LIVE=1 node tests/run.mjs live                         # 直接以 EPP/1 驱动插件
-OPENSANDBOX_LIVE=1 python -m pytest tests/contract                 # 契约测试套件 + SDK 场景
-```
-
-`tests/contract` 需要可导入的 `agent_sandbox` 和 `pytest`；它把插件安装到临时的 `~/.abx`，不会改动你真实的存储。
-
-## 目录结构
-
-```
-abx-provider.toml   清单（运行时、特性、安全声明、配置模式）
-provider.mjs        入口：EPP 分发与能力装配
-src/                http.mjs（生命周期 + execd 客户端）、sandbox.mjs、exec.mjs、files.mjs、
-                    sse.mjs、multipart.mjs、convert.mjs、config.mjs、errors.mjs、epp.mjs
-tests/              unit/、mock/（进程内模拟服务）、live/、contract/（pytest）
-```
+见[贡献说明](../CONTRIBUTING.md)与[测试分层](../docs/e2e.zh-CN.md)。面向贡献者的提供方契约见 [API 对应关系](https://github.com/Alibaba-Agent-Sandbox/python-sdk/blob/main/docs/en/design/provider-opensandbox-mapping.md)。
 
 ## 已知限制
 
