@@ -1,5 +1,10 @@
 # Engineering records: awesome-providers
 
+## Recent changes — 2026-11-10
+
+- [Owner change index](notes/proposed/process/2026-11-10-recent-change-index.md) · [records verification](evidence/verify/2026-11-10-recent-change-index.md).
+- This is a dated source/delivery index; Draft implementation, prior releases and new validation remain separate.
+
 - [Canonical CLI consumer guidance](notes/proposed/process/2026-11-10-canonical-cli-guidance.md) · [verification](evidence/verify/2026-11-10-canonical-cli-guidance.md).
 
 ## Current delivery (2026-10-24)
