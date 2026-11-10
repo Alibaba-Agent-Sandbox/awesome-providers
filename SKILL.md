@@ -20,7 +20,7 @@ The CLI installs from the git tree; add `--ref <40-hex-commit>` to pin instead o
 
 Index: `https://registry.agent-sandbox.cn/providers/index.json`. Override with `ABX_PROVIDER_REGISTRY` (URL or a local `index.json` path). A background check writes `~/.abx/providers/updates.json`. It does not install. `ABX_PROVIDER_UPDATE_CHECK=0` skips it. The registry website is https://registry.agent-sandbox.com. The official site is https://www.agent-sandbox.com.
 
-All four providers are `node` (an ES module the host loads; `opensandbox` runs its EPP methods in process through `kit.epp.infra`). All four run from the CLI (`abx --provider e2b create`) and from the Python Provider API (`ProviderSandbox.create(provider="e2b")`); Python reaches the plugin through the local engine, `abx provider engine serve`, which needs `abx` on `PATH` or `ABX_BIN`.
+All four providers are `node` (an ES module the host loads; `opensandbox` runs its EPP methods in process through `kit.epp.infra`). All four run from the CLI (`abx --provider e2b deploy --template-id base --name my-sandbox`) and from the Python Provider API (`ProviderSandbox.create(provider="e2b")`); Python reaches the plugin through the local engine, `abx provider engine serve`, which needs `abx` on `PATH` or `ABX_BIN`.
 
 Python hosts `exec` plugins directly as processes and `rest` plugins directly over HTTP; these do not need the Node engine. Installation reads static metadata before consent; after consent, default verification may load the plugin for its handshake. `--yes` does not skip verification.
 
@@ -50,10 +50,10 @@ Each provider directory has `docs/README.md`. Update that file when you change p
 
 ## Prepare project sources
 
-Use public CLI 0.5.6 with the current v5 template catalog for whole-template startup; upgrade them together:
+Use the current CLI source command surface with a v5 source template:
 
 ```sh
-abx --provider <id> template launch owner/repository//template-path --yes
+abx --provider <id> deploy owner/repository//template-path --name my-app --yes
 ```
 
 Configure backend credentials and build prerequisites once; read that provider’s `docs/README.md`. The manager owns `prepareProject(directory, options)` under `templates.build` and returns `{reference,status:"ready"}` with optional service/readiness commands and creation metadata. Pass its exact native reference to the same provider. Use generic `kit.project.stage`, `buildImage` and `runTool` primitives; keep SDK/API mapping, authentication, polling and cluster policy in the adapter. Do not add vendor-ID switches to the host or Registry.

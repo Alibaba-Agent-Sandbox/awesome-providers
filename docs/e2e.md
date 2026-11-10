@@ -16,9 +16,9 @@ Every provider in this catalog is tested in the same tiers. A tier that cannot r
 ## Rules
 
 - Throwaway `HOME`. Do not touch the developer's real `~/.abx`.
-- Do not print API keys. `provider config list` must not contain them.
+- Do not print API keys. `abx --provider <id> config list` must not contain them.
 - A feature the plugin does not declare must fail as `E8004`.
-- Do not use `abx create "a sentence"` as a provider test. Use `abx --provider <id> create --template <image-or-name>`.
+- Do not use `abx template init --prompt "a sentence"` as a provider test. Use `abx --provider <id> deploy --name my-sandbox --template-id <image-or-name>`.
 - Kill only the sandboxes this run created.
 
 ## What a pull request includes

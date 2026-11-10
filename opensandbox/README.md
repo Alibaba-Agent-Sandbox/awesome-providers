@@ -30,7 +30,7 @@ abx provider info opensandbox          # the features this install declares
 abx provider doctor opensandbox
 ```
 
-`//opensandbox` is the subdirectory, the same `//` as `abx template install owner/repo//subdir`. A git URL with `--subdir` still works; the two forms must not disagree.
+`//opensandbox` is the subdirectory, the same `//` as `abx template init ./project --from owner/repo//subdir`. A git URL with `--subdir` still works; the two forms must not disagree.
 
 A local checkout of this directory works with the same command (`abx provider install ./opensandbox --yes`).
 A branch or tag without a 40-hex `--ref` is unpinned and needs `--allow-unpinned` when there is no terminal.
@@ -138,9 +138,9 @@ Licensed under Apache-2.0.
 
 ## Project source preparation / 项目源码准备
 
-The Node template manager supports `templates.build` for `abx template launch`: Docker builds and pushes the source and OpenSandbox consumes the returned image reference. The EPP template RPCs in the table remain unsupported. See [prerequisites and acceptance scope](docs/README.md).
+The Node template manager supports `templates.build` for `abx deploy`: Docker builds and pushes the source and OpenSandbox consumes the returned image reference. The EPP template RPCs in the table remain unsupported. See [prerequisites and acceptance scope](docs/README.md).
 
-Node 模板管理器通过 `templates.build` 支持 `abx template launch`：Docker 构建并推送源码，OpenSandbox 使用返回的镜像引用。上表中的 EPP 模板 RPC 仍不支持。参见[前置条件与验收范围](docs/README.md)。
+Node 模板管理器通过 `templates.build` 支持 `abx deploy`：Docker 构建并推送源码，OpenSandbox 使用返回的镜像引用。上表中的 EPP 模板 RPC 仍不支持。参见[前置条件与验收范围](docs/README.md)。
 
 ### Create failure cleanup
 

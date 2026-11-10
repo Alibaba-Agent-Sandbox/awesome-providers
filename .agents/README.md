@@ -1,5 +1,7 @@
 # Engineering records: awesome-providers
 
+- [Canonical CLI consumer guidance](notes/proposed/process/2026-11-10-canonical-cli-guidance.md) · [verification](evidence/verify/2026-11-10-canonical-cli-guidance.md).
+
 ## Current delivery (2026-10-24)
 
 - [Documentation and record synchronization](notes/implemented/process/2026-10-24-current-documentation-sync.md) · [verification](evidence/verify/2026-10-24-current-documentation-sync.md)

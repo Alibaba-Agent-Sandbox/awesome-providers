@@ -125,7 +125,7 @@ Turn the background check off with `ABX_PROVIDER_UPDATE_CHECK=0`.
 
 ## Calling it after install
 
-The four official providers are all `node`. After install, call them from the CLI (`abx --provider e2b create`) or from the Python SDK:
+The four official providers are all `node`. After install, call them from the CLI (`abx --provider e2b deploy --template-id base --name my-sandbox`) or from the Python SDK:
 
 ```python
 import asyncio
@@ -144,7 +144,7 @@ asyncio.run(main())
 
 Each provider's environment variables are in that directory's `docs/README.md`. A missing install is `ProviderNotFoundError`, and the message names the install command.
 
-After any install, both the CLI and the SDK can call it: `abx --provider my-cloud create --template base`. The Python SDK starts the local engine (`abx provider engine serve`) when it needs one, so the `abx` CLI must be on `PATH` (or named in `ABX_BIN`) for the SDK to call a `node` provider. An `exec` provider runs its manifest command directly from the Python host; it does not use that Node engine.
+After any install, both the CLI and the SDK can call it: `abx --provider my-cloud deploy --name my-sandbox --template-id base`. The Python SDK starts the local engine (`abx provider engine serve`) when it needs one, so the `abx` CLI must be on `PATH` (or named in `ABX_BIN`) for the SDK to call a `node` provider. An `exec` provider runs its manifest command directly from the Python host; it does not use that Node engine.
 
 ## Call path and performance
 
