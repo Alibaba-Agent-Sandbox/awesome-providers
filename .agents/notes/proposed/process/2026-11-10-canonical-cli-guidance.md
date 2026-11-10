@@ -41,3 +41,7 @@ package's responsibility. Historical evidence is unchanged; no new backend accep
 or maturity claim is introduced.
 
 See [verification](../../../evidence/verify/2026-11-10-canonical-cli-guidance.md).
+
+## Mainline reconciliation
+
+Merge fixed main `c5e2b6250a023312f999bf2cc1112bab81121b25` to retain the independently merged preview/community announcement and QR replacement. Both lines of documentation coexist without conflicts. No implementation or compatibility change is added; verification is recorded in the separate mainline-merge evidence.

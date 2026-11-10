@@ -8,6 +8,8 @@ Alibaba Cloud Express (`alicloud-express`) is built in to the CLI. Install a plu
 
 [Browse providers](https://registry.agent-sandbox.cn/en/providers/) · [Installation guide](docs/en/install.md) · [Provider authoring](docs/authoring.md)
 
+> **Preview release:** Agent Sandbox is currently in preview and may introduce breaking changes. The stable **1.0.0** release is expected on **November 15, 2026**. Stay tuned!
+
 ## Providers
 
 | Provider | Backend | Setup |
@@ -47,6 +49,14 @@ The [Node.js HTTP SDK](https://github.com/Alibaba-Agent-Sandbox/nodejs-sdk) conn
 - [Template operations](docs/workflows.md)
 
 The [Registry](https://registry.agent-sandbox.cn/en/providers/) lists provider capabilities and installation options. The Python installer uses its [provider index](https://registry.agent-sandbox.cn/providers/index.json); `ABX_PROVIDER_REGISTRY` can override that source.
+
+## Community
+
+Join the **Agent Sandbox 开发者工具交流群** on DingTalk to discuss usage and share feedback. [Join the group](https://qr.dingtalk.com/action/joingroup?code=v1,k1,LSusypYdoGm4U0xoz1p1QSlgoBHeoi/kgpsl4uQ8qus=&_dt_no_comment=1&origin=1) or search for group number **213605001586**.
+
+Scan the QR code with DingTalk:
+
+<a href="https://qr.dingtalk.com/action/joingroup?code=v1,k1,LSusypYdoGm4U0xoz1p1QSlgoBHeoi/kgpsl4uQ8qus=&amp;_dt_no_comment=1&amp;origin=1"><img src="assets/dingtalk-group.jpg" alt="DingTalk group QR code" width="235" /></a>
 
 ## Contributing
 

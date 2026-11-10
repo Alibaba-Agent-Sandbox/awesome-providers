@@ -117,3 +117,9 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [CLI 0.5.6 consumer synchronization](notes/proposed/process/2026-10-25-current-cli-056.md) · [verification](evidence/verify/2026-10-25-current-cli-056.md). CLI 0.5.6 publication is verified; this follow-up's exact-head T4 and merge remain pending.
 
 - [README audience review](notes/proposed/process/2026-10-28-readme-audience-review.md) · [verification](evidence/verify/2026-10-28-readme-audience-review.md).
+
+- [Preview release notice and community](notes/proposed/process/2026-11-10-preview-release-community.md) · [verification](evidence/verify/2026-11-10-preview-release-community.md).
+
+- [Community QR replacement](notes/proposed/process/2026-11-10-refresh-community-qr.md) · [verification](evidence/verify/2026-11-10-refresh-community-qr.md).
+
+- [Canonical CLI documentation mainline merge](evidence/verify/2026-11-10-simplification-main-merge.md).
