@@ -1,6 +1,6 @@
 # 提供方怎么工作
 
-提供方是一个沙箱后端。`ProviderSandbox.create`（或 `abx create`）先选定提供方，再由它建立控制面和数据面。SDK 和 CLI 只把 `alicloud-express`（阿里云极速版）编译进去。其余提供方在本目录，安装之后才加载。
+提供方是一个沙箱后端。`ProviderSandbox.create`（或 `abx deploy --template-id`）先选定提供方，再由它建立控制面和数据面。SDK 和 CLI 只把 `alicloud-express`（阿里云极速版）编译进去。其余提供方在本目录，安装之后才加载。
 
 提供方这一层只用 Node.js 写一次，由 TypeScript 的 CLI 承载。CLI 直接使用它；Python ProviderSandbox 通过本机引擎（`abx provider engine serve`，`127.0.0.1` 上的 HTTP + SSE + WebSocket）调用目录提供方。每种语言桥接都须实现其声明的具体操作；Node.js 服务 HTTP 客户端属于独立接口，不管理云端提供方。宿主、四种类型和引擎的规格在 [Node 提供方架构](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/zh/design/node-provider-architecture.md)。
 
@@ -14,7 +14,7 @@
 | `e2b` | `awesome-providers/e2b` | `node` |
 | `alicloud-container` | `awesome-providers/alicloud-container` | `node` |
 
-安装用 `abx provider install alibaba-agent-sandbox/awesome-providers//<id>`（CLI，从 git 树）或 `python -m agent_sandbox.providers install registry:<id> --yes`（Python，需要已发布的索引）。两者写入同一个 `~/.abx/providers/<id>` 目录，之后两边运行的是同一份代码。Python SDK 用 `ProviderSandbox.create(provider="…")` 调用目录提供方，CLI 用 `abx --provider <id> create`。
+安装用 `abx provider install alibaba-agent-sandbox/awesome-providers//<id>`（CLI，从 git 树）或 `python -m agent_sandbox.providers install registry:<id> --yes`（Python，需要已发布的索引）。两者写入同一个 `~/.abx/providers/<id>` 目录，之后两边运行的是同一份代码。Python SDK 用 `ProviderSandbox.create(provider="…")` 调用目录提供方，CLI 用 `abx --provider <id> deploy --template-id TEMPLATE --name APP`。
 
 `alicloud-express` 是保留 id，不能安装成插件。`opensandbox`、`cubesandbox`、`e2b`、`alicloud-container` 是官方目录 id，可以安装，不能再拿去登记成另一个插件。
 
@@ -26,7 +26,7 @@
 2. 进程环境变量 `ABX_PROVIDER`
 3. `./.env`
 4. `~/.abx/.env`
-5. `~/.abx/config.toml` 里的 `[core] provider`（`abx provider default` 写入）
+5. `~/.abx/config.toml` 里的 `[core] provider`（`abx config set provider` 写入）
 6. `alicloud-express`
 
 沙箱 id 属于创建它的那个提供方。`connect` 可以收 `my-cloud:sbx-1` 这种带前缀的引用，前缀就是提供方。前缀和 `provider=` 冲突时是 `ProviderMismatchError`（E8030）。

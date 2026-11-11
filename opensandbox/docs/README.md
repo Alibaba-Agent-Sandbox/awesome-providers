@@ -12,7 +12,7 @@ Python 也需要 Node 运行时来运行这个提供方，但推荐的独立 `ab
 
 ```bash
 python -m agent_sandbox.providers install registry:opensandbox --yes
-abx --provider opensandbox create --template base
+abx --provider opensandbox deploy --name my-sandbox --template-id base
 ```
 
 ```python
@@ -33,7 +33,7 @@ asyncio.run(main())
 ```
 
 `template="base"` 使用镜像 `python:3.12-slim`，入口是 `tail -f /dev/null`。带 `:` 或 `/` 的模板名按镜像 URI 使用。
-CLI 创建会返回沙箱 ID，用完后执行 `abx --provider opensandbox kill <sandbox-id>`。Python 示例无论命令是否成功都会尝试删除沙箱并关闭客户端。
+CLI 创建会返回沙箱 ID，用完后执行 `abx --provider opensandbox delete <sandbox-id>`。Python 示例无论命令是否成功都会尝试删除沙箱并关闭客户端。
 
 ## 配置
 
@@ -105,7 +105,7 @@ Interactive launch can generate and save it. Published CLI 0.5.8 exits on a firs
 `--yes` launch without an application token; first launch interactively or configure one.
 
 ```sh
-abx --provider opensandbox template launch alibaba-agent-sandbox/awesome-templates//python-hello
+abx --provider opensandbox deploy alibaba-agent-sandbox/awesome-templates//python-hello --name my-app
 ```
 
 The provider owns project preparation through `templates.build` / `prepareProject`.

@@ -1,5 +1,12 @@
 # Engineering records: awesome-providers
 
+## Recent changes — 2026-11-10
+
+- [Owner change index](notes/proposed/process/2026-11-10-recent-change-index.md) · [records verification](evidence/verify/2026-11-10-recent-change-index.md).
+- This is a dated source/delivery index; Draft implementation, prior releases and new validation remain separate.
+
+- [Canonical CLI consumer guidance](notes/proposed/process/2026-11-10-canonical-cli-guidance.md) · [verification](evidence/verify/2026-11-10-canonical-cli-guidance.md).
+
 ## Current delivery (2026-10-24)
 
 - [Documentation and record synchronization](notes/implemented/process/2026-10-24-current-documentation-sync.md) · [verification](evidence/verify/2026-10-24-current-documentation-sync.md)
@@ -119,3 +126,5 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [Preview release notice and community](notes/proposed/process/2026-11-10-preview-release-community.md) · [verification](evidence/verify/2026-11-10-preview-release-community.md).
 
 - [Community QR replacement](notes/proposed/process/2026-11-10-refresh-community-qr.md) · [verification](evidence/verify/2026-11-10-refresh-community-qr.md).
+
+- [Canonical CLI documentation mainline merge](evidence/verify/2026-11-10-simplification-main-merge.md).

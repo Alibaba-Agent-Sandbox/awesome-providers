@@ -16,9 +16,9 @@
 ## 规则
 
 - 使用一次性的 `HOME`。不要碰开发者真实的 `~/.abx`。
-- 不要打印 API key。`provider config list` 的输出里不能有密钥。
+- 不要打印 API key。`abx --provider <id> config list` 的输出里不能有密钥。
 - 插件没有声明的能力必须以 `E8004` 失败。
-- 不要用 `abx create "一句话"` 做 provider 测试。使用 `abx --provider <id> create --template <镜像或名称>`。
+- 不要用 `abx template init --prompt "一句话"` 做 provider 测试。使用 `abx --provider <id> deploy --name my-sandbox --template-id <镜像或名称>`。
 - 只销毁这次运行创建的沙箱。
 
 ## Pull request 要带上什么

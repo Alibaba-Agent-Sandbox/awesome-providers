@@ -11,7 +11,7 @@
 ```bash
 export ABX_E2B_API_KEY=REPLACE_ME
 abx provider install alibaba-agent-sandbox/awesome-providers//e2b --allow-unpinned --yes   # 或 Python：python -m agent_sandbox.providers install registry:e2b --yes
-abx --provider e2b create --template base
+abx --provider e2b deploy --name my-sandbox --template-id base
 ```
 
 ```python
@@ -125,15 +125,15 @@ Unit tests use a local fake API. A live create needs `ABX_E2B_API_KEY`. This env
 
 ## 自动准备项目（Beta） / Automatic project preparation (Beta)
 
-使用包含 `template launch` 和 `kit.project` 的 CLI 源码版，安装或更新本插件后运行：
+使用包含 `deploy SOURCE --name APP` 和 `kit.project` 的 CLI 源码版，安装或更新本插件后运行：
 
 ```sh
-abx --provider e2b template launch alibaba-agent-sandbox/awesome-templates//python-hello --yes
+abx --provider e2b deploy alibaba-agent-sandbox/awesome-templates//python-hello --name my-app --yes
 ```
 
 提供方现在声明 `templates.build`，用于 node/1 管理器的 `prepareProject`。CLI 自动把适配器返回的 ID、名称或镜像传给创建，启动服务并验证就绪；缺少模板声明的运行时能力时，在构建前拒绝。正常沙箱行为不变。
 
-Use a CLI source build containing `template launch` and `kit.project`. The node/1 `prepareProject` manager is guarded by `templates.build`. The exact returned native reference is handed to sandbox creation. Missing runtime capabilities fail before build. Normal sandbox operations remain unchanged.
+Use a CLI source build containing `deploy SOURCE --name APP` and `kit.project`. The node/1 `prepareProject` manager is guarded by `templates.build`. The exact returned native reference is handed to sandbox creation. Missing runtime capabilities fail before build. Normal sandbox operations remain unchanged.
 
 配置独立的 `ABX_E2B_API_KEY`，Node 22+ 与可选官方 SDK。显式选择源码中经审查的构建方案，基础镜像须提供所需原生运行时；不会改写 FROM 占位符。无需本机 Docker/仓库：适配器在临时副本上解析 Dockerfile，调用固定版本官方 SDK 构建并等待就绪，返回真实模板 ID。
 

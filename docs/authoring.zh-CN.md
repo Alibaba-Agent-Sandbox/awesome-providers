@@ -6,12 +6,12 @@ Provider 是可安装的沙箱后端。本仓库里一个目录就是一个 prov
 
 后端是真实 HTTP 服务时，复制 [opensandbox/](../opensandbox/)。想要最小的 exec 插件时，复制 Python SDK 里的 `examples/providers/local-process/`。
 
-## `abx create` 如何调用到你的插件
+## `abx deploy --template-id` 如何调用到你的插件
 
 CLI 按所选 provider 加载安装目录，再调用该后端。`node` 插件由 CLI 宿主导入，`exec` 插件以 EPP/1 进程运行，`rest` 插件由宿主发送 HTTP 请求。内置 `alicloud-express` 使用自己的实现，其他 provider 不接收它的凭据。
 
 ```bash
-abx --provider my-cloud create --template base
+abx --provider my-cloud deploy --name my-sandbox --template-id base
 ```
 
 Python 使用公开入口 `from agent_sandbox import ProviderSandbox`，调用 `await ProviderSandbox.create(template="base", provider="my-cloud")`。其中 `node` 经本机 CLI 引擎 `abx provider engine serve`，需要 `abx` 在 `PATH` 或设置 `ABX_BIN`；`exec` 直接启动插件进程，`rest` 直接发送 HTTP 请求。独立 Node.js SDK 是应用 HTTP 客户端，不加载 provider。
@@ -53,8 +53,8 @@ my-cloud/
 abx provider install ./my-cloud --link --yes
 abx provider doctor my-cloud
 abx provider test my-cloud
-abx --provider my-cloud create --template base
-abx exec my-cloud:<id> "echo hello"
+abx --provider my-cloud deploy --name my-sandbox --template-id base
+abx sandbox exec my-cloud:<id> "echo hello"
 ```
 
 `--link` 是开发用的符号链接，跳过摘要校验，并且每次使用都会在 stderr 警告。正式安装会复制文件，并在每次启动时校验摘要。

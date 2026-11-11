@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Align current provider guides with the unified CLI deployment and provider operation commands; preserve plugin APIs and historical verification. / 当前指南统一部署与 Provider 操作入口，保留插件 API 和历史验收。
+
 - Clarify Python provider runtime requirements, standalone-binary quick installation, OpenSandbox credential setup, and the performance costs of the reused local engine in English and Chinese.
 
 - Document default and portable source launch separately from native interpreter support, and link exact OpenSandbox direct/proxy and public template-matrix evidence.

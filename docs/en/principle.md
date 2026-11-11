@@ -1,6 +1,6 @@
 # How a provider works
 
-A provider is a sandbox backend. `ProviderSandbox.create` (or `abx create`) picks one, then that provider builds the control plane and the data plane. The SDK and the CLI compile in only `alicloud-express` (Alibaba Cloud Express Edition). Everything else lives in this catalog and is loaded after install.
+A provider is a sandbox backend. `ProviderSandbox.create` (or `abx deploy --template-id`) picks one, then that provider builds the control plane and the data plane. The SDK and the CLI compile in only `alicloud-express` (Alibaba Cloud Express Edition). Everything else lives in this catalog and is loaded after install.
 
 The provider layer is written once, in Node.js, and hosted by the TypeScript CLI. The CLI uses it directly. Python ProviderSandbox reaches catalog providers through the local engine (`abx provider engine serve`, HTTP + SSE + WebSocket on `127.0.0.1`). Each language bridge must implement its declared operations. The Node.js server HTTP client is a separate interface and does not manage cloud providers. The host, the four kinds, and the engine are specified in [Node provider architecture](https://github.com/Alibaba-Agent-Sandbox/agent-sandbox/blob/main/docs/en/design/node-provider-architecture.md).
 
@@ -14,7 +14,7 @@ The provider layer is written once, in Node.js, and hosted by the TypeScript CLI
 | `e2b` | `awesome-providers/e2b` | `node` |
 | `alicloud-container` | `awesome-providers/alicloud-container` | `node` |
 
-Install with `abx provider install alibaba-agent-sandbox/awesome-providers//<id>` (CLI, git tree) or `python -m agent_sandbox.providers install registry:<id> --yes` (Python, needs the published index). Both write the same `~/.abx/providers/<id>` tree, and both hosts run the same code afterwards. The Python SDK calls a catalog provider as `ProviderSandbox.create(provider="…")`; the CLI as `abx --provider <id> create`.
+Install with `abx provider install alibaba-agent-sandbox/awesome-providers//<id>` (CLI, git tree) or `python -m agent_sandbox.providers install registry:<id> --yes` (Python, needs the published index). Both write the same `~/.abx/providers/<id>` tree, and both hosts run the same code afterwards. The Python SDK calls a catalog provider as `ProviderSandbox.create(provider="…")`; the CLI as `abx --provider <id> deploy --template-id TEMPLATE --name APP`.
 
 `alicloud-express` is reserved and cannot be installed as a plugin. `opensandbox`, `cubesandbox`, `e2b`, and `alicloud-container` are official catalog ids: they can be installed, and they cannot be registered again as a different plugin.
 
@@ -26,7 +26,7 @@ Highest priority first:
 2. Process environment `ABX_PROVIDER`
 3. `./.env`
 4. `~/.abx/.env`
-5. `[core] provider` in `~/.abx/config.toml` (written by `abx provider default`)
+5. `[core] provider` in `~/.abx/config.toml` (written by `abx config set provider`)
 6. `alicloud-express`
 
 A sandbox id belongs to the provider that created it. `connect` accepts a qualified reference such as `my-cloud:sbx-1`; the prefix is the provider. A prefix that disagrees with `provider=` is `ProviderMismatchError` (E8030).
