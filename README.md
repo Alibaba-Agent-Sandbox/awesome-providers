@@ -8,7 +8,7 @@ Alibaba Cloud Express (`alicloud-express`) is built in to the CLI. Install a plu
 
 [Browse providers](https://registry.agent-sandbox.cn/en/providers/) · [Installation guide](docs/en/install.md) · [Provider authoring](docs/authoring.md)
 
-> **Preview release:** Agent Sandbox is currently in preview and may introduce breaking changes. The stable **1.0.0** release is expected on **November 15, 2026**. Stay tuned!
+> **Preview release:** Agent Sandbox is currently in preview and may introduce breaking changes.
 
 ## Providers
 

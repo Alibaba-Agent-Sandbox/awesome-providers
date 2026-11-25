@@ -8,7 +8,7 @@ CLI 已内置阿里云极速版（`alicloud-express`），使用其他后端时�
 
 [浏览提供方](https://registry.agent-sandbox.cn/providers/) · [安装指南](docs/zh/install.md) · [编写提供方](docs/authoring.zh-CN.md)
 
-> **预览版说明：** Agent Sandbox 目前处于预览阶段，可能会有不兼容变更。预计于 **2026 年 11 月 15 日**发布 **1.0.0 正式版**，敬请期待！
+> **预览版说明：** Agent Sandbox 目前处于预览阶段，可能会有不兼容变更。
 
 ## 提供方
 
