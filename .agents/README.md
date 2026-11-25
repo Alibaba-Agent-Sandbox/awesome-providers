@@ -128,3 +128,5 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [Community QR replacement](notes/proposed/process/2026-11-10-refresh-community-qr.md) · [verification](evidence/verify/2026-11-10-refresh-community-qr.md).
 
 - [Canonical CLI documentation mainline merge](evidence/verify/2026-11-10-simplification-main-merge.md).
+
+- [Confirmed documentation feedback](notes/proposed/process/2026-11-25-confirmed-documentation-feedback.md) · [verification](evidence/verify/2026-11-25-confirmed-documentation-feedback.md).
