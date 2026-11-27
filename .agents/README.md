@@ -130,3 +130,5 @@ Cross-repository references use absolute GitHub URLs. Include records in the own
 - [Canonical CLI documentation mainline merge](evidence/verify/2026-11-10-simplification-main-merge.md).
 
 - [Confirmed documentation feedback](notes/proposed/process/2026-11-25-confirmed-documentation-feedback.md) · [verification](evidence/verify/2026-11-25-confirmed-documentation-feedback.md).
+
+- [Unified design implementation plan](notes/proposed/architecture/2026-11-27-unified-design-plan.md) · [planning review and verification](evidence/verify/2026-11-27-unified-design-plan.md). Implementation and release acceptance remain pending.
